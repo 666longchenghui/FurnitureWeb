@@ -18,12 +18,12 @@ namespace BLL.InHostory
         /// <param name="index"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public Dictionary<string, object> EditGoodsPage(string index, string size,string like)
+        public Dictionary<string, object> EditGoodsPage(string index, string size,string product)
         {
             string AddSQl = "";
-            if (like.Trim()!="")
+            if (product.Trim()!="")
             {
-                AddSQl = " and Mname like '%" + like + "%'";
+                AddSQl = " and Mname like '%" + product + "%'";
             }
             string PageSQL = @"SELECT TOP " + size + " m.Mid,Mname,UnitName,Mnumber,m.Unitid,DataText,Msellingprice,ISNULL(InvertorySum,0) as InvertorySum,Mnote,MCreateDate FROM Merchandise m inner join Unit u on m.Unitid=u.Unitid inner join Dictionary d on m.DictionaryID=d.DictionaryID  left join Inventory i on m.Mid=i.Mid  WHERE MDelete=0 "+AddSQl+" and(m.Mid NOT IN(SELECT TOP (" + size + "*(" + index + "-1)) Mid FROM Merchandise ORDER BY Mid))ORDER BY m.Mid";
             string CountSQL = @"select count(*) from Merchandise where MDelete=0 "+AddSQl+"";
@@ -63,8 +63,10 @@ namespace BLL.InHostory
         /// <returns></returns>
         public string GetByGoodsid(string id)
         {
+
             string SelIdSQL = @"select ROW_NUMBER() OVER(ORDER BY m.mid) AS ROWINDEX,Mnumber, Mname,Msellingprice,m.Mid, u.Unitid,DataText,UnitName,ISNULL(InvertorySum, 0) as InvertorySum,d.DictionaryID from Merchandise m left join Unit u on m.Unitid = u.Unitid left join Dictionary d on m.DictionaryID = d.DictionaryID
-                             left join Inventory i on m.Mid = i.Mid where MDelete = 0 and m.Mid=" + id + "";
+                             left join Inventory i on m.Mid = i.Mid where MDelete = 0 and m.Mid in(" + id + ")";
+
             string Resurt = Common.CommonClass.DataTableToJson(com.Selcets(SelIdSQL));
             return Resurt;
         }

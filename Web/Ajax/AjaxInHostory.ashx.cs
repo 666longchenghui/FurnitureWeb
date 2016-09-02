@@ -60,7 +60,7 @@ namespace Web.Ajax
                     res.Write(Hostory.Delete(InHoustory));
                     break;
                 case "GetInHostoryDetail":
-                    res.Write(Common.CommonClass.ToJosn(Hostory.GetInHostoryDetail(req.Params["InHostoryId"])));
+                        res.Write(Common.CommonClass.ToJosn(Hostory.GetInHostoryDetail(req.Params["InHostoryId"])));
                     break;
                 case "StoreManager":
                     string Sindex = req.Params["index"];

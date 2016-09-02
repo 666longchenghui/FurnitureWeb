@@ -112,8 +112,7 @@ function SaveHostory(_that) {
             }
         });
     }
-    $('#lookmid').on('afterchange.bjui.lookup', function (e, data) {
-        console.log(data);
+    $('#lookmid').on('afterchange.bjui.lookup', function (e, data) {       
         var myvalue = data.value;         
         $.ajax({
             url: "/Ajax/AjaxInHostory.ashx?action=GetGoodsId",
@@ -121,17 +120,19 @@ function SaveHostory(_that) {
             type:"post",
             success: function (msg) {
                 var json = JSON.parse(msg);
-                var data = JSON.parse(json)[""][0];
+                var data = JSON.parse(json)[""];         
                 totalprice = data["Msellingprice"];
                 var html = [];
-                html.push("<tr>");
-                html.push("<td style='display:none;' class='aa'>" + data["Mid"] + "</td>")
-                html.push("<td >" + data["Mname"] + "</td><td name='InHostory.goods_name'>" + data["DataText"] + "</td><td>" + data["Mnumber"] + "</td>")
-                // html.push('<td><li style="width:125px;"><div class="num"><a href="#" class="sub">-</a><div class="amount"><span class="value">1</span></div><a href="#" class="add">+</a></div></li></td>')
-                html.push('<td><input type="text" value="1" size="3" data-toggle="spinner" class="sum" data-rule="number" price="' + data["Msellingprice"] + '" onkeyup="setTotal(this)"></td>')
-                html.push("<td>" + data["UnitName"] + "</td>")             
-                html.push("<td><lable id='Price" + data["Mid"] + "' class='totalprice'>" + data["Msellingprice"] + "</td>" + "</lable></td><td><textarea name='' data-toggle='autoheight' rows='1'></textarea></td>");
-                html.push("</tr>")
+                $.each(data, function (k, v) {
+                    html.push("<tr>");
+                    html.push("<td>" + v["ROWINDEX"] + "</td><td style='display:none;' class='aa'>" + v["Mid"] + "</td>")
+                    html.push("<td >" + v["Mname"] + "</td><td name='InHostory.goods_name'>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>")
+                    // html.push('<td><li style="width:125px;"><div class="num"><a href="#" class="sub">-</a><div class="amount"><span class="value">1</span></div><a href="#" class="add">+</a></div></li></td>')
+                    html.push('<td><input type="text" value="1" size="3" data-toggle="spinner" class="sum" data-rule="number" price="' + v["Msellingprice"] + '" onkeyup="setTotal(this)"></td>')
+                    html.push("<td>" + v["UnitName"] + "</td>")
+                    html.push("<td><lable id='Price" + v["Mid"] + "' class='totalprice'>" + v["Msellingprice"] + "</td>" + "</lable></td><td><textarea name='' data-toggle='autoheight' rows='1'></textarea></td>");
+                    html.push("</tr>")
+                });             
                 $("#tabledit1 tbody").append(html.join(''));            
             }
         });   
@@ -164,11 +165,7 @@ $("#Save_InHoustory").click(function () {
             var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
             if (isNaN(history_sum)) {
                 $(this).alertmsg('warn', '请输入数字');          
-            }
-            if (history_sum=="" || history_money=="") {
-                $(this).alertmsg('warn', '请添加商品');
-                return;
-         }
+            }  
          GoodsInfo = {
              "history_id": history_id,
              "history_sum": history_sum,
@@ -176,7 +173,11 @@ $("#Save_InHoustory").click(function () {
              "history_note": history_note,
          }
           array.push(GoodsInfo);
-        });
+        });  
+        if (array == "") {
+            $(this).alertmsg('warn', '请添加商品');
+            return;
+        }      
         $.ajax({
             url: "/Ajax/AjaxInHostory.ashx?action=AddInHostory",
             type: "post",
@@ -187,8 +188,7 @@ $("#Save_InHoustory").click(function () {
             success: function (msg) {
                 var json = JSON.parse(msg);             
                 if (json["statusCode"] == "200") {
-                    $(this).alertmsg("ok", "操作成功", true);
-                    //  $("body").closeCurrent();// dialog_InHostory
+                    $(this).alertmsg("ok", "操作成功", true);     
                     $("#btnAddinhostoryClose").trigger("click");
                 }
                 if (json["statusCode"]=="400") {
@@ -197,7 +197,7 @@ $("#Save_InHoustory").click(function () {
                 }
             }
         });
-});
+        });
 </script>
 <div class="bjui-pageHeader" id="div_header">
    <div id="divv"></div>
@@ -220,7 +220,7 @@ $("#Save_InHoustory").click(function () {
         <table id="tabledit1" class="table table-bordered table-hover table-striped table-top" data-toggle="tabledit" data-initnum="0" data-action="" data-single-noindex="true">
             <thead>
                 <tr data-idname="customList[#index#].id">
-                    <!--<th title="No."><input type="text" name="InHostory.no" class="no" data-rule="required" value="" size="2"></th>-->
+                    <th title="No."><input type="text" name="InHostory.no" class="no" data-rule="required" value="" size="2"></th>
                     <th title="商品名称"><input type="text" name="InHostory.goods_name" data-rule="required" value="" size="5"></th>
                     <th title="商品型号"><input type="text" name="InHostory.goods_model" data-rule="required" value="" size="5"></th>
                     <th title="商品编号"><input type="text" name="InHostory.supplier_name" data-rule="required" value="" size="5"></th>
