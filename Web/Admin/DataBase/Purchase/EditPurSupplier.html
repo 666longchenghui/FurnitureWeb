@@ -1,0 +1,169 @@
+﻿
+<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript"> 
+    var SupplierPageIndex = 1;
+    var SupplierPageSize = 4;
+    var SupplierPageMax;
+
+    //清空查询文本
+    function Clear() {
+        $("#LikeName").val("");
+    }
+    function SuPage(){
+        var SupplierName = $("#LikeName").val();
+        $.ajax({
+
+            url: "/Ajax/AjaxPurchase.ashx?action=GetPurSupplier",
+            type: "post",
+            data: {
+                "SupplierName": SupplierName,
+                "SupplierPageIndex": SupplierPageIndex,
+                "SupplierPageSize": SupplierPageSize
+            },
+            success: function (msg) {
+           
+                var json = JSON.parse(msg);
+                var data = json["DataSql"];
+                data = JSON.parse(data);
+                var Obj = data[""];
+                var Count = json["DataCount"];
+                Count = JSON.parse(Count);
+                var  SupplierTotal = Count[""][0]["Column1"];//总记录数
+                SupplierPageMax = Math.ceil( SupplierTotal / SupplierPageSize);//采用向上取整，求出最大页
+                var html = [];
+                $.each(Obj, function (k, v) {
+           
+                    html.push("<tr><td>" + v["SupplierNumber"] + "</td><td>" + v["SCompanyName"] + "</td><td>" + v["SPhone"] + "</td>");
+                    //html.push("<td><input type='checkbox' name='ids' data-toggle='icheck' value='{pids:'" + v["SId"] + "', Supplier:'" + v["SCompanyName"] + "'}</td>")
+                    html.push("<td><a href='javascript:;'data-toggle='lookupback' data-args=\"{pids:'" + v["SId"] + "', Supplier:'" + v["SCompanyName"] + "'}\" class='btn btn-blue' title='选择本项' data-icon='check'>选择</a></td>")
+                    html.push("</tr>");
+                });
+     
+                $("#Supplier tbody").empty().append(html.join(''));
+                $("#Total").html(SupplierTotal);//显示记录数
+                PageNum(SupplierPageMax, SupplierPageIndex);
+                $("#count").html(TotalCount);
+                $("#PurPage").empty().append(htmls.join(''));
+
+
+                //如果当前页等于1，让首页、上一页不可点击
+                if (SupplierPageIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (SupplierPageIndex == SupplierPageMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+
+
+
+            }
+        });
+    }
+    $(function () {
+        SuPage();
+        //点击页码跳转
+        $(".j-sum").live("click", function () {
+            var PageNumValue = $(this).text();
+
+            SupplierPageIndex = PageNumValue;
+            SuPage();
+        
+        });
+     
+    });
+    //下一页
+    function next() {
+        if (SupplierPageIndex < SupplierPageMax) {
+            SupplierPageIndex++;
+            SuPage();
+        }
+    }
+    //上一页
+    function prev() {
+        if (SupplierPageIndex > 1) {
+            SupplierPageIndex--;
+            SuPage();
+        }
+    }
+    //首页
+    function first() {
+        SupplierPageIndex = 1;
+        SuPage();
+    }
+    //尾页
+    function last() {
+        SupplierPageIndex = SupplierPageMax;
+        SuPage();
+    }
+    //输入值跳转
+    function Jump() {
+        var goto = $("#go").val();
+        if (goto > SupplierPageMax) {
+            $(this).alertmsg('warn', '你输入的数字超过页面范围');
+            return;
+        }
+        if (isNaN(Number(goto)) || goto == "") {
+            $(this).alertmsg('warn', '输入的字符无效或为空');
+            return;
+        }
+        if (goto < 1) {
+            $(this).alertmsg('warn', '请输入大于1的数字');
+            return;
+        }
+        SupplierPageIndex = goto;
+        SuPage();
+
+    }
+</script>
+<div class="bjui-pageHeader">
+    <!--<form id="pagerForm" data-toggle="ajaxsearch" action="#" method="post">-->
+        <input type="hidden" name="pageCurrent" value="1">
+        <input type="hidden" name="pageSize" value="${model.pageSize}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <div class="bjui-searchBar">
+            <label>供应商：</label><input type="text" value="" name="code" size="10" id="LikeName">&nbsp;
+            <button type="submit" class="btn-default" data-icon="search" onclick="SuPage()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="Clear()">清空查询</a></li>
+            <div class="pull-right">
+                <button type="button" class="btn-blue" data-toggle="lookupback" data-lookupid="ids" data-warn="请至少选择一项职业" data-icon="check-square-o">选择选中</button>
+            </div>
+        </div>
+    <!--</form>-->
+</div>
+<div class="bjui-pageContent tableContent" id="Supplier">
+    <table data-toggle="tablefixed" data-width="100%">
+        <thead>
+            <tr>
+                <th data-order-field="id">供应商编号</th>
+                <th data-order-field="name">供应商</th>
+                <th data-order-field="adress">联系电话</th>
+                <!--<th data-order-field="note">仓库状态</th>
+                <th class="orderby" data-order-direction="asc" data-order-field="date">创建日期</th>-->
+          
+                <th width="74">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <!--<span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>-->
+        <span>共 <span id="Total"></span> 条</span>
+    </div>
+    <div class="pagination-box"  data-total="7" data-page-size="30" data-page-current="1" id="PurPage">
+    </div>
+</div>

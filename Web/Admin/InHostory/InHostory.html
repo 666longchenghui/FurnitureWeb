@@ -1,0 +1,150 @@
+﻿<script type="text/javascript">
+    function AddInGoods(_this) {
+        $(_this).dialog({ url: '/Admin/InHostory/AddInHostory.html', title: "新增进货单", id: 'dialog_InHostory', toggle: 'dialog',width:800,height:600 });
+    }
+    var index = 1;
+    var size = 15;
+    var max;//最大页
+    var totalsum//总数
+
+    function InHostory() {
+        var CreateDate = $("#InHostory_CreateDate").val();//创建日期
+        var EndDate = $("#InHostory_EndDate").val();//结束日期
+        var OrderNumber = $("#InHostory_Number").val();//订单编号
+        var Distributor = $("#InHostory_Supplier").val();//供应商
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=InHostory",
+            type: "post",
+            data: {
+                "index": index,
+                "size": size,
+                "CreateDate": CreateDate,
+                "EndDate": EndDate,
+                "OrderNumber": OrderNumber,
+                "Distributor": Distributor    
+            },
+            success: function (msg) {
+               var json = JSON.parse(msg);
+               var obj = json["Page"];
+               var count = json["CountSum"];                
+               obj = JSON.parse(obj);
+               var data = obj[""];
+               var sum = JSON.parse(count);
+               totalsum = sum[""][0]["Column1"];//总记录数
+               max = Math.ceil(totalsum / size);//最大页
+               var html = [];
+               var SerialNumber=(index-1)*size;
+               $.each(data, function (k, v) {
+                   html.push("<tr>");
+                   html.push("<td>" + (++SerialNumber) + "</td><td>" + v["Number"] + "</td><td>" + v["OrderCreatetime"] + "</td><td>" + v["SCompanyName"] + "</td>");
+                   html.push("<td><a href='/Ajax/AjaxInHostory.ashx?action=DelInHoustory&Pid=" + v["Pid"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>");
+                   html.push("<a href='#' onclick='editInHoustory(this,\"" + v["Pid"] + "\")' class='btn btn-green' >明细</a></td>")
+                   html.push("</tr>");
+               });
+               $("#InHostorylist tbody").empty().append(html.join(''));
+               $("#InHoustory_sum").html(totalsum);
+               PageNum(max,index);
+               $("#InHostory_PageNumber").empty().append(htmls.join(''));
+               if (index==1) {
+                   $(".c-first").addClass("disabled");
+                   $(".c-prev").addClass("disabled");
+               }
+               if (index==max) {
+                   $(".c-next").addClass("disabled");
+                   $(".c-last").addClass("disabled");
+               }
+            }
+        });
+    }
+    $(function () {
+        InHostory();
+    });
+    var InHostoryId;
+    function editInHoustory(_that,id) {
+        InHostoryId = id;
+        $(_that).dialog({ id: 'InHoustoryDetail', onClose: "addInHoustory_close", url: '/Admin/InHostory/AddInHostory.html?id=' + id + '',title:'订单详情',width:800,height:600, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？' });
+    }
+    function addInHoustory_close($dialog) {
+        InHostoryId = undefined;
+    }
+    //下一页
+    function next() {
+        if (index<max) {
+            index++;
+            InHostory();
+        }   
+    }
+    //上一页
+    function prev() {
+        if (index>1) {
+            index--;
+            InHostory();
+        }
+    }
+    //首页
+    function first() {
+        index = 1;
+        InHostory();
+    }
+    //尾页
+    function last() {
+        index = max;
+        InHostory();
+    }
+    function Clear() {
+      $("#InHostory_CreateDate").val("");//创建日期
+      $("#InHostory_EndDate").val("");//结束日期
+      $("#InHostory_Number").val("");//订单编号
+      $("#InHostory_Supplier").val("");//供应商
+      InHostory();
+    }
+</script>
+<div class="bjui-pageHeader">
+    <form id="InHostoryForm" data-toggle="ajaxsearch"  method="post">
+        <div class="bjui-searchBar">                
+            <!--<input type="checkbox" id="j_table_chk" value="true" data-toggle="icheck" data-label="我的客户">
+            <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>-->
+          
+            <label>创建日期：</label><input type="text" name="custon.date" id="InHostory_CreateDate" data-toggle="datepicker" data-rule="required;date" size="11">
+            <label>至</label><input type="text" name="end.birthday" id="InHostory_EndDate" data-toggle="datepicker" data-rule="required;date" size="11">&nbsp;
+            <label>单据编号：</label><input type="text" value="" name="name" class="form-control" size="18" id="InHostory_Number">&nbsp;
+            <label>供应商名称：</label><input type="text" value="" name="supplier" class="form-control" size="18" id="InHostory_Supplier">&nbsp;
+            <button type="button" class="btn-default" data-icon="search" onclick="InHostory()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="Clear()">清空查询</a>
+            <div class="pull-right">
+                <button type="button" class="btn-blue" data-toggle="doajax" onclick='AddInGoods(this)' id="Btn_AddSupplier" data-icon="" title="新增进货单">新增进货单</button>&nbsp;
+            </div>
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="InHostorylist">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th data-order-field="name">单据编号</th>
+                <th data-order-field="operation" align="center">创建日期</th>
+                <th>供应商名称</th> 
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>       
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" >
+                <option value="15">15 </option>
+                <option value="30">30 </option>
+                <option value="50">50 </option>
+                <option value="100"> 100</option></select>
+        </div>
+        <span>&nbsp;条，共 <span id="InHoustory_sum"></span> 条</span>
+    </div>
+    <div class="pagination-box" data-total="600" data-page-size="30" data-page-current="1" id="InHostory_PageNumber">
+    </div>
+</div>
+<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>

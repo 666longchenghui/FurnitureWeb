@@ -1,0 +1,145 @@
+﻿<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
+<script type="text/javascript">
+//function pic_upload_success(file, data) {
+//    var json = $.parseJSON(data)
+
+//    $(this).bjuiajax('ajaxDone', json)
+//    if (json[BJUI.keys.statusCode] == BJUI.statusCode.ok) {
+//        $('#j_custom_pic').val(json.filename).trigger('validate')
+//        $('#j_custom_span_pic').html('<img src="'+ json.filename +'" width="100" />')
+//    }
+//}
+//function do_OK(json, $form) {
+//    console.log(json)
+//    console.log($form)
+//}
+////护照有效日期  = 签发日期 + 10年
+//$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
+//    var pattern = 'yyyy-MM-dd'
+//    var start   = end = data.value
+
+//    end.setFullYear(start.getFullYear() + 10)
+//    end.setDate(start.getDate() - 1)
+
+//    $('#j_custom_indate').val(end.formatDate(pattern))
+//})
+
+//$(function () {
+//    OnloadSelect();
+//    $.ajax({
+//        url: "/Ajax/AjaxUser.ashx?action=SelPersonnerl",
+//        type: "post",
+//        data: { "UId": Usersid },
+//        success: function (msg) {
+//            var json = JSON.parse(msg);
+//            var data= json[""][0];
+    
+//            $("#U_LoginName").val(data.LoginName);
+//            $("#U_UserPWD").val(data.Upwd);
+//            $("#U_UserName").val(data.UserName);
+//            $("#U_Email").val(data.UEmail);
+//            $("#U_Phone").val(data.UPhone);
+//            $("#Depart option[value=" + data.UDepartId + "]").attr("selected", true);
+//            $("#Depart").selectpicker("refresh");
+//            $("#U_note").val(data.UNote);
+//        }
+//    });
+//});
+
+
+//$("#SavePersonnerl").on("click", function () {
+
+//    var ULoginName = $("#U_LoginName").val();
+//    var UPwd = $("#U_UserPWD").val();
+//    var UUserName = $("#U_UserName").val();
+//    var UEmail = $("#U_Email").val();
+//    var UPhone = $("#U_Phone").val();
+//    var UDate = $("#U_Date").val();
+//    var UDepart = $("#Depart").find("option:selected").val();//获取选中的值
+//    var UNote = $("#U_note").val();
+//    $.ajax({
+//             url: "/Ajax/AjaxUser.ashx?action=SavePersonnerl",
+//            type:"post",
+//            data: {
+//                "Uid":Usersid,
+//                //"ULoginName": ULoginName,
+//                //"UPwd": UPwd,
+//                "UUserName": UUserName,
+//                "UEmail": UEmail,
+//                "UPhone": UPhone,
+//                "UDate": UDate,
+//                "UDepart": UDepart,
+//                "UNote": UNote,
+//            },
+//            success: function (msg) {           
+//                var json = JSON.parse(msg);
+//                if (json["statusCode"]==200) {
+//                    $(this).alertmsg('ok', '修改成功');
+//                }
+//            }
+//    });
+
+//})
+</script>
+<div class="bjui-pageHeader">
+
+
+
+</div>
+<div class="bjui-pageContent">
+    <form action="" id="Personnerllist" data-toggle="validate">
+    
+        <input type="hidden" name="custom.id" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">登录名：</label>
+                        <input type="text" name="custom.loginname" id="U_LoginName" value="" data-rule="required" size="12" readonly>
+
+                    </td>
+
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">登录密码：</label>
+                        <input type="password" name="custom.pwd" id="U_UserPWD" value="" data-rule="required" readonly size="12">
+                    </td>
+
+                </tr>
+                <tr>
+
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">用户名：</label>
+                        <input type="text" name="custom.username" id="U_UserName" value="" data-rule="required" size="12">
+                    </td>
+                    <td>
+                        <label for="j_custom_mobile" class="control-label x85">邮箱：</label>
+                        <input type="text" name="custom.email" id="U_Email" value="" data-rule="required:email" size="12">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_mobile" class="control-label x85">手机：</label>
+                        <input type="text" name="custom.mobile" id="U_Phone" value="" data-rule="required;mobile" size="12">
+                        <input type="hidden" name="" id="U_Date" value="" data-rule="" size="12"><!--隐藏修改日期-->
+                    </td>
+                    <td>
+                        <label for="j_custom_sale" class="control-label x85">所属部门：</label>
+                        <select name="custom.depart" id="Depart" data-toggle="selectpicker" data-rule="required" data-width="120"></select>                      
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <label for="j_custom_note" class="control-label x85">备注：</label>
+                        <textarea name="cusnote.note" id="U_note" data-toggle="autoheight" cols="50" rows="10"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" id ="SavePersonnerl"data-icon="save">保存</button></li>
+    </ul>
+</div>

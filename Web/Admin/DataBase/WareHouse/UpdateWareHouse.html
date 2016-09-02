@@ -1,0 +1,170 @@
+﻿<script type="text/javascript">
+function pic_upload_success(file, data) {
+    var json = $.parseJSON(data)
+    $(this).bjuiajax('ajaxDone', json)
+    if (json[BJUI.keys.statusCode] == BJUI.statusCode.ok) {
+        $('#j_custom_pic').val(json.filename).trigger('validate')
+        $('#j_custom_span_pic').html('<img src="'+ json.filename +'" width="100" />')
+    }
+}
+function do_OK(json, $form) {
+    console.log(json)
+    console.log($form)
+}
+//护照有效日期  = 签发日期 + 10年
+$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
+    var pattern = 'yyyy-MM-dd'
+    var start   = end = data.value
+
+    end.setFullYear(start.getFullYear() + 10)
+    end.setDate(start.getDate() - 1)
+
+    $('#j_custom_indate').val(end.formatDate(pattern))
+})
+var SelectName = "";
+var SelectStatus = "";
+$(function () {
+    //$.ajax({
+    //    url: "../../Ajax/AjaxWareHouse.ashx?action=GetDepot",
+    //    type: "post",
+    //    data: {},
+    //    async: false,
+    //    success: function (msg) {
+    //        var json = JSON.parse(msg);
+    //        var data = json[""];
+   
+    //        SelectStatus += "<option value='pleaseselect'>请选择</option>"
+    //        $.each(data, function (k, v) {
+    //            var Sel = "";
+    //            if (v["DepotStatus"]==0) {
+    //                Sel += "正常";
+    //            }
+    //            if (v["DepotStatus"]==1) {
+    //                Sel += "已满";
+    //            }
+    //            SelectStatus += "<option value=" + v["WHid"] + ">" + Sel + "</option>"
+    //        });
+    //        $("#Status").empty();
+    //        $("#Status").append(SelectStatus);
+    //        //更新内容刷新到相应的位置
+    //        $('#Status').selectpicker('render');
+    //        $('#Status').selectpicker('refresh');
+    //    }
+    //});
+        //$.ajax({
+        //    url: "../../Ajax/AjaxWareHouse.ashx?action=GetDepotName",
+        //    type: "post",
+        //    data: {},
+        //    async: false,
+        //    success: function (msg) {
+        //        var json = JSON.parse(msg);
+        //        var data = json[""];
+        //        SelectName+="<option value='pleaseselect'>请选择</option>"
+        //        $.each(data, function (k, v) {
+                    
+        //            SelectName += "<option value=" + v["Wid"] + ">" + v["DepotName"] + "</option>"
+        //        });
+        //        $("#name").empty();
+        //        $("#name").append(SelectName);
+        //        //更新内容刷新到相应的位置
+        //        $('#name').selectpicker('render');
+        //        $('#name').selectpicker('refresh');
+        //    }
+        //});
+        $.ajax({
+            url: "../../Ajax/AjaxWareHouse.ashx?action=EditWareHouese",
+            type: "post",
+            data: { id: WareHouseid },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json[""][0];
+                $("#S_Name").val(data.WareName);
+                console.log(data);
+                //$("#name option[value=" + data.Wid + "]").attr("selected", true);
+                //$('#name').selectpicker('refresh');
+                ////显示状态
+                //$("#Status option[value=" + data.WHid + "]").attr("selected", true);
+                //$('#Status').selectpicker('refresh');
+          
+                $("#S_Contacts").val(data.WHContacts);
+                $("#S_Phone").val(data.WHPhone); 
+                $("#S_Address").val(data.WareHouseAddress);
+                $("#S_Note").val(data.WNote);
+            }
+        });
+        $("#Btn_Save").click(function () {    
+            var SName = $("#S_Name").val();
+            var SContacts = $("#S_Contacts").val();
+            //var SDate = $("#S_date").val();
+            var SPhone = $("#S_Phone").val();
+            var SAddress = $("#S_Address").val();
+            var SNote = $("#S_Note").val();
+           
+            $.ajax({
+                url: "../../Ajax/AjaxWareHouse.ashx?action=SaveWareHouse",
+                type: "post",
+                data: {
+                    "id": WareHouseid,
+                    "SName": SName,
+                    "SContacts": SContacts,      
+                    "SPhone": SPhone,
+                    "SAddress": SAddress,
+                    "SNote": SNote
+                },
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    if (json["statusCode"]==200) {
+                        $(this).alertmsg('ok', '修改成功');
+                    }
+                }
+            })
+        });
+});
+
+</script>
+<div class="bjui-pageContent">
+    <form id="WareHouse"  data-alertmsg="false">
+        <input type="hidden" name="custom.id" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">仓库名称：</label>
+                        <input type="text" name="WareHouse.lname" id="S_Name" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">仓管：</label>
+                        <input type="text" name="WareHouse.lname" id="S_Contacts" value="" data-rule="required" size="15">
+                    </td>
+        
+                </tr>
+                <tr>
+
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">联系号码：</label>
+                        <input type="text" name="WareHouse.lname" id="S_Phone" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">地区：</label>
+                        <input type="text" name="WareHouse.lname" id="S_Address" value="" data-rule="required" size="15">
+                    </td>
+                </tr>
+                <tr>
+
+                    <td colspan="3">
+                        <label for="j_custom_lname" class="control-label x85">备注：</label>
+                        <textarea name="cusnote" id="S_Note" data-toggle="autoheight" cols="60" rows="12"></textarea>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save" id="Btn_Save">保存</button></li>
+    </ul>
+</div>

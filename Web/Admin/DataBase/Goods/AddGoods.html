@@ -1,0 +1,243 @@
+﻿<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
+<script type="text/javascript">
+function pic_upload_success(file, data) {
+    var json = $.parseJSON(data)
+
+    $(this).bjuiajax('ajaxDone', json)
+    if (json[BJUI.keys.statusCode] == BJUI.statusCode.ok) {
+        $('#j_custom_pic').val(json.filename).trigger('validate')
+        $('#j_custom_span_pic').html('<img src="'+ json.filename +'" width="100" />')
+    }
+}
+function do_OK(json, $form) {
+    console.log(json)
+    console.log($form)
+}
+//护照有效日期  = 签发日期 + 10年
+$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
+    var pattern = 'yyyy-MM-dd'
+    var start   = end = data.value
+
+    end.setFullYear(start.getFullYear() + 10)
+    end.setDate(start.getDate() - 1)
+
+    $('#j_custom_indate').val(end.formatDate(pattern))
+})
+
+function addgoods(_that) {
+    if (Goodsid) {
+        $("#frm_Goods").attr("action", "/Ajax/AjaxGoods.ashx?action=SaveGoodInfo&Gid=" + Goodsid);
+    }
+    //OnloadUnit();
+    //OnloadModel();
+    $("#frm_Goods").submit();
+}
+   
+$(function () {
+    var todayDate = new Date();
+    var year = todayDate.getFullYear();
+    var date = todayDate.getDate();
+    var month = todayDate.getMonth() + 1;
+
+    var ran = Math.round((Math.random()) * 10000);
+    var ControlNo="MG" + year + "" + month + "" + date + "" + ran + "";
+    $("#M_Number").val(ControlNo);
+
+    var UnitName = "";
+    $.ajax({
+        url: "/Ajax/AjaxGoods.ashx?action=GetUnitName",
+        data: "",
+        type: "post",
+        async: false,
+        success: function (msg) {
+            var json = JSON.parse(msg);
+            var Data = json[""];
+            UnitName += "<option >请选择</option>"
+            $.each(Data, function (k, v) {
+                UnitName += "<option value='" + v.Unitid + "'>" + v.UnitName + "</option>";
+            });
+            $("#M_Unit").empty();
+            $("#M_Unit").append(UnitName);
+            //更新内容刷新到相应的位置
+            $('#M_Unit').selectpicker('render');
+            $('#M_Unit').selectpicker('refresh');
+        }
+    });
+
+    var ModelName = "";
+    $.ajax({
+        url: "/Ajax/AjaxGoods.ashx?action=GetModelName",
+        data: "",
+        type: "post",
+        async: false,
+        success: function (msg) {
+           var json = JSON.parse(msg);         
+            var Data = json[""];
+            ModelName += "<option >请选择</option>"
+            $.each(Data, function (k, v) {
+                ModelName += "<option value='" + v.DictionaryID + "'>" + v.DataText + "</option>";
+            });
+            $("#M_specification").empty();
+            $("#M_specification").append(ModelName);
+            //更新内容刷新到相应的位置
+            $('#M_specification').selectpicker('render');
+            $('#M_specification').selectpicker('refresh');
+        }
+    });
+
+    if (typeof(Goodsid)!="undefind") {
+        $.ajax({
+            url: "/Ajax/AjaxGoods.ashx?action=SelGoodInfo",
+            data: { Gid: Goodsid },
+            type: "post",
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                console.log(json);
+                var data = json[""][0];
+                console.log(data);
+                $("#M_Number").val(data["Mnumber"]);
+                $("#M_Name").val(data["Mname"]);
+                //编辑时默认加载选中项
+          
+                $("#M_Unit option[value=" + data.Unitid + "]").attr("selected", true);
+                $('#M_Unit').selectpicker('refresh');
+                $("#M_specification option[value=" + data.DictionaryID + "]").attr("selected", true);
+                $("#M_specification").selectpicker('refresh')        
+                $("#M_saleprice").val(data["Msellingprice"]);
+                $("#M_note").val(data["Mnote"]);
+            }
+        });
+    }
+})
+
+function Add() {
+    document.getElementById('sum').value++;
+}
+    //保存并入库
+//$("#SaveStockIn").click(function () {
+//    var Number = $("#M_Number").val();
+//    var Name = $("#M_Name").val();
+//    var Unit = $("#M_Unit").find("option:selected").val();
+//    var specification = $("#M_specification").find("option:selected").val();
+//    var saleprice = $("#M_saleprice").val();
+//    var note = $("#M_note").val();
+//    var sum = $("#sum").val();
+//    $.ajax({
+//        url: "../../Ajax/AjaxGoods.ashx?action=SaveStockIn",
+//        type: "post",
+//        data: {
+//            "Number": Number,
+//            "Name": Name,
+//            "Unit": Unit,
+//            "specification": specification,
+//            "saleprice": saleprice,
+//            "note": note,
+//            "sum": sum,
+//        },
+//        success: function (msg) {
+
+//            var json = JSON.parse(msg)
+//            if (json["statusCode"] == 200) {
+//                $(this).alertmsg('ok', '商品添加成功并入库');
+//            }
+//        }
+//    })
+//});
+
+    //保存商品信息
+    //$("#SaveMerchandise").click(function () {
+    //    var Number = $("#M_Number").val();
+    //    var Name = $("#M_Name").val();
+    //    var Unit = $("#M_Unit").find("option:selected").val();
+    //    var specification = $("#M_specification").find("option:selected").val();
+    //    var saleprice = $("#M_saleprice").val();
+    //    var note = $("#M_note").val();
+
+    //    $.ajax({
+    //        url: "/Ajax/AjaxGoods.ashx?action=AddGoods",
+    //        type:"post",
+    //        data: {
+    //            "Number": Number,
+    //            "Name": Name,
+    //            "Unit": Unit,
+    //            "specification": specification,
+    //            "saleprice": saleprice,
+    //            "note": note,
+            
+    //        },
+    //        success: function (msg) {
+             
+    //            var json = JSON.parse(msg)
+    //            if (json["statusCode"] == 201) {
+    //                $(this).alertmsg('ok', '添加成功');
+    //            }
+               
+    //            else if (json["statusCode"] == 200) {
+    //                $(this).alertmsg('ok', '商品以存在');
+    //            }
+    //        }
+    //    })
+    //});
+
+</script>
+<div class="bjui-pageContent">
+    <form action="/Ajax/AjaxGoods.ashx?action=SaveStockIn" id="frm_Goods"  data-alertmsg="false"  class="nice-validator n-red" data-toggle="validate">
+        <input type="hidden" id="goodsid" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+               
+                <tr>
+                    <td>
+                        <label for="j_custom_name" class="control-label x85">编号：</label>
+                        <input type="text" name="custom.number" id="M_Number" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_fname" class="control-label x85">名称：</label>
+                        <input type="text" name="custom.name" id="M_Name" value="" data-rule="required" size="12">
+                    </td>
+                    <td>
+                        <label for="j_custom_fname" class="control-label x85">单位：</label>
+                        <select name="custom.unit" id="M_Unit" data-toggle="selectpicker" data-rule="required"  data-width="110">
+                        </select>
+                    </td>             
+                </tr>  
+                <tr>
+                    <td >
+                        <label for="j_custom_passportno" class="control-label x85">型号：</label>
+                        <select name="custom.model" id="M_specification" data-toggle="selectpicker" data-rule="required" data-width="110"></select>
+                    </td>
+                    <!--<td title="" data-addtool="true" width="">
+                        <span style="position:relative;">
+                            <label for="j_custom_birthday" class="control-label x85">采购数量：</label>
+                            <input type="text" value="1" class="form-control num-add" size="4" title="待添加的行数" id="sum">
+                            <a class="row-add" title="增加数量">
+                                <i class="fa fa-plus-square" id="btn" onclick="Add()"></i>
+                            </a>
+                        </span>
+                    </td>-->
+                    <!--<td >
+                        <label for="j_custom_passportno" class="control-label x85">价格：</label>
+                        <input type="text" name="custom.price" id="M_saleprice" value="" data-rule="required" size="12">
+                    </td>-->
+                    <td>
+                        <label for="j_custom_total" class="control-label x85">价格：</label>
+                        <input type="text" name="custom.price" id="M_saleprice" value="1" size="10" data-toggle="spinner" data-min="0" data-max="100" data-step="1" data-rule="integer">
+                    </td>
+                </tr>         
+                <tr>
+                    <td colspan="4">
+                        <label for="j_custom_note" class="control-label x85">备注：</label>
+                        <textarea name="custom.note" id="M_note" data-toggle="autoheight" cols="60" rows="10"></textarea>
+                    </td>
+                </tr>       
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save"  onclick="addgoods(this)">保存</button></li>
+        <!--<li><button type="submit" class="btn-blue" data-icon="save" id="SaveStockIn">保存入库</button></li>-->
+    </ul>
+</div>

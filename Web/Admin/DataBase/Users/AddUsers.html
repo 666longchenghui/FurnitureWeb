@@ -1,0 +1,178 @@
+﻿<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
+<script type="text/javascript">
+function pic_upload_success(file, data) {
+    var json = $.parseJSON(data)
+
+    $(this).bjuiajax('ajaxDone', json)
+    if (json[BJUI.keys.statusCode] == BJUI.statusCode.ok) {
+        $('#j_custom_pic').val(json.filename).trigger('validate')
+        $('#j_custom_span_pic').html('<img src="'+ json.filename +'" width="100" />')
+    }
+}
+ //重置密码
+function ResetPassword(_that) {
+  
+    $("#frm_Users").attr("action", "/Ajax/AjaxUser.ashx?action=ResetPassword&Uid=" + Usersid + "");
+    $("#frm_Users").submit();
+}
+function do_OK(json, $form) {
+    console.log(json)
+    console.log($form)
+}
+//护照有效日期  = 签发日期 + 10年
+$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
+    var pattern = 'yyyy-MM-dd'
+    var start   = end = data.value
+
+    end.setFullYear(start.getFullYear() + 10)
+    end.setDate(start.getDate() - 1)
+
+    $('#j_custom_indate').val(end.formatDate(pattern))
+})
+
+//$(function () {
+//    tempAjax = "";
+//    $.ajax({
+//        url: "../../Ajax/AjaxDepartMent.ashx?action=GetDepartMent",
+//        data: "",
+//        type: "post",
+//        async: false,
+//        success: function (msg) {
+//            // console.log(msg);
+//            var json = JSON.parse(msg);
+//            var Data = json[""];
+//            tempAjax += "<option value='plaseselect'>请选择</option>"
+//            $.each(Data, function (k, v) {
+//                tempAjax += "<option value='" + v.DepartId + "'>" + v.Department + "</option>";
+//            });
+//            $("#Depart").empty();
+//            $("#Depart").append(tempAjax);
+//            //更新内容刷新到相应的位置
+//            $('#Depart').selectpicker('render');
+//            $('#Depart').selectpicker('refresh');
+
+//        }
+//    });
+
+//});
+//$("#Add").click(function () {
+ 
+//    var Uname = $("#UserName").val();
+//    var UserPwd = $("#UserPWD").val();
+//    var LoginName = $("#LoginName").val();
+//    var Email = $("#Email").val();
+//    var Phone = $("#Phone").val();
+//    var Depart = $("#Depart").find("option:selected").val();
+//    var Note = $("#U_note").val();
+
+//    if (Uname =="" ||LoginName=="" ||UserPwd=="" ) {
+//        $(this).alertmsg('warn', '用户名或登录名、密码为必填字段');
+//        return false;
+//    }
+//    $.ajax({
+//        url:"/Ajax/AjaxUser.ashx?action=AddUsers",
+//        type: "post",
+//        data: {
+//                "Uname": Uname,
+//               // "UserPwd": UserPwd,
+//                "LoginName": LoginName,
+//                "Email": Email,
+//                "Phone": Phone,
+//                "Depart": Depart,
+//                "Note": Note,
+//        },
+//        success: function (msg) {
+//            var json = JSON.parse(msg);
+//            if (json["statusCode"] == 200) {
+//                $(this).alertmsg('ok', '添加成功');
+//            }
+//            if (json["statusCode"] == 201) {
+//                $(this).alertmsg('warn', '用户名被占用');
+//            }
+//        }
+//    }); 
+//})
+$(function () {
+    OnloadSelect();
+    if (Usersid) {
+        $("#LoginName").attr("readonly", "readonly");
+        $("#UserPWD").attr("readonly", "readonly");
+        var btn = $("<button type='button' class=btn btn-blue' onclick='ResetPassword(this)'><i class='fa fa-repeat' aria-hidden='true'>&nbsp重置</i></button>");
+        $("#reset").append(btn);
+        $.ajax({
+            url: "/Ajax/AjaxUser.ashx?action=SelPersonnerl",
+            type: "post",
+            data: { "UId": Usersid },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json[""][0];              
+                $("#u_LoginName").val(data.LoginName);
+                $("#UserName").val(data.UserName);
+                $("#Email").val(data.UEmail);
+                $("#Phone").val(data.UPhone);
+                $("#Depart option[value=" + data.UDepartId + "]").attr("selected", true);
+                $("#Depart").selectpicker("refresh");
+                $("#U_note").val(data.UNote);
+            }
+        });
+    }  
+})
+function AddUsers(_that) {
+    if (Usersid) {
+        $("#frm_Users").attr("action", "/Ajax/AjaxUser.ashx?action=SavePersonnerl&Uid=" + Usersid + "");
+    }
+    $("#frm_Users").submit();
+}
+</script>
+<div class="bjui-pageContent">
+    <form action="/Ajax/AjaxUser.ashx?action=AddUsers" id="frm_Users" data-alertmsg="false" class="nice-validator n-red" data-toggle="validate">
+        <input type="hidden" name="custom.id" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="u_LoginName" class="control-label x85">登录名：</label>
+                        <input type="text" name="users.lgname" id="u_LoginName" value="" data-rule="required" size="12">
+                    </td>
+                    <td>
+                        <label for="u_UserPWD" class="control-label x85">登陆密码：</label>
+                        <input type="password" name="users.lgpwd" readonly id="u_UserPWD" value="123456" data-rule="required" size="12">
+                        <span id="reset"></span>
+                    </td>                             
+                </tr>
+                <tr>
+                    <td>
+                        <label for="UserName" class="control-label x85">用户名：</label>
+                        <input type="text" name="users.name" id="UserName" value="" data-rule="required" size="12">
+                    </td>
+                    <td>
+                        <label for="Email" class="control-label x85">邮箱：</label>
+                        <input type="text" name="users.email" id="Email" value="" data-rule="required;email" size="12">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_mobile" class="control-label x85">手机：</label>
+                        <input type="text" name="users.phone" id="Phone" value="" data-rule="required;mobile" size="12">
+                    </td>
+                    <td>
+                        <label for="j_custom_sale" class="control-label x85">所属部门：</label>
+                        <select name="users.depart" id="Depart" data-toggle="selectpicker" data-rule="required" data-width="120"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <label for="j_custom_note" class="control-label x85">备注：</label>
+                        <textarea name="users.note" id="U_note" data-toggle="autoheight" cols="50" rows="10"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" id="Add" onclick="AddUsers(this)">保存</button></li>
+    </ul>
+</div>

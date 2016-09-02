@@ -1,0 +1,155 @@
+﻿<script type="text/javascript">
+function pic_upload_success(file, data) {
+    var json = $.parseJSON(data)
+
+    $(this).bjuiajax('ajaxDone', json)
+    if (json[BJUI.keys.statusCode] == BJUI.statusCode.ok) {
+        $('#j_custom_pic').val(json.filename).trigger('validate')
+        $('#j_custom_span_pic').html('<img src="'+ json.filename +'" width="100" />')
+    }
+}
+function do_OK(json, $form) {
+    console.log(json)
+    console.log($form)
+}
+function AddSupplier(_that) {
+    if (Supplierid) {
+        $("#frm_Supplier").attr("action", "/Ajax/AjaxSupplierList.ashx?action=SaveSupplier&id=" + Supplierid);
+      
+    }
+    $("#frm_Supplier").submit();
+}
+
+//护照有效日期  = 签发日期 + 10年
+$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
+    var pattern = 'yyyy-MM-dd'
+    var start   = end = data.value
+    end.setFullYear(start.getFullYear() + 10)
+    end.setDate(start.getDate() - 1)
+
+    $('#j_custom_indate').val(end.formatDate(pattern))
+})
+$(function () {
+    if (Supplierid) {
+        $.ajax({
+            url: "/Ajax/AjaxSupplierList.ashx?action=UpdateSupplier",
+            data: { id: Supplierid },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json[""][0];
+                $("#j_custom_fname").val(data.SContacts);
+                $("#j_custom_name").val(data.SCompanyName);
+                $("#j_custom_address").val(data.SAddress);
+                //  $('input[type="radio"]:eq(0)').val(data.SSex);
+                // if (data.SSex==1) {
+                //     $('#j_custom_sex1').iCheck("check");
+                // } 
+                //else{
+                //     $('#j_custom_sex2').iCheck("check");
+                // }
+                $("#j_custom_E-mail").val(data.SEmail);
+                $("#j_custom_fax").val(data.SFax);
+                $("#j_custom_phone").val(data.SPhone);
+                $("#j_custom_note").val(data.SRemark);
+                $("#TxtUpdateTime").val(data.SUpdateTime);
+            }
+        });
+    }
+});
+
+//$("#Btn_SaveSupplier").click(function () {
+  
+//    var CusCompany = $("#j_custom_name").val();
+//    var CusName = $("#j_custom_fname").val();
+//    var CusAddress = $("#j_custom_address").val();
+//    var CusEmail = $("#j_custom_E-mail").val();
+//    if (CusEmail.length != 0) {
+//        reg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+//        if (!reg.test(CusEmail)) {
+//            $(this).alertmsg('warn', '对不起，您输入的字符串类型格式不正确!');          
+//            return false;
+//        }
+//    }
+//    var CusFax = $("#j_custom_fax").val();
+//    var CusPhone = $("#j_custom_phone").val();
+//    var CusNote = $("#j_custom_note").val();
+//    if (CusCompany == "" || CusName=="") {
+//        $(this).alertmsg('warn', '供应商与用户名为必填字段');
+//        return false;
+//     }
+//            $.ajax({
+//                url: "/Ajax/AjaxSupplierList.ashx?action=InserSupplier",
+//                data: {
+//                    "CusCompany": CusCompany,
+//                    "CusName": CusName,                
+//                    "CusAddress": CusAddress,
+//                    "CusEmail": CusEmail,
+//                    "CusFax": CusFax,
+//                    "CusPhone": CusPhone,
+//                    "CusNote": CusNote,
+//                },
+//                type: "post",
+//                success: function (msg) {         
+//                    var json = JSON.parse(msg);
+//                    if (json["statusCode"] == 200) {
+//                        $(this).alertmsg('ok', '添加成功');
+//                    } 
+//           }
+//    });
+//})
+</script>
+<div class="bjui-pageContent">
+    <form action="/Ajax/AjaxSupplierList.ashx?action=InserSupplier" id="frm_Supplier" data-alertmsg="false" class="nice-validator n-red"  data-toggle="validate" >
+        <input type="hidden" name="supplier.id" value="">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody> 
+                <tr>   
+                    <td>
+                        <label for="j_custom_name" class="control-label x85">供应商：</label>
+                        <input type="text" name="supplier.name" id="j_custom_name" value="" data-rule="required" size="15">
+                    </td>              
+                    <td>
+                        <label for="j_custom_fname" class="control-label x85">联系人：</label>
+                        <input type="text" name="supplier.contact" id="j_custom_fname" value="" data-rule="required" size="15">
+                    </td>
+                           
+                    <td></td>                  
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">联系地址：</label>
+                        <input type="text" name="supplier.address" id="j_custom_address" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_email" class="control-label x85">E-mail：</label>
+                        <input type="text" name="supplier.email" id="j_custom_E-mail"  data-rule="required;email"  value=""size="15">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_fax" class="control-label x85">传真：</label>
+                        <input type="text" name="supplier.fax" id="j_custom_fax" value="" data-rule="required;" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">联系号码：</label>
+                        <input type="text" name="supplier.phone" id="j_custom_phone" value="" data-rule="required;mobile" size="15">
+                    </td>
+                    <td><input type="hidden" id="TxtUpdateTime" name="supplier.date" value="" /></td>
+                </tr>
+              
+                <tr>
+                    <td colspan="4">
+                        <label for="j_custom_note" class="control-label x85">备注：</label>
+                        <textarea name="supplier.note" id="j_custom_note" data-toggle="autoheight" cols="60" rows="10"></textarea>
+                    </td>
+                </tr>     
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default"  data-icon="save" onclick="AddSupplier(this)">保存</button></li>
+    </ul>
+</div>

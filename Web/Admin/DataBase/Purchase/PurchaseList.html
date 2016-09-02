@@ -1,0 +1,234 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+    var PurchaseIndex=1;
+    var PurchaseSize = 5;
+    var PurchaseMax;
+    var TotalCount;
+    
+    function ClearValue() {
+        $("#Number").val("");
+        $("#SupplierName").val("");
+    }
+    //document.write(parseInt(10 * Math.random())); 　//输出0～10之间的随机整数
+    //document.write(Math.floor(Math.random() * 10 + 1)); 　//输出1～10之间的随机整数
+    function RndNum(n) {
+        var rnd = "";
+        for (var i = 0; i < n; i++)
+            rnd += Math.floor(Math.random() * 10);
+        return rnd;
+    }
+    var sum ="MG"+ RndNum(6);
+
+    function PurchasePage() {
+     
+        var Number = $("#Number").val();
+       
+        var SupplierName = $("#SupplierName").val();
+        $.ajax({
+            url: "/Ajax/AjaxPurchase.ashx?action=GetPurchase",
+            type: "post",
+            data: {
+                "Number": Number,
+                "SupplierName":SupplierName,
+                "PurchaseIndex": PurchaseIndex,
+                "PurchaseSize":PurchaseSize,
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json["DataSql"];
+                data = JSON.parse(data);
+                var obj = data[""];                          
+                var Count = json["DataCount"];
+                Count = JSON.parse(Count);
+               TotalCount = Count[""][0]["Column1"];//总记录数              
+                PurchaseMax = Math.ceil(TotalCount / PurchaseSize);//取出最大页
+                var html = [];
+                var number = (PurchaseIndex - 1) * PurchaseSize;
+                $.each(obj, function (k, v) {
+                    var CheckStatus;
+                    html.push("<tr><td>" + (++number) + "</td>")
+                    html.push("<td>" + v["PurchaseNumber"] + "</td><td>" + v["PurchaseName"] + "</td><td>" + v["PurchaseMoney"] + "</td><td>" + v["PurchaseSum"] + "</td><td>" + v["UnitName"] + "</td><td>" + v["SCompanyName"] + "</td>")
+                    html.push("<td>" + v["Department"] + "</td><td>" + v["PurchaseMan"] + "</td><td>" + v["DepotName"] + "</td>")
+                    html.push("<td>" + v["PurchaseDate"] + "</td>");           
+                    if (v["CheckId"]==0) {
+                        html.push("<td><a href='../../Ajax/AjaxPurchase.ashx?action=Auditing&Purchaseid=" + v["PurchaseID"] + "&Checkid=" + v["CheckId"] + "' class='btn btn-default' data-toggle='doajax' data-confirm-msg='确定要审核【" + v["PurchaseNumber"] + "】单据？'><i class='fa fa-times' aria-hidden='true'>未审</i></a></td>");
+                    }
+                    if (v["CheckId"]== 1) {
+                        html.push("<td><a href='../../Ajax/AjaxPurchase.ashx?action=Auditing&Purchaseid=" + v["PurchaseID"] + "&Checkid=" + v["CheckId"] + "' class='btn btn-purple' data-toggle='doajax' data-confirm-msg='确定要撤销审核【" + v["PurchaseNumber"] + "】单据？'><i class='fa fa-check'>已审</i></a>");
+                    }
+                 //   html.push("<td>" + CheckStatus+ "</td>")
+                    html.push("<td><a href='../../Ajax/AjaxPurchase.ashx?action=DelPurchaseList&pid=" + v["PurchaseID"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'><i class='fa fa-trash-o' aria-hidden='true'>删除</i></a>&nbsp")
+                    html.push("<a href='#' onclick='UpdateId(this,\"" + v["PurchaseID"] + "\",\"" + v["PurchaseNumber"] + "\")' class='btn btn-green' ><i class='fa fa-pencil-square-o' aria-hidden='true'>编辑</i></a></td>")
+                    html.push("</tr>")              
+                    //this,\"" + v["SId"] + "\",\"" + v["SContacts"] + "\"
+                });
+                $("#TabPurchaseList tbody").empty().append(html.join(''));
+                $("#SumTotal").html(TotalCount);
+
+                PageNum(PurchaseMax, PurchaseIndex);        //调用JS文件PageNum方法
+                $("#PurchaseSet").empty().append(htmls.join(''));
+                //如果当前页等于1，让首页、上一页不可点击
+                if (PurchaseIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (PurchaseIndex == PurchaseMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+            }
+        });
+        }
+        function UpdateId(_this, id, number) {
+            edit = id;
+            $(_this).navtab({ id: 'Update', url: '/Admin/Purchase/UpdatePurchase.html?id=' + id + '', title: "编辑-" + number, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', toggle: 'navtab' });               
+        }
+        $(function () {                 
+            PurchasePage();
+            //获取页码的值
+            $(".j-sum").live("click", function () {
+                var PageNumValue = $(this).text();
+                PurchaseIndex = PageNumValue;
+                PurchasePage();
+     
+            });
+            $("#SPage").live("change", function () {
+                var SupplierSelect = $("#SelectPage").find("option:selected").text();
+      
+                if (SupplierSelect > PurchaseMax) {
+                    PurchaseIndex = PurchaseMax;
+                }
+                PurchaseSize = SupplierSelect;
+
+                PurchasePage();
+                //console.log(SupplierSelect);
+            });
+
+        })
+
+    function Jump(){
+        //输入跳转
+        var Letgo = $("#go").val();
+
+
+        if (Letgo>PurchaseMax) {
+            $(this).alertmsg('warn', '你输入的数字超过页面范围');
+            return;
+        }
+        if (isNaN(Number(Letgo)) || Letgo == "") {
+            $(this).alertmsg('warn', '输入的字符无效或为空');
+            return;
+        }
+        if (Letgo<1) {
+            $(this).alertmsg('warn', '请输入大于1的数字');
+            return;
+        }
+        PurchaseIndex = Letgo;
+        PurchasePage();
+        
+    }
+    //下一页
+    function next() {
+
+            if (PurchaseIndex < PurchaseMax) {
+                PurchaseIndex++;
+                PurchasePage();
+            }          
+        }
+    //上一页
+        function prev() {
+            if (PurchaseIndex>1) {
+                PurchaseIndex--;
+                PurchasePage();
+            }
+        }
+    //首页
+        function first() {
+            PurchaseIndex =1;
+            PurchasePage();
+        }
+    //尾页
+        function last() {
+            PurchaseIndex = PurchaseMax;
+            PurchasePage();
+        }   
+          
+</script>
+
+
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="#" method="post">
+
+        <div class="bjui-searchBar">
+
+   
+            <label>单据号：</label><input type="text" id="Number" value="" name="code" class="form-control" size="10" >&nbsp;
+            <label>供应商：</label><input type="text" id="SupplierName" value="" name="name" class="form-control" size="8">&nbsp;
+            <button type="submit" class="btn-default" data-icon="search" onclick="PurchasePage()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearValue()">清空查询</a>
+      
+            <div class="pull-right">
+                <button type="button" class="btn-blue" data-url="/B-JUI/ajaxDone2.html?id={#bjui-selected}" data-toggle="doajax" data-confirm-msg="确定要删除选中项吗？" data-icon="remove" title="可以在控制台(network)查看被删除ID">删除选中行</button>&nbsp;
+                <button type="button" class="btn-blue" data-url="/B-JUI/ajaxDone2.html?id={#bjui-selected}" data-toggle="doajax" data-confirm-msg="确定要审核选中项吗？"data-icon="remove"  title="可以在控制台(network)查看被删除ID">审核</button>&nbsp;
+                <div class="btn-group">
+                    <button type="button" class="btn-default dropdown-toggle" data-toggle="dropdown" data-icon="copy">复选框-批量操作<span class="caret"></span></button>
+                    <ul class="dropdown-menu right" role="menu">
+                        <li><a href="book1.xlsx" data-toggle="doexport" data-confirm-msg="确定要导出信息吗？">导出<span style="color: green;">全部</span></a></li>
+                        <li><a href="book1.xlsx" data-toggle="doexportchecked" data-confirm-msg="确定要导出选中项吗？" data-idname="expids" data-group="ids">导出<span style="color: red;">选中</span></a></li>
+                        <li class="divider"></li>
+                        <li><a href="/B-JUI/ajaxDone2.html" data-toggle="doajaxchecked" data-confirm-msg="确定要删除选中项吗？" data-idname="delids" data-group="ids">删除选中</a></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="TabPurchaseList">
+        <thead>
+            <tr>
+                <!--<th data-order-field="operation" align="center">业务</th>-->
+                <th>编号</th>
+                <th>单据号</th>
+                <th>商品名称</th>
+                <th>商品价格</th>              
+                <th>采购数量</th>
+                <th>单位</th>
+                <th>供应商</th>
+                <th data-order-field="sex">采购部门</th>
+                <th data-order-field="birthday">采购员</th>
+                <th data-order-field="birthplace">所属仓库</th>
+      
+                <th data-order-field="PurchaseDate">单据日期</th>
+                <th width="26">
+                   单据状态
+                </th>
+                <td>操作</td>
+
+            </tr>
+        </thead>
+        <tbody>
+      
+    
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize" id="SPage">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize" id="SelectPage">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+           
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="SumTotal"></span> 条</span>
+    </div>
+    <div class="pagination-box" data-total="600" data-page-size="30" data-page-current="1"  id="PurchaseSet">
+    </div>
+</div>

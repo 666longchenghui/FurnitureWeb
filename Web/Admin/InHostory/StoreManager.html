@@ -1,0 +1,166 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+    var index=1;
+    var size = 15;
+    var MaxTotal;
+    var MaxPage;
+  
+    //var store = { index: 1, size: 15, MaxPage: 0, MaxTotal: 0, StoreManagerNO: StoreNo,StoreManagerName:StoreName,StoreManagerModel:StoreModel };
+    var store = { index: 1, size: 15, MaxPage: 0, MaxTotal: 0 }
+    function StoreManager() {
+        var StoreNo = $("#DetailNo").val();
+        var StoreName = $("#DetailName").val();
+        var StoreModel = $("#DetailModel").val();
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=StoreManager",
+            type: "post",
+            data: {
+                "index": store.index,
+                "size": store.size,
+                "no": StoreNo,
+                "name": StoreName,
+                "model": StoreModel,
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json["Page"];
+                data = JSON.parse(data);             
+                var Count = json["Total"];
+                var TotalCount = JSON.parse(Count);
+                store .MaxTotal = TotalCount[""][0]["Column1"];
+                store.MaxPage = Math.ceil(store.MaxTotal /store.size);
+                var item = data[""];           
+                var SerialNumber = (store.index - 1) * store.size;
+                var html = [];
+               $.each(item, function (k, v) {         
+                    html.push("<tr>");
+                    html.push("<td>"+(++SerialNumber)+"</td>")
+                    html.push("<td>" + v["Mnumber"] + "</td><td>" + v["Mname"] + "</td><td>" + v["UnitName"] + "</td><td>" + v["DataText"] + "</td>")
+                    html.push("<td>" + v["InvertorySum"] + "</td><td>" + v["Msellingprice"] + "</td><td><a href='#' onclick='InvertoryDetail(this,\"" + v["Mid"] + "\")' class='btn btn-green' >库存明细</a></td>")
+                    html.push("</tr>");
+                });
+                $("#StoreManager tbody").empty().append(html.join(''));
+                $("#StoreManager_Sum").html(store.MaxTotal);
+                PageNum(store.MaxPage, store.index);
+                $("#store_Pagination").empty().append(htmls.join(''));
+                if (store.index==1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                if (store.index==store.MaxPage) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    $(function () {
+        StoreManager();
+    });
+    //下一页
+    function next() {  
+        if (store.index<store.MaxPage) {
+            store.index++;
+            StoreManager();
+        }
+    }
+    //上一页
+    function prev() {
+        if (store.index>1) {
+            store.index--;
+            StoreManager();
+        }
+    }
+    //首页
+    function first() {
+        if (store.index>1) {
+            store.index = 1;
+            StoreManager();
+        }
+       
+    }
+    //末页
+    function last() {
+        if (store.index<store.MaxPage) {
+            store.index = store.MaxPage;
+            StoreManager();
+        }
+   
+    }
+    var Number;
+    function InvertoryDetail(_that,mid ) {
+        Number = mid; 
+        $(_that).dialog({ id: 'StoreManager', onClose: "StoreManager_close", url: '/Admin/InHostory/InvertoryDetail.html?mid=' + mid + '', title: '库存明细', width: 800, height: 600, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？' });
+    }
+    function StoreManager_close($dialog) {
+        Number = undefined;
+    }
+    function StoreClear() {
+         $("#DetailNo").val("");
+        $("#DetailName").val("");
+        $("#DetailModel").val("");
+        StoreManager();
+    }
+</script>
+<div class="bjui-pageHeader">
+    <form id="frm_store" data-toggle="ajaxsearch" action="" method="post">
+        <input type="hidden" name="pageSize" value="${model.pageSize}">
+        <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <input type="hidden" name="orderDirection" value="${param.orderDirection}">
+        <div class="bjui-searchBar">
+            <label>编号：</label><input type="text" id="DetailNo"  name="code" class="form-control" size="10">&nbsp;
+            <label>名称：</label><input type="text" id="DetailName" name="name" class="form-control" size="8">&nbsp;
+            <label>型号：</label><input type="text" id="DetailModel" name="name" class="form-control" size="8">&nbsp;
+            <!--<input type="checkbox" id="j_table_chk" value="true" data-toggle="icheck" data-label="我的客户">
+            <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>-->
+            <button type="button" class="btn-default" data-icon="search" onclick="StoreManager()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="StoreClear()">清空查询</a>
+            <div class="pull-right">
+                <!--<button type="button" class="btn-blue" data-url="/B-JUI/ajaxDone2.html?id={#bjui-selected}" data-toggle="doajax" data-confirm-msg="确定要删除选中项吗？" data-icon="remove" title="可以在控制台(network)查看被删除ID">删除选中行</button>&nbsp;-->
+                <div class="btn-group">              
+                    <!--<button type="button" class="btn-default dropdown-toggle" data-toggle="dropdown" data-icon="copy">复选框-批量操作<span class="caret"></span></button>-->
+                    <ul class="dropdown-menu right" role="menu">
+                        <li><a href="book1.xlsx" data-toggle="doexport" data-confirm-msg="确定要导出信息吗？">导出<span style="color: green;">全部</span></a></li>
+                        <li><a href="book1.xlsx" data-toggle="doexportchecked" data-confirm-msg="确定要导出选中项吗？" data-idname="expids" data-group="ids">导出<span style="color: red;">选中</span></a></li>
+                        <li class="divider"></li>
+                        <li><a href="/B-JUI/ajaxDone2.html" data-toggle="doajaxchecked" data-confirm-msg="确定要删除选中项吗？" data-idname="delids" data-group="ids">删除选中</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="StoreManager">
+        <thead>
+            <tr>
+                <th data-order-field="name">序号</th>
+                <th>商品编号</th>
+                <th>商品名称</th>
+                <th data-order-field="sex">单位</th>
+                <th data-order-field="birthday">型号</th>             
+                <th>库存数量</th>
+                <th>零售价</th>
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" >
+                <option value="30">15</option>
+                <option value="60">30</option>
+                <option value="120">50</option>
+                <option value="150">120</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="StoreManager_Sum"></span> 条</span>
+    </div>
+    <div class="pagination-box" data-page-size="30" data-page-current="1" id="store_Pagination">
+    </div>
+</div>

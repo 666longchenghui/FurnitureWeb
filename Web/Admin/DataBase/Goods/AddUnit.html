@@ -1,0 +1,45 @@
+﻿<script type="text/javascript"> 
+    function addunit(_that) {
+        if (Unitid) {
+            $("#frm_unit").attr("action", "/Ajax/AjaxGoods.ashx?action=SaveUnit&Uid=" + Unitid);
+        }    
+        $("#frm_unit").submit();
+    }
+    $(function () {
+        if (Unitid) {
+         //   $("#txtunitid").val(Unitid);
+            $.ajax({
+                url: "/Ajax/AjaxGoods.ashx?action=UpUnit",
+                data: { "Uid": Unitid },
+                type: "post",
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    var data = json[""][0];  
+                    $("#Goods_UnitName").val(data.UnitName);                             
+                }
+            });
+        }
+    });
+</script>
+<div class="bjui-pageContent" id="Divid" >
+   <form id="frm_unit" data-alertmsg="false" action="/Ajax/AjaxGoods.ashx?action=SaveUnit" class="nice-validator n-red" data-toggle="validate" >       
+    
+    <input type="hidden" id="txtunitid" value="edce142bc2ed4ec6b623aacaf602a4de">
+    <table class="table table-condensed table-hover" width="100%">
+        <tbody>
+            <tr>
+                <td class="center" style="margin-top:10px">
+                    <label for="j_custom_lname" class="control-label x85">单位名称：</label>
+                    <input type="text" name="UnitName" id="Goods_UnitName" value="" data-rule="required" size="15">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" onclick="addunit(this)">保存</button></li>
+    </ul>
+</div>

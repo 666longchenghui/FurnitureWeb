@@ -1,0 +1,86 @@
+﻿<script type="text/javascript">
+    $(function () {
+        DetailPage();
+    });
+        //console.log(Number);
+        function DetailPage() { 
+        var InvertoryDetail={index:1,size:15,Number:Number}
+        if (Number) {            
+            $.ajax({
+                url: "/Ajax/AjaxInHostory.ashx?action=InverToryDetail",
+                data: {
+                    "DetailNumber": InvertoryDetail.Number,
+                    "Detailindex": InvertoryDetail.index,
+                    "Detailsize":InvertoryDetail.size
+                    },
+                type: "post",
+                success: function (msg) {              
+                    var json = JSON.parse(msg);                   
+                    var data = JSON.parse(json);
+                    data = data[""];
+                    var html = [];
+                    var PName;
+                    var No = (InvertoryDetail.index - 1) * InvertoryDetail.size;
+                    $.each(data, function (k, v) {                   
+                        PName = v["Mname"];
+                        console.log(PName);
+                        html.push("<tr>");
+                        html.push("<td>"+(++No)+"</td><td>" + v["CreateTime"] + "</td><td><a  class='btn btn-green' onclick='Detail(this,\"" + v["Number"] + "\")'>" + v["Number"] + "</a></td><td>" + v["SCompanyName"] + "</td>");
+                        html.push("<td>" + v["Sum"] + "</td>");
+                        html.push("</tr>");
+                    });           
+                    $("#MName").text(PName);
+                    $("#InverToryDetail tbody").append(html.join('')); 
+                }
+            });
+        }
+    }
+    var OrderNumber;
+    function Detail(_that,id) {
+        OrderNumber = id;
+      //  console.log(OrderNumber);
+        $(_that).dialog({ id: 'Detail', onClose: "Detail_close", url: '/Admin/InHostory/AddInHostory.html?id=' + id + '', title: '历史订单详情', width: 800, height: 600, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？'});
+    }
+    function Detail_close($dialog) {
+        OrderNumber = undefined;
+    }
+</script>
+<div class="bjui-pageHeader">
+    <!--<div class="bjui-searchBar" id="div_supplier">-->
+        <h3  id="MName" class="center">无数据</h3>
+        <!--<label for="j_custom_profession" class="control-label x85">供应商：</label>
+        <input type="text" name="custom.Supplier" id="supplier" value="" size="18" data-toggle="lookup"
+               data-url="/Admin/InHostory/LoadSupplier.html" data-group="custom" data-width="600" data-height="400">
+        <input type="hidden" name="custom.pids" size="10" id="pids" />
+        <div class="pull-right" id="Detail_div">
+            <a href="/Admin/InHostory/Edit_Goods.html" class="btn btn-blue" data-toggle="lookupbtn"
+               data-width="600" data-height="400" data-id="dialog11" ata-icon="plus" data-mask="true" data-group="t2">添加商品</a>
+            <input type="hidden" name="t2.pid" size="10" id="lookmid">
+            <div class="btn-group">
+            </div>
+        </div>-->
+    <!--</div>-->
+</div>
+<div class="bjui-pageContent tableContent">
+    <form action="#" id="frm_InverToryDetail" class="pageForm" data-toggle="validate" method="post">
+        <table id="InverToryDetail" class="table table-bordered table-hover table-striped table-top" data-toggle="tabledit" data-initnum="0" data-action="" data-single-noindex="true">
+            <thead>
+                <tr data-idname="customList[#index#].id">
+                   <th title="编号"><input type="text" name="InHostory.no" class="no" data-rule="required" value="" size="2"></th>
+                    <th title="创建日期"><input type="text" name="InHostory.goods_name" data-rule="required" value="" size="5"></th>
+                    <th title="订单编号"><input type="text" name="InHostory.goods_model" data-rule="required" value="" size="5"></th>
+                    <th title="来往供应商"><input type="text" name="InHostory.supplier_name" data-rule="required" value="" size="5"></th>
+                    <th title="入库数量"><input type="text" name="InHostory.goods_unit" data-rule="required" value="" size="10"></th>
+                    <th title="出库数量"><input type="text" name="InHostory.goods_sum" data-rule="required" value="" size="3"></th>                
+                </tr>
+            </thead>
+            <tbody id=""></tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter" id="">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" id="Save_Detail">全部保存</button></li>
+    </ul>
+</div>

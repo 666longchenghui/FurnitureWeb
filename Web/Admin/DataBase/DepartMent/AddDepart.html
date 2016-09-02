@@ -1,0 +1,64 @@
+﻿<script type="text/javascript">
+    //$("#Btn_Depart").click(function () {
+    //    var DepartName = $("#DepartName").val();    
+    //    $.ajax({
+    //        url: "/Ajax/AjaxDepartMent.ashx?action=AddDepart",
+    //        data: {
+    //            "Depart": DepartName
+    //        },
+    //        type: "post",
+    //        success: function (msg) {
+    //            var json = JSON.parse(msg);
+    //            if (json["statusCode"] == 200) {
+    //                $(this).alertmsg('warn', '部门名称以存在,请重新输入');    
+    //            }
+    //            if (json["statusCode"] == 201) {
+    //                $(this).alertmsg('ok', '添加成功');         
+    //            }
+    //        }
+    //    });
+    //});
+    $(function () {
+        if (Departid) {
+            $.ajax({
+                url: "/Ajax/AjaxDepartMent.ashx?action=SelDepart",
+                data: { id: Departid },
+                type: "post",
+                async: false,
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    var data = json[""][0];
+                    $("#DepartName").val(data.Department);
+                }
+            });
+        } 
+    });
+    function AddDepart(_that) {
+        console.log(_that);
+        if (Departid) {
+            $("#frm_Depart").attr("action", "/Ajax/AjaxDepartMent.ashx?action=SaveDepartMent&DepartId="+Departid+"");
+        }
+        $("#frm_Depart").submit();
+    }
+</script>
+<div class="bjui-pageContent">
+    <form action="/Ajax/AjaxDepartMent.ashx?action=AddDepart" id="frm_Depart" data-alertmsg="false" class="nice-validator n-red" data-toggle="validate">
+        <input type="hidden" name="custom.id" value="">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">部门名称：</label>
+                        <input type="text" name="depart.name" id="DepartName" value="" data-rule="required" size="15">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save"  onclick="AddDepart(this)">保存</button></li>
+    </ul>
+</div>

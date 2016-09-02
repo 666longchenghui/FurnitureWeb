@@ -1,0 +1,45 @@
+﻿<script type="text/javascript">    
+    $("#addmodel").on("click", function (e) {
+        if (Modelid) {
+            $("#frm_model").attr("action", "/Ajax/AjaxGoods.ashx?action=SaveModel&Modelid=" + Modelid);  
+        }
+        $("#frm_model").submit();
+    });
+    $(function () {
+        console.log(Modelid);
+        if (Modelid) //undefined null "" 
+        {
+            $.ajax({
+                url: "/Ajax/AjaxGoods.ashx?action=UpdateModel",
+                data: { "Modelid": Modelid },
+                type: "post",
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    var data = json[""][0];
+                    $("#M_Model").val(data["DataText"]);
+                }
+            });          
+        }  
+    });    
+</script>
+
+<div class="bjui-pageContent">
+    <form id="frm_model" data-alertmsg="false" class="nice-validator n-red" data-toggle="validate" action="/Ajax/AjaxGoods.ashx?action=AddModel">
+    <table class="table table-condensed table-hover" width="100%">
+        <tbody>
+            <tr>
+                <td class="center">
+                    <label for="j_custom_lname" class="control-label x85">商品型号：</label>
+                    <input type="text" name="ModelText" id="M_Model" value="" data-rule="required" size="15">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save"  id="addmodel">保存</button></li>
+    </ul>
+</div>

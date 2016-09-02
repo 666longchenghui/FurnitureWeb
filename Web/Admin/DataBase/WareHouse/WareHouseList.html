@@ -1,0 +1,192 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+    var WHIndex = 1;
+    var WHSize = 15;
+    var WHTotal;
+    var WHMax;
+    function WHList() {
+        var WareHouseName = $("#WareHouseName").val();
+        $.ajax({
+            url: "/Ajax/AjaxWareHouse.ashx?action=GetWHPage",
+            type: "post",
+            data: {
+                "WareHouseName":WareHouseName,
+                "WHIndex": WHIndex,
+                 "WHSize":WHSize
+             },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json["Page"];
+                data = JSON.parse(data);
+                var ObjData = data[""];
+                var count = json["Count"];
+                count = JSON.parse(count);
+                 WHTotal=count[""][0]["Column1"];//总条数
+                WHMax = Math.ceil(WHTotal / WHSize);//总页数
+                var numbers = (WHIndex - 1) * WHSize;
+                var html = [];
+                $.each(ObjData, function (k, v) {                   
+                    html.push("<tr>")
+                    html.push("<td>"+(++numbers)+"</td>")
+                    html.push("<td>" + v["WareName"] + "</td>")
+                    html.push("<td>" + v["WHContacts"] + "</td><td>" + v["WHPhone"] + "</td>")
+                    html.push("<td>" + v["WareHousDate"] + "</td><td>" + v["WareHouseAddress"] + "</td>")
+                    //if (v["DepotStatus"] == 0 ) {
+                    //    html.push("<td><a href=#' class='btn btn-green' >正常</a></td>")
+                    //}
+                    //if (v["DepotStatus"] == 1) {
+                    //    html.push("<td><a href='#' class='btn btn-red' >已满</a></td>")
+                    //}
+
+                    html.push("<td><a href='/Ajax/AjaxWareHouse.ashx?action=DelWareHouse&pid=" + v["Depotid"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>&nbsp")
+                    html.push("<a href='#' onclick='UpdateDepot(this,\"" + v["Depotid"] + "\",\"" + v["WareName"] + "\")' class='btn btn-green' >编辑</a></td>")
+                    html.push("</tr>")
+                });
+                $("#WareHouse tbody").empty().append(html.join(''));
+                PageNum(WHMax, WHIndex);
+                $("#WareCount").html(WHTotal);
+                $("#WareHouseSet").empty().append(htmls.join(''));
+                //如果当前页等于1，让首页、上一页不可点击
+                if (WHIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (WHIndex == WHMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    //首页
+    function first() {
+        WHIndex = 1;
+        WHList();
+    }
+    //尾页
+    function last() {
+        WHIndex = WHMax;
+        WHList();
+    }
+    //上一页
+    function prev() {
+        if (WHIndex > 1) {
+            WHIndex--;
+            WHList();
+        }
+    }
+    //下一页
+    function next() {
+        if (WHIndex < WHMax) {
+            WHIndex++;
+            WHList();
+        }
+    }
+    var WareHouseid;
+    function UpdateDepot(_this, id, name) {
+        WareHouseid = id;
+        $(_this).dialog({ id: 'AddWareHouseid', onClose: "addWareHouse_close", url: '/Admin/DataBase/WareHouse/AddWareHouse.html?id=' + id + '', title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800' });
+    }
+    function addWareHouse_close($dialog) {
+        WareHouseid = undefined;
+    }
+    function Jump() {
+        $(".goto").live("click", function () {
+            var InputValue = $("#go").val();
+            console.log(InputValue);
+            if (InputValue > WHMax) {
+                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+                return false;
+            }       
+            if (isNaN(Number(InputValue)) || InputValue == "") {
+                $(this).alertmsg('warn', '请输入数字');
+                return;
+            }
+            ModeIIWHIndexndex = InputValue;
+            WHList();
+        });
+    }
+    $(function () {
+        WHList();
+        //点击页码跳转到相应页面
+            $(".j-sum").live("click", function () {
+                var ClickValue = $(this).text();
+                WHIndex = ClickValue;
+                WHList();
+            });
+            $("#Select_WareHouse").live("change", function () {
+                var Selectvalue=$("#Select_WareHouse").find("option:selected").text();
+                if (Selectvalue > WHTotal) {
+                    WHIndex = 1;            
+                }
+                WHSize = Selectvalue;
+                WHList();
+            })
+    });
+    function ClearSelect() {
+        $("#WareHouseName").val("");
+        WHList();
+    }
+    function WareHouseSelect() {
+
+        WHList();
+    }
+</script>
+<div class="bjui-pageHeader">
+
+        <div class="bjui-searchBar">    
+            <label>仓库名称：</label><input type="text" value="" id="WareHouseName"class="form-control" size="8">&nbsp;
+
+            <button type="button" class="btn-default" data-icon="search" onclick="WareHouseSelect()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
+            <div class="pull-right">
+                <a href="/Admin/DataBase/WareHouse/AddWareHouse.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="AddWareHouseid" ata-icon="user" data-mask="true"><i class="fa fa-plus-square" size="10" aria-hidden="true">新增仓库</i></a>
+                <!--<div class="btn-group">
+                    <button type="button" class="btn-default dropdown-toggle" data-toggle="dropdown" data-icon="copy">复选框-批量操作<span class="caret"></span></button>
+                    <ul class="dropdown-menu right" role="menu">
+                        <li><a href="book1.xlsx" data-toggle="doexport" data-confirm-msg="确定要导出信息吗？">导出<span style="color: green;">全部</span></a></li>
+                        <li><a href="book1.xlsx" data-toggle="doexportchecked" data-confirm-msg="确定要导出选中项吗？" data-idname="expids" data-group="ids">导出<span style="color: red;">选中</span></a></li>
+                        <li class="divider"></li>
+                        <li><a href="/B-JUI/ajaxDone2.html" data-toggle="doajaxchecked" data-confirm-msg="确定要删除选中项吗？" data-idname="delids" data-group="ids">删除选中</a></li>
+                    </ul>
+                </div>-->
+            </div>
+        </div>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="WareHouse">
+        <thead>
+            <tr>
+                <!--<th data-order-field="operation" align="center">业务</th>-->
+                <th >序号</th>
+                <th data-order-field="name">仓库名称</th>      
+                <th data-order-field="">仓管</th>
+                <th data-order-field="">联系号码</th>
+                <th data-order-field="">创建时间</th>
+                <th>地    区</th>
+
+                <th >操作</th>
+            </tr>
+        </thead>
+        <tbody>
+           
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize" >
+            <select data-toggle="selectpicker" id="Select_WareHouse">
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="100">100 </option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="WareCount"></span> 条</span>
+    </div>
+    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="WareHouseSet">
+    </div>
+</div>

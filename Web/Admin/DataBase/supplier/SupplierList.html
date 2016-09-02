@@ -1,0 +1,229 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+    function pic_form_upload_success(data) {
+        var json = jQuery.parseJSON(data);
+        DWZ.ajaxDone(json);
+        if (json.statusCode == DWZ.statusCode.ok) {
+            $('#j_form_pic').val(json.navTabId);
+            $('#j_form_span_pic').html('<img src="' + json.navTabId + '" width="100" />');
+        }
+    }
+    var SupplierPageIndex = 1;//当前页
+    var SupplierPageMax;//最大页
+    var SupplierTotal;//总记录数初始值
+    var SupplierPageSize =15 ;//每页显示条数
+    var ClickValue;
+
+    //$("#SelectPage").find("option:selected").text()
+    function SupplierPage() {
+        var SupplierName = $("#SupplierName").val();
+        var Contacts = $("#Contacts").val();
+        var ContactNumber = $("#ContactNumber").val();
+        var CreateDate = $("#CreateDate").val();
+        var EndDate = $("#EndDate").val();
+        $.ajax({
+            url: "/Ajax/AjaxSupplierList.ashx?action=GetSupplier",
+            type: "post",
+            data: {
+                "SupplierName": SupplierName,
+                "Contacts": Contacts,
+                "ContactNumber": ContactNumber,
+                "CreateDate": CreateDate,
+                "EndDate":EndDate,
+                "SupplierPageIndex": SupplierPageIndex,
+                "SupplierPageSize": SupplierPageSize
+            },
+            success:function(msg){
+                var json = JSON.parse(msg);
+                var data = json["Data"];
+                data = JSON.parse(data);
+                var Obj = data[""];
+                var Count = json["Count"];
+                Count = JSON.parse(Count);             
+                SupplierTotal = Count[""][0]["Column1"];//总记录数
+                SupplierPageMax = Math.ceil(SupplierTotal/SupplierPageSize);//采用向上取整，求出最大页       
+                //序号
+                var number = (SupplierPageIndex - 1) * SupplierPageSize;
+                var html = [];
+                $.each(Obj, function (k, v) {
+                    html.push("<tr>")
+                    html.push("<td>"+(++number)+"</td>")
+                    html.push("<td>" + v["SCompanyName"] + "</td><td>" + v["SContacts"] + "</td><td>" + v["SAddress"] + "</td><td>" + v["SPhone"] + "</td><td>" + v["SEmail"] + "</td><td>" + v["SFax"] + "</td><td>" + v["SCreateTime"] + "</td>");
+                    html.push("<td><a href='/Ajax/AjaxSupplierList.ashx?action=DelSupplier&Sid=" + v["Superid"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>")             
+                    //html.push("<a href='/Admin/supplier/UpdateSuplierList.html' class='btn btn-green' data-toggle='dialog' data-width='800' data-height='400' data-id='dialog' ata-icon='user' data-mask='true' >编辑</a></td>")
+                    html.push("<a href='#' onclick='editsupplier(this,\"" + v["Superid"] + "\",\"" + v["SContacts"] + "\")' class='btn btn-green' >编辑</a></td>")
+                    html.push("</tr>");
+                });
+                $("#TabSupplierList tbody").empty().append(html.join(''));
+                PageNum(SupplierPageMax, SupplierPageIndex);
+                $("#SupperCount").html(SupplierTotal);//显示总条数           
+                $("#Page_num").empty().append(htmls.join(''));
+                //如果当前页等于1，让首页、上一页不可点击
+                if (SupplierPageIndex==1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (SupplierPageIndex==SupplierPageMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    //// 设置option选项 .选中每页显示多少条数据
+    //$("#sl").live("change", function () {
+    //    var checkText = $("#sel").find("option:selected").text();
+    //    if (checkText > TotalPage) {
+    //        pageIndex = 1;
+    //    }
+    //    pageSize = checkText;
+    //    ProductInfo();
+    //    search();
+    //});
+    //首页
+    function first() {
+        SupplierPageIndex = 1;
+        SupplierPage();
+    }
+    //尾页
+    function last() {      
+        SupplierPageIndex = SupplierPageMax;
+        SupplierPage();       
+    }
+    //上一页
+    function prev() {
+        if (SupplierPageIndex>1) {
+            SupplierPageIndex--;
+            SupplierPage();
+        }
+    }
+    //下一页
+    function next() {
+        if (SupplierPageIndex<SupplierPageMax) {
+            SupplierPageIndex++;
+            SupplierPage();
+        }
+    }
+    function Del() {
+        SupplierPage();
+    }
+    $(function () {
+        SupplierPage(); 
+        //点击页码跳转到相应页面
+        $(".j-sum").live("click", function () {
+            var ClickValue=$(this).text();
+            SupplierPageIndex = ClickValue;
+            SupplierPage();
+        })   
+        //选择下拉值跳转
+        $("#SelectPage").live("change", function () {
+            var SupplierSelect = $("#SelectPage").find("option:selected").text();
+            if (SupplierSelect > SupplierTotal) {
+                SupplierPageIndex = 1;
+            }
+            SupplierPageSize = SupplierSelect;
+            SupplierPage();
+        });
+    })
+    function Jump() {
+        $(".goto").live("click", function () {
+           var InputValue= $("#go").val();
+           SupplierPageIndex = InputValue;
+           SupplierPage();
+        });
+    }
+    function ClearSelect() {
+
+        $("#SupplierName").val("");
+        $("#Contacts").val("");
+        $("#ContactNumber").val("");
+        $("#CreateDate").val("");
+        $("#EndDate").val("");
+        SupplierPage();
+
+    }
+    //function editsupplier(_this, id, name) {
+    //    Supplierid = id;
+    //    $(_this).navtab({ id: 'addproduct', url: '/Admin/supplier/UpdateSuplierList.html?id=' + id, title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', toggle: 'navtab' });
+    //}
+
+    //function Addsupplier(_this) {
+    //    //$(_this).navtab({ url: '/Admin/supplier/AddSupplierList.html', title: "添加供应商", id:'navtab-form', toggle: 'navtab' });
+    //    $(_this).navtab({ url: '/Admin/supplier/dialog_Add.html', title: "添加供应商", id:'navtab-form', toggle: 'navtab' });
+    //}
+    var Supplierid;
+    function editsupplier(_this, id, name) {
+        Supplierid = id;
+        $(_this).dialog({ id: 'addsupplier_dialog', onClose: "addSupplier_close", url: '/Admin/DataBase/supplier/AddSupplier.html?id=' + id, title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800', height: '400'});
+    }
+ 
+    function addSupplier_close($dialog) {
+        Supplierid = undefined;
+    }
+    function SupplierSelect() {
+        var SupplierName = $("#SupplierName").val();
+            SupplierPage();      
+    }
+</script>
+
+<div class="bjui-pageHeader">
+        <div class="bjui-searchBar">      
+            <label>供应商：</label><input type="text" value="" id="SupplierName" name="name" class="form-control" size="8">&nbsp;
+            <label>联系人：</label><input type="text" id="Contacts" value="" name="contacts" class="form-control" size="10">&nbsp;.
+            <label>联系电话：</label><input type="text" id="ContactNumber" value="" name="Number" class="form-control" size="10">&nbsp;
+            <label>创建日期：</label><input type="text" name="ustom.birthday" id="CreateDate"  data-toggle="datepicker" data-rule="required;date" size="11">
+            <label>至</label><input type="text" name="end.birthday" id="EndDate"  data-toggle="datepicker" data-rule="required;date" size="11">
+
+            <button type="submit" class="btn-default" data-icon="search" onclick="SupplierSelect()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
+            <div class="pull-right">
+                <a href="/Admin/DataBase/supplier/AddSupplier.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="addsupplier_dialog" ata-icon="user" data-mask="true" ><i class="fa fa-plus-square" size="10" aria-hidden="true">添加供应商</i></a>
+           <!-- <button type="button" class="btn-blue"  data-toggle="doajax"  onclick='Addsupplier(this)'  id="Btn_AddSupplier" data-icon="user" title="可以在控制台(network)查看被删除ID">添加供应商</button>&nbsp;
+                <div class="btn-group">
+                    <button type="button" class="btn-default dropdown-toggle" data-toggle="dropdown" data-icon="copy">复选框-批量操作<span class="caret"></span></button>
+                    <ul class="dropdown-menu right" role="menu">
+                        <li><a href="book1.xlsx" data-toggle="doexport" data-confirm-msg="确定要导出信息吗？">导出<span style="color: green;">全部</span></a></li>
+                        <li><a href="book1.xlsx" data-toggle="doexportchecked" data-confirm-msg="确定要导出选中项吗？" data-idname="expids" data-group="ids">导出<span style="color: red;">选中</span></a></li>
+                        <li class="divider"></li>
+                        <li><a href="/B-JUI/ajaxDone2.html" data-toggle="doajaxchecked" data-confirm-msg="确定要删除选中项吗？" data-idname="delids" data-group="ids">删除选中</a></li>
+                    </ul>
+                </div>-->
+            </div>
+        </div>      
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="TabSupplierList">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>供应商</th>
+                <th>联系人</th>
+                <th>联系地址</th>
+                <th data-order-field="mobile">联系号码</th>
+                <th >E-mail</th>
+                <th>传真</th>
+                <th data-order-field="issuedate">创建时间</th>                          
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>  
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize" id="SPage">
+            <select data-toggle="selectpicker" id="SelectPage">
+                <option value="15">15 </option>
+                <option value="30">30 </option>
+                <option value="50">50 </option>
+                <option value="100">100 </option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="SupperCount"></span> 条</span>
+    </div>
+    <div class="pagination-box"  data-total="" data-page-size="" data-page-current="1" id="Page_num">
+    </div>
+</div>

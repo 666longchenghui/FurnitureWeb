@@ -1,0 +1,192 @@
+﻿<script type="text/javascript">
+
+    $(function () {
+        tempAjax = "";
+        $.ajax({
+            url: "../../Ajax/AjaxDepartMent.ashx?action=GetDepartMent",
+            data: "",
+            type: "post",
+            async: false,
+            success: function (msg) {
+                // console.log(msg);
+                var json = JSON.parse(msg);
+                var Data = json[""];
+                tempAjax += "<option value='plaseselect'>请选择</option>"
+                $.each(Data, function (k, v) {
+                    tempAjax += "<option value='" + v.DepartId + "'>" + v.Department + "</option>";
+                });
+                $("#Depart").empty();
+                $("#Depart").append(tempAjax);
+                //更新内容刷新到相应的位置
+                $('#Depart').selectpicker('render');
+                $('#Depart').selectpicker('refresh');
+
+            }
+        });
+
+        $.ajax({
+            url: "../../Ajax/AjaxPurchase.ashx?action=UpSupplier",
+            data: { id: edit},
+            type: "post",
+   
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json[""][0];
+
+                $('#Depart option[value=' + data["DepartId"] + ']').attr("selected", true);
+                $('#Depart').selectpicker('refresh');
+                $("#PurchaseType").val(data["PurchaseType"]);
+                $("#PurchaseNumber").val(data["PurchaseNumber"]);
+                $("#Depot").val(data["DepotName"]);
+                $("#supplier").val(data["SCompanyName"]);
+                $("#PurchaseMan").val(data["PurchaseMan"]);
+                $("#note").val(data["PurchaseNote"]);             
+                $("#Name").val(data["PurchaseName"]);
+                $("#Sum").val(data["PurchaseSum"]);
+                $("#Money").val(data["PurchaseMoney"]);
+                $('#UnitName option[value=' + data["Unitid"] + ']').attr("selected", true);
+                $('#UnitName').selectpicker('refresh');
+
+                //隐藏的ID
+                $("#depotid").val(data["Wid"]);
+                $("#supplierid").val(data["SId"]);
+             
+
+            }
+        });
+        var UnitName = "";
+        $.ajax({
+            url: "../../Ajax/AjaxGoods.ashx?action=GetUnitName",
+            data: "",
+            type: "post",
+            async: false,
+            success: function (msg) {
+                // console.log(msg);
+                var json = JSON.parse(msg);
+                var Data = json[""];
+                UnitName += "<option value='plaseselect'>请选择</option>"
+                $.each(Data, function (k, v) {
+                    UnitName += "<option value='" + v.Unitid + "'>" + v.UnitName + "</option>";
+
+                });
+                $("#UnitName").empty();
+                $("#UnitName").append(UnitName);
+                //更新内容刷新到相应的位置
+                $('#UnitName').selectpicker('render');
+                $('#UnitName').selectpicker('refresh');
+            }
+        });
+    });
+
+    $("#UpdateSave").click("input propertychange", function () {
+
+        $.ajax({
+            url: "../../Ajax/AjaxPurchase.ashx?action=UpdateSave",
+            data: {
+                id: edit,
+                "Depart": $("#Depart").val(),
+                "PurchaseType": $("#PurchaseType").val(),
+                "PurchaseNumber": $("#PurchaseNumber").val(),
+                "PurchaseMan": $("#PurchaseMan").val(),
+                "Depot": $("#Depot").val(),
+                "supplier": $("#supplier").val(),
+                "note": $("#note").val(),
+                "UpDataTime": $("#TxtUpdateTime").val(),
+            },
+            type: "post",
+            success: function (msg) {
+                var json = JSON.parse(msg);
+
+                if (json["statusCode"] == 200) {
+                    $(this).alertmsg('warn', '修改成功');
+                }
+
+            }
+        });
+    });
+
+      
+</script>
+<div class="bjui-pageContent">
+
+    <!--<form action="#" id="j_custom_form" data-toggle="validate" data-alertmsg="false">-->
+        <input type="hidden" name="" value="">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_add" class="control-label x85">单据号：</label>
+                        <input type="text" name="Type" id="PurchaseNumber" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_add" class="control-label x85">商品名称：</label>
+                        <input type="text" name="Type" id="Name" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_add" class="control-label x85">商品数量：</label>
+                        <input type="text" name="Type" id="Sum" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_add" class="control-label x85">商品价格：</label>
+                        <input type="text" name="Type" id="Money" value="" data-rule="required" size="15">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_sale" class="control-label x85">采购部门：</label>
+                        <select name="" id="Depart" data-toggle="selectpicker">
+                     
+                        </select>
+                    </td>
+                    <td>
+                        <label for="j_custom_sale" class="control-label x85">单位：</label>
+                        <select name="" id="UnitName" data-toggle="selectpicker"></select>
+                    </td>
+                    <td>
+                        <label for="j_custom_add" class="control-label x85">用途：</label>
+                        <input type="text" name="Type" id="PurchaseType" value="" data-rule="required" size="15">
+                    </td>
+
+                </tr>
+
+                <tr>
+                          <td>
+                        <label for="j_custom_add" class="control-label x85">采购员：</label>
+                        <input type="text" name="Buyer" id="PurchaseMan" value="" data-rule="required" size="15">
+                    </td>
+                    <td><input type="hidden" id="TxtUpdateTime" name="cusupdate" value="" /></td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <label for="j_custom_profession" class="control-label x85">仓库：</label>
+                        <input type="text" name="custom.Depot" id="Depot" value="" size="15" data-toggle="lookup"
+                               data-url="Purchase/EditPurchase.html" data-group="custom" data-width="600" data-height="300">
+                        <input type="hidden" id="depotid"/>
+
+                    <td>
+                        <label for="j_custom_profession" class="control-label x85">供应商：</label>
+                        <input type="text" name="custom.Supplier" id="supplier" value="" size="15" data-toggle="lookup"
+                               data-url="Purchase/EditPurSupplier.html" data-group="custom" data-width="600" data-height="300">
+                        <input type="hidden" id="supplierid" />
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <td colspan="4">
+                        <label for="j_custom_note" class="control-label x85">备注：</label>
+                        <textarea name="custom.note" id="note" data-toggle="autoheight" cols="60" rows="10"></textarea>
+                    </td>
+                </tr>
+                <tr></tr>
+            </tbody>
+        </table>
+    <!--</form>-->
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save" id="UpdateSave">保存</button></li>
+    </ul>
+</div>

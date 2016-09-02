@@ -1,0 +1,243 @@
+﻿<style>
+  .redDIV{
+        width: 200px;
+        height: 200px;
+      /*// margin-bottom:auto;*/  
+       margin-bottom:200px;
+       }
+</style>
+<script type="text/javascript">
+
+function Addgoods() {
+    document.getElementsByName("addsum").value++;
+}
+    //合计
+function Aggregation() {
+    //统计循环表格取值
+    var Total = 0;
+    var Money = 0;
+    $("#tabledit1 tbody tr").each(function () {
+        //   console.log($(this).find("td").eq(4).html());
+        if ($(this).find("td").eq(3).html() != '') {
+            Total += parseFloat($(this).find("td").eq(3).html());
+        }
+        if ($(this).find("td").eq(5).html() != '') {
+            Money += parseFloat($(this).find("td").eq(5).html());
+        }
+    });
+    $("#total").html(Total);
+    $("#money").html(Money.toFixed(2));
+}
+function SaveHostory(_that) {
+    var Suppliersid = $("#pids").val();
+    if (Suppliersid == "") {
+        $(this).alertmsg('warn', '请选择供应商');
+        return;
+    }
+        var array = [];
+        var GoodsInfo;
+    $("#tabledit1 tbody tr").each(function () {
+        var history_id = $.trim($(this).find("td").eq(0).html());//编号
+        var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
+        var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
+        var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
+        GoodsInfo = {
+            "history_id": history_id,
+            "history_sum": history_sum,
+            "history_money": history_money,
+            "history_note": history_note,
+        }
+        array.push(GoodsInfo);
+    });
+    arrayList = JSON.stringify(array),
+    $("#frm_InHostory").attr("action", "/Ajax/AjaxInHostory.ashx?action=AddInHostory&Arraylist=" + arrayList+"&");
+}
+    //订单明细
+    $(function () {       
+        if (typeof (InHostoryId) != "undefined") {
+        $("#Detail_div").hide();
+        $("#Save_div").hide();
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=GetInHostoryDetail",
+            type: "post",
+            data: { "InHostoryId": InHostoryId },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = JSON.parse(json);
+                data = data[""];
+                var ht = [];
+                $.each(data, function (k, v) {
+                    ht.push("<tr>");
+                    ht.push("<td>" + v["Mname"] + "</td><td>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>")
+                    ht.push("<td>" + v["PropertySum"] + "</td><td>" + v["UnitName"] + "</td><td>" + v["PropertyToal"] + "</td><td>" + v["PropertyNote"] + "</td>")
+                    ht.push("</tr>")
+                    $("#supplier").attr("readonly", "readonly");
+                    $("#supplier").attr("disabled");         
+                    $("#supplier").val(v["SCompanyName"]);
+                });
+                ht.push("<tr style='font-weight:bold;'><td >合计:</td><td colspan='2'></td><td id='total'></td><td id='sum'></td><td id='money'></td><td ></td></tr>")
+                $("#tabledit1 tbody").empty().append(ht.join(''));
+                Aggregation();
+            }
+        });
+        }
+        //历史详单
+    if (typeof (OrderNumber) != "undefined") {
+        $("#Detail_div").hide();
+        $("#Save_div").hide();
+        var ShowSupplier;
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=SelRunningNumber",
+            data: { "OrderNo": OrderNumber },
+            type: "post",
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = json[""];
+                var htl = [];
+                $.each(data, function (k, v) {
+                    ShowSupplier=v["SCompanyName"]           
+                    htl.push("<tr>")
+                    htl.push("<td>" + v["Mname"] + "</td><td>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>");
+                    htl.push("<td>" + v["PropertySum"] + "</td><td>" + v["UnitName"] + "</td><td>" + v["PropertyToal"] + "</td><td>" + v["PropertyNote"]);
+                    htl.push("</tr>")
+                    $("#supplier").attr("readonly", "readonly");
+                    $("#supplier").attr("disabled");
+                    $("#supplier").val(v["SCompanyName"]);
+                });
+                //var htt;
+                //htt.push("<h3 style='margin-bottom:100px'>供应商：" + ShowSupplier + "</h3>");           
+                htl.push("<tr style='font-weight:bold;'><td >合计:</td><td colspan='2'></td><td id='total'></td><td id='sum'></td><td id='money'></td><td ></td></tr>")                                           
+                $("#tabledit1 tbody").empty().append(htl.join(''));
+                Aggregation();  
+            }
+        });
+    }
+    $('#lookmid').on('afterchange.bjui.lookup', function (e, data) {
+        console.log(data);
+        var myvalue = data.value;         
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=GetGoodsId",
+            data: {"goodsid":myvalue},
+            type:"post",
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = JSON.parse(json)[""][0];
+                totalprice = data["Msellingprice"];
+                var html = [];
+                html.push("<tr>");
+                html.push("<td style='display:none;' class='aa'>" + data["Mid"] + "</td>")
+                html.push("<td >" + data["Mname"] + "</td><td name='InHostory.goods_name'>" + data["DataText"] + "</td><td>" + data["Mnumber"] + "</td>")
+                // html.push('<td><li style="width:125px;"><div class="num"><a href="#" class="sub">-</a><div class="amount"><span class="value">1</span></div><a href="#" class="add">+</a></div></li></td>')
+                html.push('<td><input type="text" value="1" size="3" data-toggle="spinner" class="sum" data-rule="number" price="' + data["Msellingprice"] + '" onkeyup="setTotal(this)"></td>')
+                html.push("<td>" + data["UnitName"] + "</td>")             
+                html.push("<td><lable id='Price" + data["Mid"] + "' class='totalprice'>" + data["Msellingprice"] + "</td>" + "</lable></td><td><textarea name='' data-toggle='autoheight' rows='1'></textarea></td>");
+                html.push("</tr>")
+                $("#tabledit1 tbody").append(html.join(''));            
+            }
+        });   
+    })
+});
+   //总价
+function setTotal(_this) {
+    var t = $(_this).parent().parent().find("td").eq(4).find("input").eq(0).val();
+    var price = $(_this).attr("price");
+     //console.log(t+" * "+ price +" = " + (parseInt(t) * price));
+    if (isNaN(t) || t < 1) {
+        t = 1;
+        $(".totalprice").html(price.toFixed(2));
+        return;
+    }
+    $(_this).parent().parent().find("td").eq(6).find("lable").eq(0).html((parseInt(t) * price).toFixed(2))
+}
+$("#Save_InHoustory").click(function () {
+        var Suppliersid = $("#pids").val();
+        if (Suppliersid == "") {
+          $(this).alertmsg('warn', '请选择供应商');
+          return;
+        }
+        var array = [];
+        var GoodsInfo;
+        $("#tabledit1 tbody tr").each(function () {        
+            var history_id =$.trim($(this).find("td").eq(0).html());//编号
+            var history_sum = $.trim($(this).find("td").eq(4).find("input").eq(0).val());//数量
+            var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
+            var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
+            if (isNaN(history_sum)) {
+                $(this).alertmsg('warn', '请输入数字');          
+            }
+            if (history_sum=="" || history_money=="") {
+                $(this).alertmsg('warn', '请添加商品');
+                return;
+         }
+         GoodsInfo = {
+             "history_id": history_id,
+             "history_sum": history_sum,
+             "history_money": history_money,
+             "history_note": history_note,
+         }
+          array.push(GoodsInfo);
+        });
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=AddInHostory",
+            type: "post",
+            data: {
+                "Arraylist": JSON.stringify(array),
+                "Suppliersid": Suppliersid
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg);             
+                if (json["statusCode"] == "200") {
+                    $(this).alertmsg("ok", "操作成功", true);
+                    //  $("body").closeCurrent();// dialog_InHostory
+                    $("#btnAddinhostoryClose").trigger("click");
+                }
+                if (json["statusCode"]=="400") {
+                    $(this).alertmsg("warn", "保存失败", true);
+                    $("#btnAddinhostoryClose").trigger("click");
+                }
+            }
+        });
+});
+</script>
+<div class="bjui-pageHeader" id="div_header">
+   <div id="divv"></div>
+        <div class="bjui-searchBar" id="div_supplier">
+            <label for="j_custom_profession" class="control-label x85">供应商：</label>
+            <input type="text" name="custom.Supplier" id="supplier" value="" size="18" data-toggle="lookup"
+                   data-url="/Admin/InHostory/LoadSupplier.html" data-group="custom" data-width="600" data-height="400">      
+            <input type="hidden" name="custom.pids"  size="10" id="pids" />
+            <div class="pull-right" id="Detail_div">              
+                <a href="/Admin/InHostory/Edit_Goods.html" class="btn btn-blue"  data-toggle="lookupbtn" 
+                   data-width="800" data-height="400" data-id="dialog11"  ata-icon="plus" data-mask="true" data-group="t2" >添加商品</a>
+                 <input type="hidden" name="t2.pid" size="10" id="lookmid" > 
+                <div class="btn-group">         
+                </div>
+            </div>          
+        </div>
+</div>
+<div class="bjui-pageContent tableContent">
+    <form action="#" id="frm_InHostory" class="pageForm" data-toggle="validate" method="post">
+        <table id="tabledit1" class="table table-bordered table-hover table-striped table-top" data-toggle="tabledit" data-initnum="0" data-action="" data-single-noindex="true">
+            <thead>
+                <tr data-idname="customList[#index#].id">
+                    <!--<th title="No."><input type="text" name="InHostory.no" class="no" data-rule="required" value="" size="2"></th>-->
+                    <th title="商品名称"><input type="text" name="InHostory.goods_name" data-rule="required" value="" size="5"></th>
+                    <th title="商品型号"><input type="text" name="InHostory.goods_model" data-rule="required" value="" size="5"></th>
+                    <th title="商品编号"><input type="text" name="InHostory.supplier_name" data-rule="required" value="" size="5"></th>
+                    <th title="数量"><input type="text" name="InHostory.goods_sum" data-rule="required" value="" size="3"></th>
+                    <th title="单位"><input type="text" name="InHostory.goods_unit" data-rule="required" value="" size="10"></th>                  
+                    <th title="总价（元）"><input type="text" name="InHostory.price" data-rule="required" value="" size="5"></th>
+                    <th title="备注"></th>      
+                </tr>
+            </thead>
+            <tbody id="bbstab">     
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter" id="Save_div">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close" id="btnAddinhostoryClose">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" id="Save_InHoustory">全部保存</button></li>
+    </ul>
+</div>

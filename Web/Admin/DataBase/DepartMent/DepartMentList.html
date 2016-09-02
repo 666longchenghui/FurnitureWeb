@@ -1,0 +1,175 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+    var DepartIndex = 1;
+    var DepartSize = 15;
+    var DepartMax;
+    var TotalCount ;
+    function PageDepart() {
+        var DepartName = $("#Depart_Name").val(); 
+        $.ajax({
+            url: "/Ajax/AjaxDepartMent.ashx?action=GetPageDepart",
+            data: {
+                "DepartName":DepartName,
+                "DepartIndex": DepartIndex,
+                "DepartSize":DepartSize
+                  },
+            type:"post",
+            success:function (msg) {
+                var json = JSON.parse(msg);
+                var data = json["ReturnPage"];
+                data = JSON.parse(data);
+                var Obj = data[""];
+                var html = [];
+                var count = json["ReturnCount"];
+                count = JSON.parse(count);
+                TotalCount = count[""][0]["Column1"];
+                DepartMax = Math.ceil(TotalCount / DepartSize);
+                var xu = (DepartIndex - 1) * DepartSize;             
+                $.each(Obj, function (k, v) {
+                    html.push("<tr>");
+                    html.push("<td>"+(++xu)+"</td>")
+                    html.push("<td>" + v["Department"] + "</td><td>" + v["sumUsers"] + "</td>")
+                    html.push("<td>" + v["Dcreatedate"] + "</td><td>" + v["UserName"] + "</td>")
+                    html.push("<td><a href='/Ajax/AjaxDepartMent.ashx?action=DelUser&Uid=" + v["DepartId"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a><a href='#' onclick='UpdateDepartMent(this,\"" + v["DepartId"] + "\",\"" + v["Department"] + "\")' class='btn btn-green' >编辑</a></td>")
+                    html.push("</tr> ")
+                });
+                $("#DepartMentList tbody").empty().append(html.join(''));
+                PageNum(DepartMax, DepartIndex);
+
+                $("#div").html(TotalCount);
+                $("#DepartSet").empty().append(htmls.join(''));
+                //DepartIndex1，让首页、上一页不可点击
+                if (DepartIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (DepartIndex == DepartMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    var Departid;
+    function UpdateDepartMent(_this, id, name) {
+        Departid = id;
+        $(_this).dialog({ id: 'addDepart_dialog', onClose:"addDepat_onClose",url: '/Admin/DataBase/DepartMent/AddDepart.html?id=' + id + '', title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？',width:300,height:200 });
+    }
+    function addDepat_onClose($dialog) {
+        Departid = undefined;
+    }
+    $(function () {
+        PageDepart();
+        $(".j-sum").live("click", function () {
+            var PageNumValue = $(this).text();
+            DepartIndex = PageNumValue;
+            PageDepart();
+        });
+        $("#Select_Depart_Page").live("change", function () {
+            var SelectValue = $("#Select_Depart_Page").find("option:selected").text();
+            if (SelectValue > TotalCount) {
+                DepartIndex = 1;
+            }
+            DepartSize = SelectValue;
+            PageDepart();
+        });
+    });
+    function Jump() {
+        $(".goto").live("click", function () {
+            var Letgo = $("#go").val();
+            if (Letgo > DepartMax) {
+                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+                return false;
+            }
+            if (Letgo < 1) {
+                $(this).alertmsg('warn', '请输入大于1的数字');
+                return false;
+            }
+            if (isNaN(Number(Letgo)) || Letgo == "") {
+                $(this).alertmsg('warn', '请输入数字');
+                return;
+            }
+            DepartIndex = Letgo;
+            PageDepart();
+        });
+    }
+
+    //下一页
+    function next() {
+        if (DepartIndex <DepartMax) {
+            DepartIndex++;
+            console.log(DepartIndex);
+            PageDepart();
+        }
+    }
+    //上一页
+    function prev() {
+        if (DepartIndex > 1) {
+            DepartIndex--;
+            PageDepart();
+        }
+    }
+    //首页
+    function first() {
+        DepartIndex = 1;
+        PageDepart();
+    }
+    //尾页
+    function last() {
+        DepartIndex = DepartMax;
+        PageDepart();
+    }
+    function ClearSelect() {
+        $("#Depart_Name").val("");
+        PageDepart();
+    }
+    function DepartSel() {
+        var DepartName = $("#Depart_Name").val();
+        PageDepart();
+    }
+
+</script>
+<div class="bjui-pageHeader">
+        <div class="bjui-searchBar">          
+            <label>部门名称：</label><input type="text" value="" name="" id="Depart_Name" class="form-control" size="8">&nbsp;           
+            <button type="button" class="btn-default" data-icon="search" onclick="DepartSel()" id="Sel">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
+            <div class="pull-right">
+            <!--    <button type="button" class="btn-blue" data-url="/B-JUI/ajaxDone2.html?id={#bjui-selected}" data-toggle="doajax" data-confirm-msg="确定要删除选中项吗？" data-icon="remove" title="可以在控制台(network)查看被删除ID">删除选中行</button>&nbsp;-->
+            <a href="/Admin/DataBase/DepartMent/AddDepart.html" class="btn btn-blue" data-toggle="dialog" data-width="300" data-height="200" data-id="addDepart_dialog" ata-icon="user" data-mask="true"><i class="fa fa-plus-square" size="10" aria-hidden="true">创建部门</i></a>
+            </div>
+        </div>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="DepartMentList">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th data-order-field="operation" align="center">部门名称</th>
+                <th data-order-field="name">部门人数</th>
+                <th>创建时间</th>
+                <th>创建人</th>            
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+        <div class="pages">
+            <span>每页&nbsp;</span>
+            <div class="selectPagesize" id="div_GoodsPage">
+                <select data-toggle="selectpicker" id="Select_Depart_Page">
+                    <option value="15">15 </option>
+                    <option value="30">30 </option>
+                    <option value="50">50 </option>
+                    <option value="100">100 </option>
+                </select>
+            </div>
+        <span>&nbsp;共 <span  id="div"></span> 条</span>
+    </div>
+    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="DepartSet">
+    </div>
+</div>

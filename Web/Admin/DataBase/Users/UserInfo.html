@@ -1,0 +1,104 @@
+﻿<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
+<script type="text/javascript">
+    
+    $(function () {
+        OnloadSelect();
+        $.ajax({
+            url: "/Ajax/AjaxUser.ashx?action=myprofile",
+            type: "post",
+            data: "",
+            success: function (msg) {
+                var json = JSON.parse(msg);            
+                var data = json["dicc"];
+                var date = json["date"];
+                var html = [];
+        
+ 
+            
+                $("#u_Session_LoginName").val(data["LoginName"]);
+                $("#u_Session_pwd").val(data["Upwd"]);
+                $("#u_Session_user").val(data["UserName"]);
+                $("#u_Session_eamil").val(data["UEmail"]);
+                $("#u_Session_phone").val(data["UPhone"]);
+                $("#Depart option[value=" + data.UDepartId + "]").attr("selected", true);
+                $("#Depart").selectpicker("refresh");
+                $("#u_Session_note").val(data.UNote);
+                $("#session_id").val(data["UId"]);
+
+                //html.push("<tr>")
+                //html.push("<td>" + data["LoginName"] + "</td><td>" + data["UserName"] + "</td><td>" + data["UEmail"] + "</td><td>" + data["UPhone"] + "</td><td>" + data["Department"] + "</td><td>" + date + "</td>")
+                //html.push("<td><a class='btn btn-green' onclick= 'UpdateUserss(this,\"" + data["UId"] + "\",\"" + data["UserName"] + "\")'>编辑</a></td>")
+                //html.push("</tr>")
+                //$("#UserInfo tbody").empty().append(html.join(''));
+            }
+        });
+    });
+    //function UpdateUserss(_this, uid, uname) {
+    //    Usersid = uid;
+    //    $(_this).dialog({ uid: 'AddUsersid_dialog', onClose: "AddUser_onClose", url: '/Admin/DataBase/Users/AddUsers.html?id=' + uid, title: "编辑-" + uname, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800', height: '400' });
+    //}
+    //function AddUser_onClose($dialog) {
+    //    Usersid = undefined;
+    //}
+
+    function editSession_name(_that) {
+        var usersid = $("#session_id").val();
+        console.log(usersid);
+        $("#frm_Users").attr("action", "/Ajax/AjaxUser.ashx?action=SavePersonnerl&Uid=" + usersid + "");    
+       $("#frm_Users").submit();
+    }
+    
+
+</script>
+<div class="bjui-pageContent">
+    <form action="#" id="frm_Users" data-alertmsg="false" class="nice-validator n-red" data-toggle="validate">
+        <input type="hidden" name="custom.id" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="u_Session_LoginName" class="control-label x85">登录名：</label>
+                        <input type="text" name="users.lgname" id="u_Session_LoginName" value="" data-rule="required" size="12">
+                        <input type="hidden" id="session_id"/>
+                    </td>
+                    <td>
+                        <label for="u_UserPWD" class="control-label x85">登陆密码：</label>
+                        <input type="password" name="users.lgpwd" readonly id="u_Session_pwd" value="" data-rule="required" size="12">     
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="u_Session_user" class="control-label x85">用户名：</label>
+                        <input type="text" name="users.name" id="u_Session_user" value="" data-rule="required" size="12">
+                    </td>
+                    <td>
+                        <label for="u_Session_eamil" class="control-label x85">邮箱：</label>
+                        <input type="text" name="users.email" id="u_Session_eamil" value="" data-rule="required;email" size="12">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="u_Session_phone" class="control-label x85">手机：</label>
+                        <input type="text" name="users.phone" id="u_Session_phone" value="" data-rule="required;mobile" size="12">
+                    </td>
+                    <td>
+                        <label for="Depart" class="control-label x85">所属部门：</label>
+                        <select name="users.depart" id="Depart" data-toggle="selectpicker" data-rule="required" data-width="120"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <label for="u_Session_note" class="control-label x85">备注：</label>
+                        <textarea name="users.note" id="u_Session_note" data-toggle="autoheight" cols="50" rows="10"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" id="Session_Login" onclick="editSession_name(this)">保存</button></li>
+    </ul>
+</div>

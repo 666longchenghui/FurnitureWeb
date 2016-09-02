@@ -1,0 +1,180 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+    var UserIndex = 1;
+    var UserSize = 15;
+    var UserMax;
+    var TotalCount;
+  
+    $(function () {
+        UserPage();
+        $(".j-sum").live("click", function () {
+            var PageNumValue = $(this).text();
+            UserIndex = PageNumValue;
+            UserPage();
+        });
+        $("#Select_PerPage").live("change", function () {
+            var SelectValue = $("#Select_PerPage").find("option:selected").text();
+            if (SelectValue > TotalCount) {
+                UserIndex = 1;
+            }
+            UserSize = SelectValue;
+            UserPage();
+        });
+    });
+    function UserPage() {
+        var UserName = $("#User_Name").val();
+        var DepartName = $("#Depart_Name").val();
+        $.ajax({
+            url: "/Ajax/AjaxUser.ashx?action=GetUserList",
+            type: "post",
+            data: {
+                "UserName": UserName,
+                "DepartName":DepartName,
+                "UserIndex": UserIndex,
+                "UserSize": UserSize
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg)           
+                var data = json["resultData"];          
+                data = JSON.parse(data);      
+                var Obj = data[""];
+                var count = json["resultCount"];     
+                count = JSON.parse(count);
+                TotalCount = count[""][0]["Column1"];           
+                UserMax = Math.ceil(TotalCount / UserSize);               
+                var html = [];
+                var SerialNumber = (UserIndex - 1) * UserSize;
+                $.each(Obj, function (k, v) {
+                    html.push("<tr><td>" + (++SerialNumber) + "</td>")
+                    html.push("<td>" + v["LoginName"] + "</td><td>" + v["UserName"] + "</td><td>" + v["UEmail"] + "</td><td>" + v["UPhone"] + "</td><td>" + v["Department"] + "</td><td>" + v["UCreateTime"] + "</td>");
+                    html.push("<td><a href='/Ajax/AjaxUser.ashx?action=DelUser&UId=" + v["UId"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>")
+                    html.push("<a class='btn btn-green' onclick= 'UpdateUsers(this,\"" + v["UId"] + "\",\"" + v["UserName"] + "\")'>编辑</a</td>")
+                    html.push("</tr>");                
+                });
+                $("#UserList tbody").empty().append(html.join(''));
+                PageNum(UserMax, UserIndex);              
+                $("#Userscount").html(TotalCount);
+                $("#UserPage").empty().append(htmls.join(''));
+                //如果当前页等于1，让首页、上一页不可点击
+                if (UserIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (UserIndex == UserMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    //下一页
+    function next() {
+        if (UserIndex < UserMax) {
+            UserIndex++;
+            UserPage();
+        }
+    }
+    //上一页
+    function prev() {
+        if (UserIndex > 1) {
+            UserIndex--;
+            UserPage();
+        }
+    }
+    //首页
+    function first() {
+        UserIndex = 1;
+        UserPage();
+    }
+    //尾页
+    function last() {
+        UserIndex = UserMax;
+        UserPage();
+    }
+
+    function Jump() {
+        $(".goto").live("click", function () {
+            var InputValue = $("#go").val();
+            if (InputValue > UserMax) {
+                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+                return false;
+            }
+            if (InputValue < 1) {
+                $(this).alertmsg('warn', '请输入大于1的数字');
+                return false;
+            }
+            if (isNaN(Number(InputValue)) || InputValue == "") {
+                $(this).alertmsg('warn', '请输入数字');
+                return;
+            }
+            UserIndex = InputValue;
+            UserPage();
+        });
+    }
+    var Usersid;
+    function UpdateUsers(_this,uid,uname){
+        Usersid = uid;
+        $(_this).dialog({ uid: 'AddUsersid_dialog', onClose: "AddUser_onClose", url: '/Admin/DataBase/Users/AddUsers.html?id=' + uid, title: "编辑-" + uname, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800', height: '400' });
+    }
+    function AddUser_onClose($dialog) {
+        Usersid = undefined;
+    }
+    function ClearSel() {
+        $("#User_Name").val("");
+        $("#Depart_Name").val("");
+        UserPage();
+    }
+    function UsersSelect() {
+        var UserName = $("#User_Name").val();
+        UserPage();
+    }
+</script>
+<div class="bjui-pageHeader">
+        <div class="bjui-searchBar">
+            <label>用户名称：</label><input type="text" value="" name="" id="User_Name" class="form-control" size="8">&nbsp;
+            <label>部门名称：</label><input type="text" value="" name=""id="Depart_Name"  class="form-control" size="8">&nbsp;
+            <button type="button" class="btn-default" data-icon="search" onclick="UsersSelect()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSel()">清空查询</a>
+            <!--<button type="button" class="btn-blue" data-toggle="doajax" onclick='AddUnit(this)' id="Btn_AddSupplier" data-icon="fa fa-plus" title="可以在控制台(network)查看被删除ID">添加单位</button>&nbsp;-->
+            <div class="pull-right">
+                <a href="/Admin/DataBase/Users/AddUsers.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="AddUsersid_dialog" ata-icon="user" data-mask="true"><i class="fa fa-plus-square" size="10" aria-hidden="true">创建用户</i></a>
+            </div>
+        </div>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="UserList">
+        <thead>
+            <tr>
+                <!--<th data-order-field="operation" align="center">业务</th>-->
+                <th data-order-field="name">序号</th>
+                <th>登录名</th>
+                <th>用户名</th>
+                <th>邮箱</th>
+                <th>手机</th>
+                <th>所属部门</th>
+                <th>创建时间</th>
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" id="Select_PerPage">
+                <option value="15">15 </option>
+                <option value="30">30 </option>
+                <option value="50">50 </option>
+                <option value="100">100 </option>
+             
+            </select>
+        </div>
+        <span>&nbsp;条，共  <span id="Userscount"></span>条</span>
+    </div>
+    <div class="pagination-box"data-page-size="30" data-page-current="1" id="UserPage">
+    </div>
+</div>

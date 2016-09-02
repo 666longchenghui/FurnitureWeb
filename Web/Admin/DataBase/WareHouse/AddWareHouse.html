@@ -1,0 +1,96 @@
+﻿<script type="text/javascript">
+    function AddWareHouse(_that) {
+        if (WareHouseid) {
+            $("#frm_WareHouse").attr("action", "/Ajax/AjaxWareHouse.ashx?action=SaveWareHouse&id=" + WareHouseid);
+        }
+        $("#frm_WareHouse").submit();
+    }
+    $(function () {
+        $("#custom.id").val(WareHouseid)
+        if (WareHouseid) {
+            $.ajax({
+                url: "/Ajax/AjaxWareHouse.ashx?action=EditWareHouese",
+                type: "post",
+                data: { id: WareHouseid },
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    var data = json[""][0];
+          
+                    $("#W_Name").val(data.WareName);
+                    $("#W_Contacts").val(data.WHContacts);
+                    $("#W_Phone").val(data.WHPhone);
+                    $("#W_Address").val(data.WareHouseAddress);
+                    $("#W_Note").val(data.WNote);
+                }
+            });
+        }
+    });
+    //$("#Btn_WareHouse").click(function () {
+    //    $.ajax({
+    //        url: "/Ajax/AjaxWareHouse.ashx?action=AddWarehouse",
+    //        type: "post",
+    //        data: {
+    //            "WName": $("#W_Name").val(),
+    //            "WContacts": $("#W_Contacts").val(),
+    //            "WPhone": $("#W_Phone").val(),
+    //            "WAdress": $("#W_Address").val(),
+    //            "WNote": $("#W_Note").val(),
+
+    //        },
+    //        success: function (msg) {
+       
+    //            var data = JSON.parse(msg);
+    //            if (data["statusCode"]==200) {
+    //                $(this).alertmsg('warn', '仓库名已存在');
+    //            }
+    //            else if (data["statusCode"] == 201) {
+    //                $(this).alertmsg('ok', '仓库添加成功');
+    //            }
+    //            else if (data["statusCode"] == 300) {
+    //                $(this).alertmsg('warn', '仓库添加失败');
+    //            }
+    //        },
+    //    });
+    //});
+</script>
+<div class="bjui-pageContent">
+    <form  data-alertmsg="false" action="/Ajax/AjaxWareHouse.ashx?action=AddWarehouse" id="frm_WareHouse" class="nice-validator n-red" data-toggle="validate">
+        <input type="hidden" name="custom.id" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">仓库名称：</label>
+                        <input type="text" name="WareHouse.name" id="W_Name" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">仓管：</label>
+                        <input type="text" name="WareHouse.manager" id="W_Contacts" value="" data-rule="required" size="15">
+                    </td>                
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">联系号码：</label>
+                        <input type="text" name="WareHouse.phone" id="W_Phone" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_custom_lname" class="control-label x85">地区：</label>
+                        <input type="text" name="WareHouse.address" id="W_Address" value="" data-rule="required" size="15">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <label for="j_custom_lname" class="control-label x85">备注：</label>
+                        <textarea name="WareHouse.note" id="W_Note" data-toggle="autoheight" cols="60" rows="12"></textarea>
+                    </td>          
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" onclick="AddWareHouse(this)">保存</button></li>
+    </ul>
+</div>

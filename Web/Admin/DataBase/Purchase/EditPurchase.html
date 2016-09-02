@@ -1,0 +1,190 @@
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
+<script type="text/javascript">
+
+    var DepotIndex = 1;
+    var DepotSize = 4;
+    var DepotMax;
+    $(function () {
+        //获取页码的值
+        $(".j-sum").live("click", function () {
+            var PageNumValue = $(this).text();
+            DepotIndex = PageNumValue;
+            EdPage();
+
+        });
+        EdPage()
+    });
+    function Clean() {
+        $("#LikeName").val("");
+      
+    }
+    function EdPage() { 
+        var EdPageName =$("#LikeName").val();
+        $.ajax({      
+            url: "/Ajax/AjaxPurchase.ashx?action=GetDepot",
+            type: "post",
+            data: {
+                "DepotIndex": DepotIndex,
+                "DepotSize": DepotSize,
+                "EdPageName": EdPageName
+            },
+            success: function (msg) {
+              
+                var json = JSON.parse(msg);
+                console.log(json);
+                var data = json["DataSql"];
+                data = JSON.parse(data); 
+                var datavalue = data[""];
+                var Count = json["DataCount"];
+         
+                Count = JSON.parse(Count);
+                var TotalDepot = Count[""][0]["Column1"];
+
+                DepotMax = Math.ceil(TotalDepot / DepotSize);
+                var html = [];
+                $.each(datavalue, function (k, v) {
+                    var css = "btn btn-blue";
+                    var ick = "";
+                    if (v.DepotStatus == 1) {
+                        $("#ids").addClass("disabled");
+                        css = "disabled " + css;
+                        ick = "disabled";
+                    }
+
+                    html.push("<tr ><td>" + v["DepotName"] + "</td><td>" + v["WareHouseAddress"] + "</td>")
+                    html.push("<td id='ids'>" + (v.DepotStatus == 0 ? "<a href='#' onclick='' class='btn btn-green' >正常</a>" : "<a href='#' onclick='' class= btn btn-red' >已满</a>") + "</td>")
+                    html.push("<td>" + v["WareHousDate"] + "</td>")
+              //    html.push("<td><input type='checkbox' name='ids' data-toggle='icheck' " + ick + " value='{pid:'" + v["depotId"] + "', Depot:'" + v["WareHouseName"] + "'}</td>")
+                    html.push("<td><a href='javascript:;'data-toggle='lookupback' data-args=\"{pid:'" + v["Wid"] + "', Depot:'" + v["DepotName"] + "'}\" class='" + css + "' title='选择本项' data-icon='check'>选择</a></td>")
+                    html.push("</tr>");
+                });
+        
+                $("#depot tbody").empty().append(html.join(''));
+                $("#Total").html(TotalDepot);
+                PageNum(DepotMax, DepotIndex);
+
+                $("#DepotPage").empty().append(htmls.join(''));
+
+
+                //如果当前页等于1，让首页、上一页不可点击
+                if (DepotIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (DepotIndex == DepotMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }           
+            }
+            
+        });
+    }
+    function Jump() {
+        //输入跳转
+        var Letgo = $("#go").val();
+
+
+        if (Letgo > PurchaseMax) {
+            $(this).alertmsg('warn', '你输入的数字超过页面范围');
+            return;
+        }
+        if (isNaN(Number(Letgo)) || Letgo == "") {
+            $(this).alertmsg('warn', '输入的字符无效或为空');
+            return;
+        }
+        if (Letgo < 1) {
+            $(this).alertmsg('warn', '请输入大于1的数字');
+            return;
+        }
+        PurchaseIndex = Letgo;
+        PurchasePage();
+        console.log(Letgo);
+    }
+    //下一页
+    function next() {
+        if (DepotIndex < DepotMax) {
+            DepotIndex++;
+            EdPage();
+        }
+    }
+    //上一页
+    function prev() {
+        if (DepotIndex > 1) {
+            DepotIndex--;
+            EdPage();
+        }
+    }
+    //首页
+    function first() {
+        DepotIndex = 1;
+        EdPage();
+    }
+    //尾页
+    function last() {
+        DepotIndex = DepotMax;
+        EdPage();
+    }
+
+
+</script>
+
+
+<div class="bjui-pageHeader">
+    <!--<form id="pagerForm" data-toggle="ajaxsearch" action="#" method="post">-->
+        <input type="hidden" name="pageCurrent" value="1">
+        <input type="hidden" name="pageSize" value="${model.pageSize}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <div class="bjui-searchBar">
+            <label>名称：</label><input type="text" value="" id="LikeName" size="10">&nbsp;
+            <button type="submit" class="btn-default" data-icon="search" onclick="EdPage()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo"onclick="Clean()">清空查询</a></li>
+            <!--<div class="pull-right">
+                <button type="button" class="btn-blue" data-toggle="lookupback" data-lookupid="ids" data-warn="请至少选择一项职业" data-icon="check-square-o">选择选中</button>
+            </div>-->  
+        </div>
+    <!--</form>-->
+</div>
+<div class="bjui-pageContent tableContent" id="depot">
+    <table data-toggle="tablefixed" data-width="100%">
+        <thead>
+            <tr>
+                <th data-order-field="name">仓库名称</th>
+                <th data-order-field="adress">仓库地点</th>
+                <th data-order-field="note">仓库状态</th>
+                <th class="orderby" data-order-direction="asc" data-order-field="date">创建日期</th>
+
+                <th width="74">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--<tr>
+                <td>1</td>
+                <td>自由职业</td>
+                <td>Free Man</td>
+                <td>2010-01-01</td>
+                <td><input type="checkbox" name="ids" data-toggle="icheck" value="{pid:'1', profession:'自由职业'}"></td>
+                <td>
+                    <a href="javascript:;" data-toggle="lookupback" data-args="{pid:'1', profession:'自由职业'}" class="btn btn-blue" title="选择本项" data-icon="check">选择</a>
+                </td>
+            </tr>-->
+          
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="Total"></span> 条</span>
+    </div>
+    <div class="pagination-box"  data-total="7" data-page-size="30" data-page-current="1" id="DepotPage">
+    </div>
+</div>
