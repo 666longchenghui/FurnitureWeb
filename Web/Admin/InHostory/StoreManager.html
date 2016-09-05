@@ -41,8 +41,9 @@
                 });
                 $("#StoreManager tbody").empty().append(html.join(''));
                 $("#StoreManager_Sum").html(store.MaxTotal);
-                PageNum(store.MaxPage, store.index);
+             
                 $("#store_Pagination").empty().append(htmls.join(''));
+                PageNum(store.MaxPage, store.index);
                 if (store.index==1) {
                     $(".c-first").addClass("disabled");
                     $(".c-prev").addClass("disabled");
@@ -51,6 +52,15 @@
                     $(".c-next").addClass("disabled");
                     $(".c-last").addClass("disabled");
                 }
+                console.log(store.index);
+                console.log(store.MaxPage);
+                //$(".c-next").click(function () {
+                //    if (store.index < store.MaxPage) {
+                //        store.index++;
+                //        StoreManager();
+                //    }
+
+                //});
             }
         });
     }
@@ -58,13 +68,18 @@
         StoreManager();
     });
     //下一页
-    function next() {  
-        if (store.index<store.MaxPage) {
+    function next(_that) {
+
+        PageNum(store.MaxPage, store.index);
+        if (store.index < store.MaxPage) {
             store.index++;
             StoreManager();
         }
+        console.log(store.index);
+        console.log(store.MaxPage);
     }
     //上一页
+    
     function prev() {
         if (store.index>1) {
             store.index--;
@@ -76,16 +91,14 @@
         if (store.index>1) {
             store.index = 1;
             StoreManager();
-        }
-       
+        }       
     }
     //末页
     function last() {
         if (store.index<store.MaxPage) {
             store.index = store.MaxPage;
             StoreManager();
-        }
-   
+        }   
     }
     var Number;
     function InvertoryDetail(_that,mid ) {

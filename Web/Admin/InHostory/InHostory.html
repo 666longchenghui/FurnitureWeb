@@ -6,7 +6,7 @@
     var size = 15;
     var max;//最大页
     var totalsum//总数
-
+    var HostoryList = { index: 1, size: 15, max:0,totalsum:0}
     function InHostory() {
         var CreateDate = $("#InHostory_CreateDate").val();//创建日期
         var EndDate = $("#InHostory_EndDate").val();//结束日期
@@ -16,8 +16,8 @@
             url: "/Ajax/AjaxInHostory.ashx?action=InHostory",
             type: "post",
             data: {
-                "index": index,
-                "size": size,
+                "index": HostoryList.index,
+                "size":HostoryList.size,
                 "CreateDate": CreateDate,
                 "EndDate": EndDate,
                 "OrderNumber": OrderNumber,
@@ -30,10 +30,10 @@
                obj = JSON.parse(obj);
                var data = obj[""];
                var sum = JSON.parse(count);
-               totalsum = sum[""][0]["Column1"];//总记录数
-               max = Math.ceil(totalsum / size);//最大页
+              HostoryList.totalsum = sum[""][0]["Column1"];//总记录数
+              HostoryList.max = Math.ceil(HostoryList.totalsum /HostoryList.size);//最大页
                var html = [];
-               var SerialNumber=(index-1)*size;
+               var SerialNumber = (HostoryList.index - 1) * HostoryList.size;
                $.each(data, function (k, v) {
                    html.push("<tr>");
                    html.push("<td>" + (++SerialNumber) + "</td><td>" + v["Number"] + "</td><td>" + v["OrderCreatetime"] + "</td><td>" + v["SCompanyName"] + "</td>");
@@ -42,17 +42,20 @@
                    html.push("</tr>");
                });
                $("#InHostorylist tbody").empty().append(html.join(''));
-               $("#InHoustory_sum").html(totalsum);
-               PageNum(max,index);
+               $("#InHoustory_sum").html(HostoryList.totalsum);
+               PageNum(HostoryList.max, HostoryList.index);
                $("#InHostory_PageNumber").empty().append(htmls.join(''));
-               if (index==1) {
+               if (HostoryList.index == 1) {
                    $(".c-first").addClass("disabled");
                    $(".c-prev").addClass("disabled");
                }
-               if (index==max) {
+               if (HostoryList.index == HostoryList.max) {
                    $(".c-next").addClass("disabled");
                    $(".c-last").addClass("disabled");
-               }
+               }                    
+               console.log(HostoryList.index);
+               console.log(HostoryList.max);
+            
             }
         });
     }
@@ -68,27 +71,29 @@
         InHostoryId = undefined;
     }
     //下一页
+
     function next() {
-        if (index<max) {
-            index++;
+
+        if (HostoryList.index < HostoryList.max) {
+            HostoryList.index++;
             InHostory();
         }   
     }
     //上一页
     function prev() {
-        if (index>1) {
-            index--;
+        if (HostoryList.index > 1) {
+            HostoryList.index--;
             InHostory();
         }
     }
     //首页
     function first() {
-        index = 1;
+        HostoryList.index = 1;
         InHostory();
     }
     //尾页
     function last() {
-        index = max;
+        HostoryList.index =HostoryList.max;
         InHostory();
     }
     function Clear() {
@@ -103,8 +108,7 @@
     <form id="InHostoryForm" data-toggle="ajaxsearch"  method="post">
         <div class="bjui-searchBar">                
             <!--<input type="checkbox" id="j_table_chk" value="true" data-toggle="icheck" data-label="我的客户">
-            <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>-->
-          
+            <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>-->          
             <label>创建日期：</label><input type="text" name="custon.date" id="InHostory_CreateDate" data-toggle="datepicker" data-rule="required;date" size="11">
             <label>至</label><input type="text" name="end.birthday" id="InHostory_EndDate" data-toggle="datepicker" data-rule="required;date" size="11">&nbsp;
             <label>单据编号：</label><input type="text" value="" name="name" class="form-control" size="18" id="InHostory_Number">&nbsp;

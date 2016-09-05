@@ -276,11 +276,9 @@
                             <a href="javascript:;" data-toggle="slidebar"><i class="fa fa-table"></i> 库存管理</a>
                             <div class="items hide" data-noinit="true">
                                 <ul id="bjui-hnav-tree2" class="ztree ztree_main" data-toggle="ztree" data-on-click="MainMenuClick" data-expand-all="true" data-faicon="table">
-                                    <li data-id="2" data-pid="0" data-faicon="folder-open-o" data-faicon-close="folder-o">库存管理</li>
-<%--                             
-                                    <li data-id="21" data-pid="2" data-url="StockIn/StockInList.html" data-tabid="table-fixed" data-faicon="indent">入库管理</li>--%>
-                                    <li data-id="22" data-pid="2" data-url="InHostory/InHostory.html" data-tabid="table-edit" data-faicon="indent">进货历史</li>
-                                    <li data-id="23" data-pid="2" data-url="InHostory/StoreManager.html" data-tabid="table-manager" data-faicon="indent">库存管理</li>
+                                    <li data-id="2" data-pid="0" data-faicon="folder-open-o" data-faicon-close="folder-o">库存管理</li>               
+                                      <li data-toggle="navtab" data-id="tabInHostory"  data-pid="2" data-url="InHostory/InHostory.html"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">进货历史</li>
+                                    <li data-id="tabStoreManager" data-pid="2" data-url="InHostory/StoreManager.html" data-tabid="table-manager" data-faicon="indent">库存管理</li>
                                 </ul>
                             </div>
                         </li>

@@ -37,7 +37,7 @@
                 $("#EditGoodsList tbody").empty().append(html.join(''));
                 $("#EditGoodsCount").html(Total);
                 //循环出页码
-                PageNum(HostoryMax, HostoryIndex);
+                PageNum(store.HostoryMax, store.HostoryIndex);
                 $("#edit_Goods").empty().append(htmls.join(''));
                 if (HostoryIndex == 1) {
                     $(".c-first").addClass("disabled");

@@ -65,8 +65,7 @@ namespace BLL.InHostory
         {
 
             string SelIdSQL = @"select ROW_NUMBER() OVER(ORDER BY m.mid) AS ROWINDEX,Mnumber, Mname,Msellingprice,m.Mid, u.Unitid,DataText,UnitName,ISNULL(InvertorySum, 0) as InvertorySum,d.DictionaryID from Merchandise m left join Unit u on m.Unitid = u.Unitid left join Dictionary d on m.DictionaryID = d.DictionaryID
-                             left join Inventory i on m.Mid = i.Mid where MDelete = 0 and m.Mid in(" + id + ")";
-
+                             left join Inventory i on m.Mid = i.Mid where MDelete = 0 and m.Mid in(" + id + ") order by m.mid";
             string Resurt = Common.CommonClass.DataTableToJson(com.Selcets(SelIdSQL));
             return Resurt;
         }
@@ -146,8 +145,8 @@ namespace BLL.InHostory
                                                ,[Mid]
                                                ,[InventoryId],Number,Sum,CreateTime)VALUES(@Suppliers,@Mid,null,@Number,@sum,@CreateTime)";
                 count = com.ExecutionSqlPar(insertDetail, par);
-
-                string UpdateStore = @"UPDATE [dbo].[Inventory] set [InvertorySum] = InvertorySum+@sum WHERE Mid=@Mid";
+             //   string UpdateSum = @"Update InventoryDetail set Sum=Sum+@sum where Mid=@Mid";
+               string UpdateStore = @"UPDATE [dbo].[Inventory] set [InvertorySum] = InvertorySum+@sum WHERE Mid=@Mid";
                 count = com.ExecutionSqlPar(UpdateStore, par);
             }          
             if (count > 0)
@@ -172,7 +171,7 @@ namespace BLL.InHostory
         /// <param name="InHoustoryid"></param>
         /// <returns></returns>
         public string GetInHostoryDetail(string InHoustoryid) {
-            string SelectPid = @"select o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
+            string SelectPid = @"select ROW_NUMBER() OVER(ORDER BY o.Pid)as NO,o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
                                                              left join Dictionary d on m.DictionaryID = d.DictionaryID
                                                                left join Unit u on u.Unitid = m.Unitid
                                                  left join dbo.Supplier s on o.Suppliersid=s.Superid where o.Pid=" + InHoustoryid + "";
@@ -244,7 +243,7 @@ namespace BLL.InHostory
         /// <param name="runnumber"></param>
         /// <returns></returns>
         public string GetRunNumber(string runnumber) {
-            string selectnumber = @"select o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
+            string selectnumber = @"select ROW_NUMBER() OVER(ORDER BY o.Pid)as Numbered,o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
                                                              left join Dictionary d on m.DictionaryID = d.DictionaryID
                                                                left join Unit u on u.Unitid = m.Unitid
                                                  left join dbo.Supplier s on o.Suppliersid = s.Superid where Number = '" + runnumber + "'";

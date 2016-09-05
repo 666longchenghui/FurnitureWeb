@@ -224,9 +224,6 @@ namespace Common
                 conn.Close();
             }
         }
-
-
-
         //对字符串进行MD5运算
         public static string MD5String(string str) {
             MD5 md5 = MD5.Create();
