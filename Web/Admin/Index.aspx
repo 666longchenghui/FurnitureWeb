@@ -389,7 +389,6 @@
                 <div class="navtab-panel tabsPageContent">
                     <div class="navtabPage unitBox">
                         <div class="bjui-pageContent" style="background:#FFF;">
-                            Loading...
                         </div>
                     </div>
                 </div>
