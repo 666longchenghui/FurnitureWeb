@@ -1,10 +1,10 @@
 ﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
-    var ModeIIndex = 1;
-    var ModelSize = 15;
-    var ModelMax;
-    var ModelTotal;
-
+    //var model.index = 1;
+    //var model.size = 15;
+    //var ModelMax;
+    //var model.total;
+    var model = { index: 1, size: 15, max: 0, total: 0 };
     function PageModel() {
         var ModelName = $("#customNo").val();
         $.ajax({
@@ -12,22 +12,23 @@
             type: "post",
             data: {
                 "ModelName":ModelName,
-                "ModeIIndex": ModeIIndex,
-                "ModelSize": ModelSize,
+                "ModelIndex": model.index,
+                "ModelSize": model.size,
             },
             success: function (msg) {
                 var json = JSON.parse(msg);
+         
                 var data = json[""];
                 var count = json["ComCount1"];
                 count = JSON.parse(count);
-                ModelTotal = count[""][0]["Column1"];//取得总记录数
+                model.total = count[""][0]["Column1"];//取得总记录数
                 //计算出最大页数
-                ModelMax = Math.ceil(ModelTotal / ModelSize);
+                model.max = Math.ceil(model.total / model.size);
                 var data = json["ComStr1"];
                 data = JSON.parse(data);
                 var ObjData = data[""];
                 var html = [];
-                var number = (ModeIIndex - 1) * ModelSize;
+                var number = (model.index - 1) * model.size;
                 $.each(ObjData, function (k, v) {
                     html.push("<tr>")
                     html.push("<td>" + (++number) + "</td>")
@@ -37,18 +38,34 @@
                     html.push("</tr>")
                 });
                 $("#Model tbody").empty().append(html.join(''));
-                PageNum(ModelMax, ModeIIndex);
-                $("#ModelCount").html(ModelTotal);
-                $("#ModelPage").empty().append(htmls.join(''));
+         
+                $("#ModelCount").html(model.total);
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='m-first'><a href='javascript:'onclick='model_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='m-prev'><a href='javascript:' onclick='model_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= model.max; i++) {
+                    var cs = "j-sum";
+                    if (i == model.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='m-next' ><a href='javascript:' id='n' onclick='model_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='m-last'><a href='javascript:' onclick='model_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="m-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="mgo"></span><a class="mgoto" href="javascript:;" title="跳转" onclick="model_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                $("#model_pagination").empty().append(htmls.join(''));
                //如果当前页等于1，让首页、上一页不可点击
-                if (ModeIIndex == 1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                if (model.index == 1) {
+                    $(".m-first").addClass("disabled");
+                    $(".m-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (ModeIIndex == ModelMax) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
+                if (model.index == model.max) {
+                    $(".m-next").addClass("disabled");
+                    $(".m-last").addClass("disabled");
                 }
             }
         });
@@ -68,57 +85,60 @@
         PageModel();
         $(".j-sum").live("click", function () {
             var PageNumVal = $(this).text();
-            ModeIIndex = PageNumVal;
+            model.index = PageNumVal;
             PageModel();
         });
         $("#Select_Page").live("change", function () {
            var SelectPage= $("#Select_Page").find("option:selected").text();
-           if (SelectPage > ModelTotal) {
-               ModeIIndex = 1;
+           if (SelectPage > model.total) {
+               model.index = 1;
            }
-           ModelSize = SelectPage;
+           model.size = SelectPage;
            PageModel();
         });
     })
-    function Jump() {
-        $(".goto").live("click", function () {
-            var InputValue = $("#go").val();
-            console.log(InputValue);
-            console.log(ModelMax);
-            if (InputValue >parseInt( ModelMax)) {
-                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+    function model_Jump() {
+        $(".mgoto").live("click", function () {
+            var InputValue = $("#mgo").val();
+       
+            if (InputValue >parseInt( model.max)) {
+                $(this).alertmsg('info', '你输入的数字超过页码范围');
                 return ;
             }       
             if (isNaN(Number(InputValue)) || InputValue == "") {
-                $(this).alertmsg('warn', '请输入数字');
+                $(this).alertmsg('info', '请输入数字');
                 return;
             }
-            ModeIIndex = InputValue;
+            if (InputValue < 1) {
+                $(this).alertmsg('info', "请输入大于1的数字");
+                return;
+            }
+            model.index = InputValue;
             PageModel();
         });
     }
     //下一页
-    function next() {
-        if (ModeIIndex < ModelMax) {
-            ModeIIndex++;
+    function model_next() {
+        if (model.index < model.max) {
+            model.index++;
             PageModel();
         }
     }
     //上一页
-    function prev() {
-        if (ModeIIndex > 1) {
-            ModeIIndex--;
+    function model_prev() {
+        if (model.index > 1) {
+            model.index--;
             PageModel();
         }
     }
     //首页
-    function first() {
-        ModeIIndex = 1;
+    function model_first() {
+        model.index = 1;
         PageModel();
     }
     //尾页
-    function last() {
-        ModeIIndex = ModelMax;
+    function model_last() {
+        model.index = model.max;
         PageModel();
     }
     function ClearSelect() {
@@ -178,6 +198,6 @@
         </div>
         <span>&nbsp;条，共<span id="ModelCount"></span>  条</span>
     </div>
-    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="ModelPage">
+    <div class="pagination-box" data-page-size="30" data-page-current="1" id="model_pagination">
     </div>
 </div>

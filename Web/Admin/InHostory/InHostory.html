@@ -2,10 +2,10 @@
     function AddInGoods(_this) {
         $(_this).dialog({ url: '/Admin/InHostory/AddInHostory.html', title: "新增进货单", id: 'dialog_InHostory', toggle: 'dialog',width:800,height:600 });
     }
-    var index = 1;
-    var size = 15;
-    var max;//最大页
-    var totalsum//总数
+    //var index = 1;
+    //var size = 15;
+    //var max;//最大页
+    //var totalsum//总数
     var HostoryList = { index: 1, size: 15, max:0,totalsum:0}
     function InHostory() {
         var CreateDate = $("#InHostory_CreateDate").val();//创建日期
@@ -43,24 +43,50 @@
                });
                $("#InHostorylist tbody").empty().append(html.join(''));
                $("#InHoustory_sum").html(HostoryList.totalsum);
-               PageNum(HostoryList.max, HostoryList.index);
+               htmls = [];
+               htmls.push("<ul class='pagination'>");
+               htmls.push("<li class='i-first'><a href='javascript:'onclick='InHostory_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+               htmls.push("<li class='i-prev'><a href='javascript:' onclick='InHostory_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+               for (var i = 1; i <= HostoryList.max; i++) {
+                   var cs = "j-sum";
+                   if (i == HostoryList.index) {
+                       cs = "selected " + cs;
+                   }
+                   htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+               }
+               htmls.push("<li class='i-next' ><a href='javascript:' id='n' onclick='InHostory_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+               htmls.push("<li class='i-last'><a href='javascript:' onclick='InHostory_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+               htmls.push('<li class="i-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="igo"></span><a class="igoto" href="javascript:;" title="跳转" onclick="InHostory_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+               htmls.push("<ul>");
+           //    PageNum(HostoryList.max, HostoryList.index);
                $("#InHostory_PageNumber").empty().append(htmls.join(''));
                if (HostoryList.index == 1) {
-                   $(".c-first").addClass("disabled");
-                   $(".c-prev").addClass("disabled");
+                   $(".i-first").addClass("disabled");
+                   $(".i-prev").addClass("disabled");
                }
                if (HostoryList.index == HostoryList.max) {
-                   $(".c-next").addClass("disabled");
-                   $(".c-last").addClass("disabled");
-               }                    
-               console.log(HostoryList.index);
-               console.log(HostoryList.max);
-            
+                   $(".i-next").addClass("disabled");
+                   $(".i-last").addClass("disabled");
+               }                               
             }
         });
     }
     $(function () {
         InHostory();
+        $(".j-sum").live("click", function () {
+            var pagination = $(this).text();
+            HostoryList.index = pagination;
+            InHostory();        
+        });
+        $("#InHoustory_Select").live("change", function () {
+            var option = $("#inhostory_selectvalue").find("option:selected").text();//获取下拉框选中的值
+            if (option>HostoryList.max) {
+                HostoryList.index = 1;
+            }
+            HostoryList.size = option;
+            InHostory();
+        });       
     });
     var InHostoryId;
     function editInHoustory(_that,id) {
@@ -72,30 +98,49 @@
     }
     //下一页
 
-    function next() {
-
+    function InHostory_next() {
         if (HostoryList.index < HostoryList.max) {
             HostoryList.index++;
             InHostory();
         }   
     }
     //上一页
-    function prev() {
+    function InHostory_prev() {
         if (HostoryList.index > 1) {
             HostoryList.index--;
             InHostory();
         }
     }
     //首页
-    function first() {
+    function InHostory_first() {
         HostoryList.index = 1;
         InHostory();
     }
     //尾页
-    function last() {
+    function InHostory_last() {
         HostoryList.index =HostoryList.max;
         InHostory();
     }
+    function InHostory_Jump() {
+        //$(".igoto").live("click", function () {
+        var Input_Houstory = $("#igo").val();
+        if (Input_Houstory>HostoryList.max) {
+            $(this).alertmsg('info', "你输入的数字超出页码范围");
+            return;
+        }
+        if (isNaN(Number(Input_Houstory)) || Input_Houstory=="") {
+            $(this).alertmsg('info', "请输入数字");
+            return;
+        }
+        if (Input_Houstory<1) {
+            $(this).alertmsg('info', "请输入大于1的数字");
+            return;
+        }
+            HostoryList.index=Input_Houstory;
+            InHostory();
+       
+    }
+        
     function Clear() {
       $("#InHostory_CreateDate").val("");//创建日期
       $("#InHostory_EndDate").val("");//结束日期
@@ -103,6 +148,7 @@
       $("#InHostory_Supplier").val("");//供应商
       InHostory();
     }
+
 </script>
 <div class="bjui-pageHeader">
     <form id="InHostoryForm" data-toggle="ajaxsearch"  method="post">
@@ -139,16 +185,15 @@
 <div class="bjui-pageFooter">
     <div class="pages">
         <span>每页&nbsp;</span>
-        <div class="selectPagesize">
-            <select data-toggle="selectpicker" >
-                <option value="15">15 </option>
-                <option value="30">30 </option>
-                <option value="50">50 </option>
-                <option value="100"> 100</option></select>
+        <div class="selectPagesize" id="InHoustory_Select" >
+            <select data-toggle="selectpicker" id="inhostory_selectvalue">
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="100">100 </option></select>
         </div>
         <span>&nbsp;条，共 <span id="InHoustory_sum"></span> 条</span>
     </div>
     <div class="pagination-box" data-total="600" data-page-size="30" data-page-current="1" id="InHostory_PageNumber">
     </div>
 </div>
-<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>

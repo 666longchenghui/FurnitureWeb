@@ -1,9 +1,5 @@
 ﻿<script type="text/javascript">
-    var HostoryIndex = 1;
-    var HostorySize =15;
-    var HostoryMax;
-
-    var store = { index: 1, size: 5, MaxPage: 0, MaxTotal: 0 };
+    var addgoods = { index: 1, size: 15, max: 0, Sum: 0 };
     function EditGoodsPage() {
         var Likegoods = $("#Like_Goods").val();
         $.ajax({
@@ -11,8 +7,8 @@
             type: "post",
             data: {
                 "Likegoods":Likegoods,
-                "HIndex": HostoryIndex,
-                "HSize":HostorySize,
+                "HIndex": addgoods.index,
+                "HSize":addgoods.size,
             },
             success: function (msg) {
                 var json = JSON.parse(msg);
@@ -21,31 +17,45 @@
                 var Item = data[""];
                 var Count = json["StrCount"];
                 var Total = JSON.parse(Count);
-                Total = Total[""][0]["Column1"];
-                HostoryMax = Math.ceil(Total / HostorySize);              
+                addgoods.Sum = Total[""][0]["Column1"];
+                addgoods.max = Math.ceil(addgoods.Sum / addgoods.size);              
                 var html = [];
-                var SerialNumber = (HostoryIndex - 1) * HostorySize;
+                var SerialNumber = (addgoods.index - 1) * addgoods.size;
                 $.each(Item, function (k, v) {
                     html.push("<tr>")          
                     html.push("<td>"+(++SerialNumber)+"</td><td>" + v["Mnumber"] + "</td><td>" + v["Mname"] + "</td><td>" + v["DataText"] + "</td><td>" + v["UnitName"] + "</td>")
                     html.push("<td>" + v["Msellingprice"] + "</td><td>" + v["InvertorySum"] + "</td>")
                     html.push('<td><input type="checkbox" name="ids" data-toggle="icheck" value="{pid:' + v["Mid"] + ', nation:\'' + v["Mname"] + '\'}"></td>')
-                    //html.push('<td><input type="checkbox" class="checkboxCtrl" data-group="ids" data-toggle="icheck" ></td>')
+             
                     html.push('<td><a href="javascript:;" data-toggle="lookupback" data-args="{pid:' + v["Mid"] + ', nation:\'' + v["Mname"] + '\'}" class="btn btn-blue" title="选择本项" data-icon="check" >选择</a></td>')
                     html.push("</tr>")
                 });
                 $("#EditGoodsList tbody").empty().append(html.join(''));
-                $("#EditGoodsCount").html(Total);
+                $("#EditGoodsCount").html(addgoods.Sum);
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='l-first'><a href='javascript:'onclick='Addgoods_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='l-prev'><a href='javascript:' onclick='Addgoods_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
                 //循环出页码
-                PageNum(store.HostoryMax, store.HostoryIndex);
-                $("#edit_Goods").empty().append(htmls.join(''));
-                if (HostoryIndex == 1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                for (var i = 1; i <= addgoods.max; i++) {
+                    var cs = "j-sum";
+                    if (i == addgoods.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
                 }
-                if (HostoryIndex == HostoryMax) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
+                htmls.push("<li class='l-next' ><a href='javascript:' id='n' onclick='Addgoods_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='l-last'><a href='javascript:' onclick='Addgoods_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="l-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="lgo"></span><a class="lgoto" href="javascript:;" title="跳转" onclick="Addgoods_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                $("#edit_Goods").empty().append(htmls.join(''));
+                if (addgoods.index == 1) {
+                    $(".l-first").addClass("disabled");
+                    $(".l-prev").addClass("disabled");
+                }
+                if (addgoods.index == addgoods.max) {
+                    $(".l-next").addClass("disabled");
+                    $(".l-last").addClass("disabled");
                 }
             }
         });
@@ -54,55 +64,66 @@
         EditGoodsPage();
         $(".j-sum").live("click", function () {
             var ClickValue = $(this).text();
-            HostoryIndex = ClickValue;
+            addgoods.index = ClickValue;
             EditGoodsPage();
         });
         //选择下拉值跳转
         $("#Selcetdiv").live("change", function () {
             var GoodsSelect = $("#SelectSize").find("option:selected").text();
            
-            if (GoodsSelect > HostoryIndex) {
-                HostoryIndex = 1;
+            if (GoodsSelect > addgoods.index) {
+                addgoods.index = 1;
             }
-            HostorySize = GoodsSelect;
+            addgoods.size = GoodsSelect;
             EditGoodsPage();
         });
     });
+    //首页
+    function Addgoods_first() {
+        addgoods.index = 1;
+        EditGoodsPage();
+    }
     //下一页
-    function next() {
-        if (HostoryIndex < HostoryMax) {
-            HostoryIndex++;
+    function Addgoods_next() {
+        if (addgoods.index < addgoods.max) {
+            addgoods.index++;
             EditGoodsPage();
         }
     }
     //上一页
-    function prev() {
-        if (HostoryIndex > 1) {
-            HostoryIndex--;
+    function Addgoods_prev() {
+        if (addgoods.index > 1) {
+            addgoods.index--;
             EditGoodsPage();
         }
     }
-    //输入跳转
+    //尾页
+    function Addgoods_last() {
+        addgoods.index = addgoods.max;
+        EditGoodsPage()
+    }
+
     function ClearGoods() {
         $("#Like_Goods").val("");
         EditGoodsPage();
     }
-    function Jump() {
-        $(".goto").live("click", function () {
-            var InputValue = $("#go").val();
-            if (InputValue > HostoryMax) {
-                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+    //输入跳转
+    function Addgoods_Jump() {
+        $(".lgoto").live("click", function () {
+            var InputValue = $("#lgo").val();
+            if (InputValue > addgoods.max) {
+                $(this).alertmsg('info', '你输入的数字超过页面范围');
                 return false;
             }
             if (InputValue < 1) {
-                $(this).alertmsg('warn', '请输入大于1的数字');
+                $(this).alertmsg('info', '请输入大于1的数字');
                 return false;
             }
             if (isNaN(Number(InputValue)) || InputValue == "") {
-                $(this).alertmsg('warn', '请输入数字');
+                $(this).alertmsg('info', '请输入数字');
                 return;
             }
-            HostoryIndex = InputValue;
+            addgoods.index = InputValue;
             EditGoodsPage();
         });
     }
@@ -161,4 +182,3 @@
     <div class="pagination-box" id="edit_Goods" data-total="7" data-page-size="30" data-page-current="1">
     </div>
 </div>
-<script src="BJUI/ComJS/PageNumber.js"></script>

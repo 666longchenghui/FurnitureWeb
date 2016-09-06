@@ -1,9 +1,10 @@
 ﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
-    var UnitIndex = 1;
-    var UnitSize = 15;
-    var UnitMax;
-    var TotalCount;
+    //var unit.index = 1;
+    //var unit.size = 15;
+    //var unit.max;
+    //var TotalCount;
+    var unit = { index: 1, size: 15, max: 0, total: 0 };
     function PageUnit() {
         var UnitName = $("#UnitName").val();
         $.ajax({
@@ -11,43 +12,61 @@
             type: "post",
             data: {
                 "UnitName":UnitName,
-                "UnitIndex":UnitIndex,
-                "UnitSize":UnitSize,
+                "UnitIndex": unit.index,
+                "UnitSize": unit.size,
             },
             success: function (msg) {
+
                 var json=JSON.parse(msg);
                 var data = json[""];
                 var count = json["ComCount1"];
                 count = JSON.parse(count);     
-                 TotalCount = count[""][0]["Column1"];//取得总记录数
+                 unit.total = count[""][0]["Column1"];//取得总记录数
                 //计算出最大页数
-                UnitMax = Math.ceil(TotalCount / UnitSize);
+                 unit.max = Math.ceil(unit.total / unit.size);
                 var data = json["ComStr1"];
                 data = JSON.parse(data);
                 var ObjData = data[""];
                 var html = [];
-                var number = (UnitIndex - 1) * UnitSize;
+                var number = (unit.index - 1) * unit.size;
                 $.each(ObjData, function (k, v) {
+                   
                     html.push("<tr>")
                     html.push("<td>" + (++number) + "</td>")
-                   html.push("<td>" + v["UnitName"] + "</td>")
+                    html.push("<td>" + v["UnitName"] + "</td>")
                     html.push("<td><a href='/Ajax/AjaxGoods.ashx?action=DelUnitList&Uid=" + v.Unitid + "'class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗'>删除</a>")
                     html.push("<a class='btn btn-green' onclick='UpUnit(this,\"" + v["Unitid"] + "\",\"" + v["UnitName"] + "\")'>编辑</a></td>")
                     html.push("</tr>")
                 });       
                 $("#Unit tbody").empty().append(html.join(''));             
-                PageNum(UnitMax, UnitIndex);
-                $("#Unit_Count").html(TotalCount);
-                $("#PageUnitList").empty().append(htmls.join(''));                      
+          
+                $("#Unit_Count").html(unit.total);
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='u-first'><a href='javascript:'onclick='unit_prev()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='u-prev'><a href='javascript:' onclick='unit_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= unit.max; i++) {
+                    var cs = "j-sum";
+                    if (i == unit.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='u-next' ><a href='javascript:' onclick='unit_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='u-last'><a href='javascript:' onclick='unit_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="u-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="ugo"></span><a class="ugoto" href="javascript:;" title="跳转" onclick="unit_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                $("#unit_pagination").empty().append(htmls.join(''));
                 //如果当前页等于1，让首页、上一页不可点击
-                if (UnitIndex == 1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                if (unit.index == 1) {
+                    $(".u-first").addClass("disabled");
+                    $(".u-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (UnitIndex == UnitMax) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
+                if (unit.index == unit.max) {
+                    $(".u-next").addClass("disabled");
+                    $(".u-last").addClass("disabled");
                 }                   
             }
         });
@@ -60,19 +79,22 @@
     function addunit_close($dialog) {
         Unitid = undefined;
     }
-    function Jump() {
-            $(".goto").live("click", function () {
-                var InputValue = $("#go").val();
-                console.log(InputValue);
-                if (InputValue > UnitMax) {
-                    $(this).alertmsg('warn', '你输入的数字超过页面范围');
+    function unit_Jump() {
+        $(".ugoto").live("click", function () {
+            var InputValue = $("#ugo").val();      
+                if (InputValue > unit.max) {
+                    $(this).alertmsg('info', '你输入的数字超过页码范围');
                     return ;
                 }        
                 if (isNaN(Number(InputValue)) || InputValue == "") {
-                    $(this).alertmsg('warn', '请输入数字');
+                    $(this).alertmsg('info', '请输入数字');
                     return;
                 }
-                UnitIndex = InputValue;
+                if (InputValue < 1) {
+                    $(this).alertmsg('info', "请输入大于1的数字");
+                    return;
+                }
+                unit.index = InputValue;
                 PageUnit();
             });
     }
@@ -81,42 +103,41 @@
         PageUnit();
         $(".j-sum").live("click",function () {
             var PageNumVal = $(this).text();           
-            UnitIndex = PageNumVal;
+            unit.index = PageNumVal;
             PageUnit();
         });
         $("#Select_Unit").live("change", function () {
-            var Select_UnitPage = $("#Select_Unit").find("option:selected").text();
-  
-            if (Select_UnitPage > TotalCount) {
-                UnitIndex = 1;
+            var Select_UnitPage = $("#Select_Unit").find("option:selected").text();  
+            if (Select_UnitPage > unit.total) {
+                unit.index = 1;
             }
-            UnitSize = Select_UnitPage;
+            unit.size = Select_UnitPage;
             PageUnit();
         });
     }); 
     //下一页
-    function next() {
-        if (UnitIndex<UnitMax) {
-            UnitIndex++;
+    function unit_next() {
+        if (unit.index<unit.max) {
+            unit.index++;
             PageUnit();
         }
     }
     //上一页
-    function prev() {
-        if (UnitIndex>1) {
-            UnitIndex--;
+    function unit_prev() {
+        if (unit.index>1) {
+            unit.index--;
             PageUnit();
         }
     }
     //首页
-    function first() {
-        UnitIndex = 1;
+    function unit_first() {
+        unit.index = 1;
         PageUnit();
 
     }
     //尾页
-    function last() {
-        UnitIndex = UnitMax;
+    function unit_last() {
+        unit.index = unit.max;
         PageUnit();
     }
 
@@ -181,6 +202,6 @@
         </div>
         <span>&nbsp;条，共 <span id="Unit_Count"></span> 条</span>
     </div>
-    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="PageUnitList">
+    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="unit_pagination">
     </div>
 </div>

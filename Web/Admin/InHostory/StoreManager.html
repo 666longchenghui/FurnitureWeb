@@ -1,9 +1,9 @@
 ﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
-    var index=1;
-    var size = 15;
-    var MaxTotal;
-    var MaxPage;
+    //var index=1;
+    //var size = 15;
+    //var MaxTotal;
+    //var MaxPage;
   
     //var store = { index: 1, size: 15, MaxPage: 0, MaxTotal: 0, StoreManagerNO: StoreNo,StoreManagerName:StoreName,StoreManagerModel:StoreModel };
     var store = { index: 1, size: 15, MaxPage: 0, MaxTotal: 0 }
@@ -41,60 +41,97 @@
                 });
                 $("#StoreManager tbody").empty().append(html.join(''));
                 $("#StoreManager_Sum").html(store.MaxTotal);
-             
+                //追加页码
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='s-first'><a href='javascript:'onclick='store_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='s-prev'><a href='javascript:' onclick='store_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= store.MaxPage; i++) {
+                    var cs = "j-sum";
+                    if (i == store.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='s-next' ><a href='javascript:' id='n' onclick='store_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='s-last'><a href='javascript:' onclick='store_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="s-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="stgo"></span><a class="goto" href="javascript:;" title="跳转" onclick="store_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
                 $("#store_Pagination").empty().append(htmls.join(''));
-                PageNum(store.MaxPage, store.index);
                 if (store.index==1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                    $(".s-first").addClass("disabled");
+                    $(".s-prev").addClass("disabled");
                 }
                 if (store.index==store.MaxPage) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
-                }
-                console.log(store.index);
-                console.log(store.MaxPage);
-                //$(".c-next").click(function () {
-                //    if (store.index < store.MaxPage) {
-                //        store.index++;
-                //        StoreManager();
-                //    }
-
-                //});
+                    $(".s-next").addClass("disabled");
+                    $(".s-last").addClass("disabled");
+                }                     
             }
         });
     }
     $(function () {
         StoreManager();
+        //点击页码跳转到相应页面
+        $(".j-sum").live("click", function () {
+            var store_value = $(this).text();
+            store.index = store_value;
+            StoreManager();
+        });
+        //选择下拉值
+        $("#store_select").live("change", function () {
+            var option = $("#store_option").find("option:selected").text();
+       
+            if (option>store.MaxPage) {
+                store.index = 1;
+            }
+            store.size = option;
+            StoreManager();
+        });
     });
+    //输入页码跳转
+    function store_Jump() {
+        var Inputvalue = $("#stgo").val();
+        if (Inputvalue > store.MaxPage) {
+            $(this).alertmsg('info', '你输入的数字超过页码范围');
+            return;
+        }
+        if (isNaN(Number(Inputvalue)) || Inputvalue == "") {
+            $(this).alertmsg('info', '请输入数字');
+            return;
+        }
+        if (Inputvalue < 1) {
+            $(this).alertmsg('info', "请输入大于1的数字");
+            return;
+        }
+        store.index = Inputvalue;
+        StoreManager();
+    }
     //下一页
-    function next(_that) {
-
-        PageNum(store.MaxPage, store.index);
+    function store_next() {
         if (store.index < store.MaxPage) {
             store.index++;
             StoreManager();
         }
-        console.log(store.index);
-        console.log(store.MaxPage);
+
     }
     //上一页
     
-    function prev() {
+    function store_prev() {
         if (store.index>1) {
             store.index--;
             StoreManager();
         }
     }
     //首页
-    function first() {
+    function store_first() {
         if (store.index>1) {
             store.index = 1;
             StoreManager();
         }       
     }
     //末页
-    function last() {
+    function store_last() {
         if (store.index<store.MaxPage) {
             store.index = store.MaxPage;
             StoreManager();
@@ -164,8 +201,8 @@
 <div class="bjui-pageFooter">
     <div class="pages">
         <span>每页&nbsp;</span>
-        <div class="selectPagesize">
-            <select data-toggle="selectpicker" >
+        <div class="selectPagesize" id="store_select">
+            <select data-toggle="selectpicker" id="store_option" >
                 <option value="30">15</option>
                 <option value="60">30</option>
                 <option value="120">50</option>

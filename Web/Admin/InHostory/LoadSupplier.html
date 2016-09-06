@@ -1,7 +1,6 @@
 ﻿<script type="text/javascript">
-    var SupplierPageIndex = 1;
-    var SupplierPageSize = 15;
-    var SupplierPageMax;
+    
+    var load = { index: 1, size: 15, max: 0, total: 0 };
     //清空查询文本
     function Clear() {
         $("#LikeName").val("");
@@ -13,8 +12,8 @@
             type: "post",
             data: {
                 "likename": Like_Name,
-                "SupplierPageIndex": SupplierPageIndex,
-                "SupplierPageSize": SupplierPageSize
+                "SupplierPageIndex": load.index,
+                "SupplierPageSize": load.size
             },
             success: function (msg) {
                 var json = JSON.parse(msg);
@@ -23,10 +22,10 @@
                 var Obj = data[""];
                 var Count = json["Count"];
                 Count = JSON.parse(Count);
-                var SupplierTotal = Count[""][0]["Column1"];//总记录数
-                SupplierPageMax = Math.ceil( SupplierTotal / SupplierPageSize);//采用向上取整，求出最大页
+                load.total = Count[""][0]["Column1"];//总记录数
+                load.max = Math.ceil( load.total / load.size);//采用向上取整，求出最大页
                 var html = [];
-                var SerialNumber = (SupplierPageIndex - 1) * SupplierPageSize;
+                var SerialNumber = (load.index - 1) * load.size;
                 $.each(Obj, function (k, v) {           
                     html.push("<tr><td>" + (++SerialNumber)+ "</td><td>" + v["SCompanyName"] + "</td>");               
                     html.push("<td><a href='javascript:;'data-toggle='lookupback' data-args=\"{pids:'" + v["Superid"] + "', Supplier:'" + v["SCompanyName"] + "'}\" class='btn btn-blue' title='选择本项' data-icon='check'>选择</a></td>")
@@ -34,18 +33,36 @@
                 });
 
                 $("#EditSupplier_List tbody").empty().append(html.join(''));
-                $("#LoadSupplierCount").html(SupplierTotal);//显示记录数
-                PageNum(SupplierPageMax, SupplierPageIndex);      
+                $("#LoadSupplierCount").html(load.total);//显示记录数
+                $("#InHoustory_sum").html(HostoryList.totalsum);
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='l-first'><a href='javascript:'onclick='load_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='l-prev'><a href='javascript:' onclick='load_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= load.max; i++) {
+                    var cs = "j-sum";
+                    if (i == load.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='l-next' ><a href='javascript:' id='n' onclick='load_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='l-last'><a href='javascript:' onclick='load_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="l-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="lgo"></span><a class="lgoto" href="javascript:;" title="跳转" onclick="load_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+
+
                 $("#LoadSupplierPage").empty().append(htmls.join(''));
                 //如果当前页等于1，让首页、上一页不可点击
-                if (SupplierPageIndex == 1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                if (load.index == 1) {
+                    $(".l-first").addClass("disabled");
+                    $(".l-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (SupplierPageIndex == SupplierPageMax) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
+                if (load.index == load.max) {
+                    $(".l-next").addClass("disabled");
+                    $(".l-last").addClass("disabled");
                 }
             }
         });
@@ -55,60 +72,60 @@
         //点击页码跳转
         $(".j-sum").live("click", function () {
             var PageNumValue = $(this).text();
-            SupplierPageIndex = PageNumValue;
+            load.index = PageNumValue;
             SuPage();
         });
         //选择下拉值跳转
         $("#ChangeSelect").live("change", function () {
             var GoodsSelect = $("#selectoption").find("option:selected").text();
-            console.log(GoodsSelect);
-            if (GoodsSelect > SupplierPageIndex) {
-                SupplierPageIndex = 1;
+          
+            if (GoodsSelect > load.index) {
+                load.index = 1;
             }
-            SupplierPageSize = GoodsSelect;
+            load.size = GoodsSelect;
             SuPage();
         });
     });
     //下一页
-    function next() {
-        if (SupplierPageIndex < SupplierPageMax) {
-            SupplierPageIndex++;
+    function load_next() {
+        if (load.index < load.max) {
+            load.index++;
             SuPage();
         }
     }
     //上一页
-    function prev() {
-        if (SupplierPageIndex > 1) {
-            SupplierPageIndex--;
+    function load_prev() {
+        if (load.index > 1) {
+            load.index--;
             SuPage();
         }
     }
     //首页
-    function first() {
-        SupplierPageIndex = 1;
+    function load_first() {
+        load.index = 1;
         SuPage();
     }
     //尾页
-    function last() {
-        SupplierPageIndex = SupplierPageMax;
+    function load_last() {
+        load.index = load.max;
         SuPage();
     }
     //输入值跳转
-    function Jump() {
-        var goto = $("#go").val();
-        if (goto > SupplierPageMax) {
+    function load_Jump() {
+        var goto = $("#lgo").val();
+        if (goto > load.max) {
             $(this).alertmsg('warn', '你输入的数字超过页面范围');
             return;
         }
         if (isNaN(Number(goto)) || goto == "") {
-            $(this).alertmsg('warn', '输入的字符无效或为空');
+            $(this).alertmsg('warn', '请输入数字');
             return;
         }
         if (goto < 1) {
             $(this).alertmsg('warn', '请输入大于1的数字');
             return;
         }
-        SupplierPageIndex = goto;
+        load.index = goto;
         SuPage();
     }
     function LikeSelect() {
@@ -164,4 +181,3 @@
     </div>
 </div>
 
-<script src="BJUI/ComJS/PageNumber.js"></script>

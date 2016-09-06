@@ -1,9 +1,10 @@
 ﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
-    var WHIndex = 1;
-    var WHSize = 15;
-    var WHTotal;
-    var WHMax;
+    //var WHIndex = 1;
+    //var WHSize = 15;
+    //var WHTotal;
+    //var WHMax;
+    var ware = { index: 1, size: 2, total: 0, max: 0 };
     function WHList() {
         var WareHouseName = $("#WareHouseName").val();
         $.ajax({
@@ -11,8 +12,8 @@
             type: "post",
             data: {
                 "WareHouseName":WareHouseName,
-                "WHIndex": WHIndex,
-                 "WHSize":WHSize
+                "WHIndex": ware.index,
+                 "WHSize":ware.size
              },
             success: function (msg) {
                 var json = JSON.parse(msg);
@@ -21,9 +22,9 @@
                 var ObjData = data[""];
                 var count = json["Count"];
                 count = JSON.parse(count);
-                 WHTotal=count[""][0]["Column1"];//总条数
-                WHMax = Math.ceil(WHTotal / WHSize);//总页数
-                var numbers = (WHIndex - 1) * WHSize;
+                ware.total = count[""][0]["Column1"];//总条数
+                ware.max = Math.ceil(ware.total / ware.size);//总页数
+                var numbers = (ware.index - 1) * ware.size;
                 var html = [];
                 $.each(ObjData, function (k, v) {                   
                     html.push("<tr>")
@@ -42,44 +43,59 @@
                     html.push("<a href='#' onclick='UpdateDepot(this,\"" + v["Depotid"] + "\",\"" + v["WareName"] + "\")' class='btn btn-green' >编辑</a></td>")
                     html.push("</tr>")
                 });
-                $("#WareHouse tbody").empty().append(html.join(''));
-                PageNum(WHMax, WHIndex);
-                $("#WareCount").html(WHTotal);
-                $("#WareHouseSet").empty().append(htmls.join(''));
+                $("#WareHouse tbody").empty().append(html.join(''));            
+                $("#WareCount").html(ware.total);
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='w-first'><a href='javascript:'onclick='ware_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='w-prev'><a href='javascript:' onclick='ware_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= ware.max; i++) {
+                    var cs = "j-sum";
+                    if (i == ware.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='w-next' ><a href='javascript:' id='n' onclick='ware_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='w-last'><a href='javascript:' onclick='ware_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="w-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="wgo"></span><a class="wgoto" href="javascript:;" title="跳转" onclick="ware_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                $("#ware_pageination").empty().append(htmls.join(''));
                 //如果当前页等于1，让首页、上一页不可点击
-                if (WHIndex == 1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                if (ware.index == 1) {
+                    $(".w-first").addClass("disabled");
+                    $(".w-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (WHIndex == WHMax) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
+                if (ware.index == ware.max) {
+                    $(".w-next").addClass("disabled");
+                    $(".w-last").addClass("disabled");
                 }
             }
         });
     }
     //首页
-    function first() {
-        WHIndex = 1;
+    function ware_first() {
+        ware.index = 1;
         WHList();
     }
     //尾页
-    function last() {
-        WHIndex = WHMax;
+    function ware_last() {
+        ware.index = ware.max;
         WHList();
     }
     //上一页
-    function prev() {
-        if (WHIndex > 1) {
-            WHIndex--;
+    function ware_prev() {
+        if (ware.index > 1) {
+            ware.index--;
             WHList();
         }
     }
     //下一页
-    function next() {
-        if (WHIndex < WHMax) {
-            WHIndex++;
+    function ware_next() {
+        if (ware.index < ware.max) {
+            ware.index++;
             WHList();
         }
     }
@@ -91,19 +107,23 @@
     function addWareHouse_close($dialog) {
         WareHouseid = undefined;
     }
-    function Jump() {
-        $(".goto").live("click", function () {
-            var InputValue = $("#go").val();
-            console.log(InputValue);
-            if (InputValue > WHMax) {
-                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+    function ware_Jump() {
+        $(".wgoto").live("click", function () {
+            var InputValue = $("#wgo").val();
+    
+            if (InputValue > ware.max) {
+                $(this).alertmsg('info', '你输入的数字超过页码范围');
                 return false;
             }       
             if (isNaN(Number(InputValue)) || InputValue == "") {
-                $(this).alertmsg('warn', '请输入数字');
+                $(this).alertmsg('info', '请输入数字');
                 return;
             }
-            ModeIIWHIndexndex = InputValue;
+            if (InputValue < 1) {
+                $(this).alertmsg('info', "请输入大于1的数字");
+                return;
+            }
+            ware.index = InputValue;
             WHList();
         });
     }
@@ -112,15 +132,15 @@
         //点击页码跳转到相应页面
             $(".j-sum").live("click", function () {
                 var ClickValue = $(this).text();
-                WHIndex = ClickValue;
+                ware.index = ClickValue;
                 WHList();
             });
             $("#Select_WareHouse").live("change", function () {
                 var Selectvalue=$("#Select_WareHouse").find("option:selected").text();
-                if (Selectvalue > WHTotal) {
-                    WHIndex = 1;            
+                if (Selectvalue > ware.total) {
+                    ware.index = 1;
                 }
-                WHSize = Selectvalue;
+                ware.size = Selectvalue;
                 WHList();
             })
     });
@@ -187,6 +207,6 @@
         </div>
         <span>&nbsp;条，共 <span id="WareCount"></span> 条</span>
     </div>
-    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="WareHouseSet">
+    <div class="pagination-box"  data-total="600" data-page-size="30" data-page-current="1" id="ware_pageination">
     </div>
 </div>

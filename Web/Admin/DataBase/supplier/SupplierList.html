@@ -8,12 +8,12 @@
             $('#j_form_span_pic').html('<img src="' + json.navTabId + '" width="100" />');
         }
     }
-    var SupplierPageIndex = 1;//当前页
-    var SupplierPageMax;//最大页
-    var SupplierTotal;//总记录数初始值
-    var SupplierPageSize =15 ;//每页显示条数
+    //var SupplierPageIndex = 1;//当前页
+    //var SupplierPageMax;//最大页
+    //var SupplierTotal;//总记录数初始值
+    //var SupplierPageSize =15 ;//每页显示条数
     var ClickValue;
-
+    var supplier = { index: 1, size: 15, total: 0, max: 0 };
     //$("#SelectPage").find("option:selected").text()
     function SupplierPage() {
         var SupplierName = $("#SupplierName").val();
@@ -30,8 +30,8 @@
                 "ContactNumber": ContactNumber,
                 "CreateDate": CreateDate,
                 "EndDate":EndDate,
-                "SupplierPageIndex": SupplierPageIndex,
-                "SupplierPageSize": SupplierPageSize
+                "SupplierPageIndex": supplier.index,
+                "SupplierPageSize": supplier.size
             },
             success:function(msg){
                 var json = JSON.parse(msg);
@@ -40,10 +40,10 @@
                 var Obj = data[""];
                 var Count = json["Count"];
                 Count = JSON.parse(Count);             
-                SupplierTotal = Count[""][0]["Column1"];//总记录数
-                SupplierPageMax = Math.ceil(SupplierTotal/SupplierPageSize);//采用向上取整，求出最大页       
+                supplier.total = Count[""][0]["Column1"];//总记录数
+                supplier.max = Math.ceil(supplier.total / supplier.size);//采用向上取整，求出最大页       
                 //序号
-                var number = (SupplierPageIndex - 1) * SupplierPageSize;
+                var number = (supplier.index - 1) * supplier.size;
                 var html = [];
                 $.each(Obj, function (k, v) {
                     html.push("<tr>")
@@ -55,18 +55,35 @@
                     html.push("</tr>");
                 });
                 $("#TabSupplierList tbody").empty().append(html.join(''));
-                PageNum(SupplierPageMax, SupplierPageIndex);
-                $("#SupperCount").html(SupplierTotal);//显示总条数           
-                $("#Page_num").empty().append(htmls.join(''));
+              //  PageNum(SupplierPageMax, SupplierPageIndex);
+                $("#SupperCount").html(supplier.total);//显示总条数         
+                //循环出页码
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='s-first'><a href='javascript:'onclick='supplier_prev()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='s-prev'><a href='javascript:' onclick='supplier_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= supplier.max; i++) {
+                    var cs = "j-sum";
+                    if (i == supplier.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='s-next' ><a href='javascript:'onclick='supplier_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='s-last'><a href='javascript:' onclick='supplier_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="s-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="sgo"></span><a class="sgoto" href="javascript:;" title="跳转" onclick="supplier_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                $("#supplier_pagination").empty().append(htmls.join(''));
                 //如果当前页等于1，让首页、上一页不可点击
-                if (SupplierPageIndex==1) {
-                    $(".c-first").addClass("disabled");
-                    $(".c-prev").addClass("disabled");
+                if (supplier.index==1) {
+                    $(".s-first").addClass("disabled");
+                    $(".s-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (SupplierPageIndex==SupplierPageMax) {
-                    $(".c-next").addClass("disabled");
-                    $(".c-last").addClass("disabled");
+                if (supplier.index==supplier.max) {
+                    $(".s-next").addClass("disabled");
+                    $(".s-last").addClass("disabled");
                 }
             }
         });
@@ -82,26 +99,26 @@
     //    search();
     //});
     //首页
-    function first() {
-        SupplierPageIndex = 1;
+    function supplier_first() {
+        supplier.index = 1;
         SupplierPage();
     }
     //尾页
-    function last() {      
-        SupplierPageIndex = SupplierPageMax;
+    function supplier_last() {
+        supplier.index = supplier.max;
         SupplierPage();       
     }
     //上一页
-    function prev() {
-        if (SupplierPageIndex>1) {
-            SupplierPageIndex--;
+    function supplier_prev() {
+        if (supplier.index > 1) {
+            supplier.index--;
             SupplierPage();
         }
     }
     //下一页
-    function next() {
-        if (SupplierPageIndex<SupplierPageMax) {
-            SupplierPageIndex++;
+    function supplier_next() {
+        if (supplier.index < supplier.max) {
+            supplier.index++;
             SupplierPage();
         }
     }
@@ -113,23 +130,35 @@
         //点击页码跳转到相应页面
         $(".j-sum").live("click", function () {
             var ClickValue=$(this).text();
-            SupplierPageIndex = ClickValue;
+              supplier.index = ClickValue;
             SupplierPage();
         })   
         //选择下拉值跳转
         $("#SelectPage").live("change", function () {
             var SupplierSelect = $("#SelectPage").find("option:selected").text();
-            if (SupplierSelect > SupplierTotal) {
-                SupplierPageIndex = 1;
+            if (SupplierSelect > supplier.total) {
+                supplier.index = 1;
             }
-            SupplierPageSize = SupplierSelect;
+            supplier.size = SupplierSelect;
             SupplierPage();
         });
     })
-    function Jump() {
-        $(".goto").live("click", function () {
-           var InputValue= $("#go").val();
-           SupplierPageIndex = InputValue;
+    function supplier_Jump() {
+        $(".sgoto").live("click", function () {
+            var In_supplier = $("#sgo").val();
+            if (In_supplier > supplier.max) {
+                $(this).alertmsg("info", "你输入的数字超出页码范围");
+                return;
+            }
+            if (isNaN(Number(In_supplier)) || In_supplier == "") {
+                $(this).alertmsg('info', '请输入数字');
+                return;
+            }
+            if (In_supplier < 1) {
+                $(this).alertmsg('info', "请输入大于1的数字");
+                return;
+            }
+            supplier.index = In_supplier;
            SupplierPage();
         });
     }
@@ -165,6 +194,7 @@
         var SupplierName = $("#SupplierName").val();
             SupplierPage();      
     }
+
 </script>
 
 <div class="bjui-pageHeader">
@@ -224,6 +254,6 @@
         </div>
         <span>&nbsp;条，共 <span id="SupperCount"></span> 条</span>
     </div>
-    <div class="pagination-box"  data-total="" data-page-size="" data-page-current="1" id="Page_num">
+    <div class="pagination-box"  data-total="" data-page-size="" data-page-current="1" id="supplier_pagination">
     </div>
 </div>

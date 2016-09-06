@@ -29,8 +29,8 @@ namespace BLL.Users
             {
                 AddSQL = " and Department like '%" + departname + "%'";
             }
-            string UserSql = " select top " + size + " u.UId,UserName,Department,LoginName,UCreateTime,UPhone,UEmail from  dbo.Users u  inner join DepartMent d on u.UDepartId=d.DepartId where UDelete=0 " + AddSQL + " and (u.Uid Not in(select top(" + size + "*(" + index + "-1)) u.Uid from Users order by u.UId))order by u.UId desc";
-            string UserCount = "select count(*) from Users u inner join DepartMent d on u.UDepartId=d.DepartId where UDelete=0 " + AddSQL + " ";
+            string UserSql = "select * from (select u.UId,UserName,Department,LoginName,UCreateTime,UPhone,UEmail,Row_NUMBER()OVER(ORDER BY u.Uid desc)as rank from Users  u  inner join DepartMent d on u.UDepartId=d.DepartId Where UDelete=0 "+AddSQL+" ) as t where t.rank  between (((" + index + " - 1) * " + size + ")+1) and(" + index + " * " + size + ")";
+            string UserCount = @"select count(*) from Users u  inner join DepartMent d on u.UDepartId = d.DepartId Where UDelete = 0 " + AddSQL + "";
             string resultData = Common.CommonClass.DataTableToJson(Com.Selcets(UserSql));
             string resultCount = Common.CommonClass.DataTableToJson(Com.Selcets(UserCount));
             Dictionary<string, object> dic = new Dictionary<string, object>();
