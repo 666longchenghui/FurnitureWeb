@@ -20,6 +20,7 @@ $('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
 
     end.setFullYear(start.getFullYear() + 10)
     end.setDate(start.getDate() - 1)
+
     $('#j_custom_indate').val(end.formatDate(pattern))
 })
 
@@ -91,8 +92,9 @@ $(function () {
             type: "post",
             success: function (msg) {
                 var json = JSON.parse(msg);
-          
-                var data = json[""][0];         
+                console.log(json);
+                var data = json[""][0];
+                console.log(data);
                 $("#M_Number").val(data["Mnumber"]);
                 $("#M_Name").val(data["Mname"]);
                 //编辑时默认加载选中项

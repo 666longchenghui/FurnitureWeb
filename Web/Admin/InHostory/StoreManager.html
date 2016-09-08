@@ -1,40 +1,16 @@
-﻿
-<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
+﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
-    //var index=1;
-    //var size = 15;
-    //var MaxTotal;
-    //var MaxPage;
-    //加载商品型号
-    function loadStoreModel() {
-            var ModelName = "";
-            $.ajax({
-                url: "/Ajax/AjaxGoods.ashx?action=GetModelName",
-                data: "",
-                type: "post",
-                async: false,
-                success: function (msg) {
-                    var json = JSON.parse(msg);
-                    var Data = json[""];
-                    ModelName += "<option >请选择</option>"
-                    $.each(Data, function (k, v) {
-                        ModelName += "<option value='" + v.DictionaryID + "'>" + v.DataText + "</option>";
-                    });
-                    $("#M_storemodel").empty();
-                    $("#M_storemodel").append(ModelName);
-                    //更新内容刷新到相应的位置
-                    $('#M_storemodel').selectpicker('render');
-                    $('#M_storemodel').selectpicker('refresh');
-                }
-            });
-    }
+    var index=1;
+    var size = 15;
+    var MaxTotal;
+    var MaxPage;
+  
     //var store = { index: 1, size: 15, MaxPage: 0, MaxTotal: 0, StoreManagerNO: StoreNo,StoreManagerName:StoreName,StoreManagerModel:StoreModel };
     var store = { index: 1, size: 15, MaxPage: 0, MaxTotal: 0 }
-   
     function StoreManager() {
         var StoreNo = $("#DetailNo").val();
         var StoreName = $("#DetailName").val();
-        var StoreModel = $("#M_storemodel").val();
+        var StoreModel = $("#DetailModel").val();
         $.ajax({
             url: "/Ajax/AjaxInHostory.ashx?action=StoreManager",
             type: "post",
@@ -65,102 +41,51 @@
                 });
                 $("#StoreManager tbody").empty().append(html.join(''));
                 $("#StoreManager_Sum").html(store.MaxTotal);
-                //追加页码
-                htmls = [];
-                htmls.push("<ul class='pagination'>");
-                htmls.push("<li class='s-first'><a href='javascript:'onclick='store_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
-                htmls.push("<li class='s-prev'><a href='javascript:' onclick='store_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
-                //循环出页码
-                for (var i = 1; i <= store.MaxPage; i++) {
-                    var cs = "j-sum";
-                    if (i == store.index) {
-                        cs = "selected " + cs;
-                    }
-                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
-                }
-                htmls.push("<li class='s-next' ><a href='javascript:' id='n' onclick='store_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
-                htmls.push("<li class='s-last'><a href='javascript:' onclick='store_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
-                htmls.push('<li class="s-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="stgo"></span><a class="goto" href="javascript:;" title="跳转" onclick="store_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
-                htmls.push("<ul>");
+                PageNum(store.MaxPage, store.index);
                 $("#store_Pagination").empty().append(htmls.join(''));
                 if (store.index==1) {
-                    $(".s-first").addClass("disabled");
-                    $(".s-prev").addClass("disabled");
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
                 }
                 if (store.index==store.MaxPage) {
-                    $(".s-next").addClass("disabled");
-                    $(".s-last").addClass("disabled");
-                }                     
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
+                }
             }
         });
     }
     $(function () {
         StoreManager();
-        loadStoreModel();
-
-        //点击页码跳转到相应页面
-        $(".j-sum").live("click", function () {
-            var store_value = $(this).text();
-            store.index = store_value;
-            StoreManager();
-        });
-        //选择下拉值
-        $("#store_select").live("change", function () {
-            var option = $("#store_option").find("option:selected").text();
-       
-            if (option>store.MaxPage) {
-                store.index = 1;
-            }
-            store.size = option;
-            StoreManager();
-        });
     });
-    //输入页码跳转
-    function store_Jump() {
-        var Inputvalue = $("#stgo").val();
-        if (Inputvalue > store.MaxPage) {
-            $(this).alertmsg('info', '你输入的数字超过页码范围');
-            return;
-        }
-        if (isNaN(Number(Inputvalue)) || Inputvalue == "") {
-            $(this).alertmsg('info', '请输入数字');
-            return;
-        }
-        if (Inputvalue < 1) {
-            $(this).alertmsg('info', "请输入大于1的数字");
-            return;
-        }
-        store.index = Inputvalue;
-        StoreManager();
-    }
     //下一页
-    function store_next() {
-        if (store.index < store.MaxPage) {
+    function next() {  
+        if (store.index<store.MaxPage) {
             store.index++;
             StoreManager();
         }
     }
     //上一页
-    
-    function store_prev() {
+    function prev() {
         if (store.index>1) {
             store.index--;
             StoreManager();
         }
     }
     //首页
-    function store_first() {
+    function first() {
         if (store.index>1) {
             store.index = 1;
             StoreManager();
-        }       
+        }
+       
     }
     //末页
-    function store_last() {
+    function last() {
         if (store.index<store.MaxPage) {
             store.index = store.MaxPage;
             StoreManager();
-        }   
+        }
+   
     }
     var Number;
     function InvertoryDetail(_that,mid ) {
@@ -173,10 +98,7 @@
     function StoreClear() {
          $("#DetailNo").val("");
         $("#DetailName").val("");
-        $("#M_storemodel").val("请选择");  
-        StoreManager();
-    }
-    function store_likeselect() {      
+        $("#DetailModel").val("");
         StoreManager();
     }
 </script>
@@ -187,20 +109,12 @@
         <input type="hidden" name="orderField" value="${param.orderField}">
         <input type="hidden" name="orderDirection" value="${param.orderDirection}">
         <div class="bjui-searchBar">
-            <label>编号：</label><input type="text" id="DetailNo"  name="code" class="form-control" size="12">&nbsp;
-            <label>名称：</label><input type="text" id="DetailName" name="name" class="form-control" size="12">&nbsp;
-            <label>型号：</label>
-            <select name="type" data-toggle="selectpicker" id="M_storemodel" data-width="110">
-                <option value=""></option>
-                <option value="1"></option>
-                <option value="2"></option>
-                <option value="3"></option>
-                <option value="4"></option>
-            </select>&nbsp;
-            <!--<input type="text" id="DetailModel" name="name" class="form-control" size="12">&nbsp;-->
+            <label>编号：</label><input type="text" id="DetailNo"  name="code" class="form-control" size="10">&nbsp;
+            <label>名称：</label><input type="text" id="DetailName" name="name" class="form-control" size="8">&nbsp;
+            <label>型号：</label><input type="text" id="DetailModel" name="name" class="form-control" size="8">&nbsp;
             <!--<input type="checkbox" id="j_table_chk" value="true" data-toggle="icheck" data-label="我的客户">
             <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>-->
-            <button type="button" class="btn-default" data-icon="search" onclick="store_likeselect()">查询</button>&nbsp;
+            <button type="button" class="btn-default" data-icon="search" onclick="StoreManager()">查询</button>&nbsp;
             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="StoreClear()">清空查询</a>
             <div class="pull-right">
                 <!--<button type="button" class="btn-blue" data-url="/B-JUI/ajaxDone2.html?id={#bjui-selected}" data-toggle="doajax" data-confirm-msg="确定要删除选中项吗？" data-icon="remove" title="可以在控制台(network)查看被删除ID">删除选中行</button>&nbsp;-->
@@ -237,8 +151,8 @@
 <div class="bjui-pageFooter">
     <div class="pages">
         <span>每页&nbsp;</span>
-        <div class="selectPagesize" id="store_select">
-            <select data-toggle="selectpicker" id="store_option" >
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" >
                 <option value="30">15</option>
                 <option value="60">30</option>
                 <option value="120">50</option>

@@ -69,7 +69,7 @@ namespace Web.Ajax
                         break;
                     case "GetModel":
                         string SelModel = req.Params["ModelName"];
-                        string MIndex = req.Params["ModelIndex"];
+                        string MIndex = req.Params["ModeIIndex"];
                         string MSize = req.Params["ModelSize"];
                         res.Write(Common.CommonClass.ToJosn(goods.ModelPage(MIndex, MSize,SelModel)));
                         break;
