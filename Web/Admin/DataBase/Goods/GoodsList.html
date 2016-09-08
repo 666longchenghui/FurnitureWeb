@@ -1,4 +1,4 @@
-
+<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
 <script type="text/javascript">
     function pic_form_upload_success(data) {
         var json = jQuery.parseJSON(data);
@@ -15,7 +15,7 @@
     //var MaxPage;//一共多少页
     function Page() {
         var GoodsName = $("#Goods_Name").val();
-        var GoodsModel = $("#Goods_Model").val();
+        var GoodsModel = $("#M_specification").val();
         $.ajax({
             url: "/Ajax/AjaxGoods.ashx?action=GetGoodInfo",
             type: "post",
@@ -27,6 +27,7 @@
             },
             success: function (msg) {
                 var json = JSON.parse(msg);
+                console.log(msg);
                 //通过转换取出总记录数            
                 var count = json["ComCount"];
                     count = JSON.parse(count);
@@ -86,7 +87,6 @@
     }
     //下一页
     function Goods_next() {
-
         if (Goods.PageIndex < Goods.MaxPage) {
             Goods.PageIndex++;
             Page();
@@ -114,6 +114,7 @@
     }
     $(function () {
         Page();
+        OnloadModel();
         //点击页码跳转
         $(".j-sum").live("click", function () {
             var ClickValue = $(this).text();
@@ -163,19 +164,28 @@
     //清空查询
     function ClearSelect() {
         $("#Goods_Name").val("");
-        $("#Goods_Model").val("");
+        $("#M_specification").val("请选择");
+
         Page();
     }
     //查询
     function GoodsSelect() {
-        var GoodsName = $("#Goods_Name").val();
+        //var GoodsName = $("#Goods_Name").val();
         Page();
     }
 </script>
 <div class="bjui-pageHeader">
         <div class="bjui-searchBar">
             <label>商品名称：</label><input type="text" value="" name="name" class="form-control" size="8" id="Goods_Name">&nbsp;
-            <label>商品型号：</label><input type="text" value="" name="Model" class="form-control" size="8" id="Goods_Model">&nbsp;
+            <label>商品型号：</label>
+            <select name="type" data-toggle="selectpicker" id="M_specification" data-width="110">
+                <option value=""></option>
+                <option value="1"></option>
+                <option value="2"></option>
+                <option value="3"></option>
+                <option value="4"></option>
+            </select>&nbsp;
+            <!--<input type="text" value="" name="Model" class="form-control" size="8" id="Goods_Model">&nbsp;-->
             <button type="submit" class="btn-default" data-icon="search" onclick="GoodsSelect()">查询</button>&nbsp;
             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
             <div class="pull-right">
