@@ -98,6 +98,12 @@
   <ItemGroup>
     <Content Include="Admin\BJUI\ComJS\PageNumber.js" />
     <Content Include="Admin\BJUI\ComJS\Selectd.js" />
+    <Content Include="Admin\BJUI\Img\Add_to_product_862px_1191800_easyicon.net.png" />
+    <Content Include="Admin\BJUI\Img\add_user_512px_1170210_easyicon.net.png" />
+    <Content Include="Admin\BJUI\Img\deal_hand_partnership_shake_128px_1568_easyicon.net.png" />
+    <Content Include="Admin\BJUI\Img\department_512px_1168472_easyicon.net.png" />
+    <Content Include="Admin\BJUI\Img\shopping_cart_add_128px_1137966_easyicon.net.png" />
+    <Content Include="Admin\BJUI\Img\Warehouse_512px_1179004_easyicon.net.png" />
     <Content Include="Admin\BJUI\UPloadfiy\Change Log.txt" />
     <Content Include="Admin\BJUI\UPloadfiy\jquery.uploadify.js" />
     <Content Include="Admin\BJUI\UPloadfiy\jquery.uploadify.min.js" />
@@ -108,6 +114,8 @@
     <Content Include="Admin\BJUI\UPloadfiy\__MACOSX\._Change Log.txt" />
     <Content Include="Admin\BJUI\UPloadfiy\__MACOSX\._uploadify.swf" />
     <Content Include="Admin\BJUI\UPloadfiy\swfobject.js" />
+    <Content Include="Admin\DataBase\Account\AccountList.html" />
+    <Content Include="Admin\DataBase\Account\AddAccount.html" />
     <Content Include="Admin\DataBase\DepartMent\AddDepart.html" />
     <Content Include="Admin\DataBase\Goods\UpdateGoodsList.html" />
     <Content Include="Admin\DataBase\Users\UserInfo.html" />
@@ -196,6 +204,7 @@
     <Content Include="Ajax\Uploadfiy.ashx" />
     <Content Include="Ajax\AjaxStock.ashx" />
     <Content Include="Ajax\AjaxInHostory.ashx" />
+    <Content Include="Ajax\AjaxAccount.ashx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1221,6 +1230,9 @@
     </Compile>
     <Compile Include="Admin\Index.aspx.designer.cs">
       <DependentUpon>Index.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Ajax\AjaxAccount.ashx.cs">
+      <DependentUpon>AjaxAccount.ashx</DependentUpon>
     </Compile>
     <Compile Include="Ajax\AjaxBills.ashx.cs">
       <DependentUpon>AjaxBills.ashx</DependentUpon>

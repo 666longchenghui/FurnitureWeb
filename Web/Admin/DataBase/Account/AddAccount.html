@@ -1,0 +1,70 @@
+﻿<script type="text/javascript">
+  
+    $(function () {
+        var todayDate = new Date();
+        var year = todayDate.getFullYear();
+        var date = todayDate.getDate();
+        var month = todayDate.getMonth() + 1;
+
+        var ran = Math.round((Math.random()) * 100000);
+        var ControlNo = "KH" + year + "" + month + "" + date + "" + ran + "";
+        $("#j_Account_No").val(ControlNo);
+      
+    });
+    function AddAccount(_that) {
+ 
+        $("#frm_Account").sumbit();
+    }
+</script>
+<div class="bjui-pageContent">
+
+    <form action="/Ajax/AjaxAccount.ashx?action=AddAccount" id="frm_Account" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="custom.id" value="edce142bc2ed4ec6b623aacaf602a4de">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>              
+                <tr>
+                    <td>
+                        <label for="j_Account_No" class="control-label x85">客户编号：</label>
+                        <input type="text" name="Account.NO" id="j_Account_No" value="" data-rule="required" size="15">
+                    </td>
+                    <td>
+                        <label for="j_Account_Name" class="control-label x85">客户姓名：</label>
+                        <input type="text" name="Account.Name" id="j_Account_Name" value="" data-rule="required;" size="15">
+                    </td>
+                    <td>
+                        <label for="j_Account_Comtel" class="control-label x85">公司号码：</label>
+                        <input type="text" name="Account.Comtel" id="j_Account_Comtel" value="" data-rule="required;mobile" size="15">
+                    </td>                 
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_Account_Money" class="control-label x85">所欠款项：</label>
+                        <input type="text" name="Account.Money" id="j_Account_Money" value="" data-rule="required;number" size="15">
+                    </td>
+                    <td>
+                        <label for="j_Account_Phone" class="control-label x85">客户号码：</label>
+                        <input type="text" name="Account.Phone" id="j_Account_Phone" value="" data-rule="required;mobile" size="15">
+                    </td>
+                    <td>
+                        <label for="j_Account_Eamil" class="control-label x85">客户Email：</label>
+                        <input type="text" name="Account.Email" id="j_Account_Eamil" value="" data-rule="required;email" size="15">
+                    </td>          
+                </tr>             
+                <tr>
+                    <td colspan="4">
+                        <label for="j_Account_Note" class="control-label x85">备注：</label>
+                        <textarea name="Account.Note" id="j_Account_Note" data-toggle="autoheight" cols="60" rows="15"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save" onclick="AddAccount(this)">保存</button></li>
+    </ul>
+</div>

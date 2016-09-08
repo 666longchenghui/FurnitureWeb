@@ -22,13 +22,18 @@ namespace BLL.Goods
         public Dictionary<string, object> GetGoodsList(string goodsname,string goodsmodel, string PageSize, string PageIndex)
         {
             string AddSQL = "";
+
             if (goodsname.Trim()!="")
             {
                 AddSQL += " and Mname like '%" + goodsname + "%'";
             }
+            if (goodsmodel=="请选择")
+            {
+                goodsmodel = "";
+            }
             if (goodsmodel.Trim()!="")
             {
-                AddSQL += " and DataText like '%" + goodsmodel + "%'";
+                AddSQL += " and d.DictionaryID ='"+goodsmodel+"'";
             }
             //每页显示2条
             //当前页
@@ -284,12 +289,8 @@ namespace BLL.Goods
                     new SqlParameter ("AddModel",modelText),
                     new SqlParameter ("Ddelete",int.Parse("0"))
                };
-                string InsertSql = @"INSERT INTO [Dictionary]
-                                               ([DataText]                                       
-                                               ,[Ddelete])
-                                         VALUES
-                                               (@AddModel                                           
-                                               ,@Ddelete)";
+                string InsertSql = @"INSERT INTO [Dictionary]([DataText],[Ddelete])
+                                         VALUES(@AddModel,@Ddelete)";
                 int count = Com.ExecutionSqlPar(InsertSql, par);
                 if (count > 0)
                 { 
@@ -462,9 +463,9 @@ namespace BLL.Goods
             {
                  new SqlParameter("Mid",mid),
                  new SqlParameter("InvertorySum","0"),
-                 new SqlParameter("Superid",null)
+                 new SqlParameter("CreateTime",DateTime.Now)
             };
-            string InsertSql2 = @"INSERT INTO [Inventory] ([Mid],InvertorySum,Superid) VALUES (@Mid,@InvertorySum,@Superid)";
+            string InsertSql2 = @"INSERT INTO [Inventory] ([Mid],InvertorySum,CreateTime) VALUES (@Mid,@InvertorySum,@CreateTime)";
             int count2 = Com.ExecutionSqlPar(InsertSql2, par2);
             if (count >0 && count2>0)
             {

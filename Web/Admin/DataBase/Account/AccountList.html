@@ -1,5 +1,5 @@
-<div class="bjui-pageHeader">
-    <form id="pagerForm" data-toggle="ajaxsearch" action="/B-JUI/GoodsInfo.html" method="post">
+﻿<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="" method="post">
         <input type="hidden" name="pageSize" value="${model.pageSize}">
         <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
         <input type="hidden" name="orderField" value="${param.orderField}">
@@ -17,19 +17,12 @@
             <label>客户姓名：</label><input type="text" value="" name="name" class="form-control" size="8">&nbsp;
             <input type="checkbox" id="j_table_chk" value="true" data-toggle="icheck" data-label="我的客户">
             <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>
-            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
+            <button type="button" class="btn-default" data-icon="search">查询</button>&nbsp;
             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
             <div class="pull-right">
-                <button type="button" class="btn-blue" data-url="/B-JUI/ajaxDone2.html?id={#bjui-selected}" data-toggle="doajax" data-confirm-msg="确定要删除选中项吗？" data-icon="remove" title="可以在控制台(network)查看被删除ID">删除选中行</button>&nbsp;
-                <div class="btn-group">
-                    <button type="button" class="btn-default dropdown-toggle" data-toggle="dropdown" data-icon="copy">复选框-批量操作<span class="caret"></span></button>
-                    <ul class="dropdown-menu right" role="menu">
-                        <li><a href="book1.xlsx" data-toggle="doexport" data-confirm-msg="确定要导出信息吗？">导出<span style="color: green;">全部</span></a></li>
-                        <li><a href="book1.xlsx" data-toggle="doexportchecked" data-confirm-msg="确定要导出选中项吗？" data-idname="expids" data-group="ids">导出<span style="color: red;">选中</span></a></li>
-                        <li class="divider"></li>
-                        <li><a href="/B-JUI/ajaxDone2.html" data-toggle="doajaxchecked" data-confirm-msg="确定要删除选中项吗？" data-idname="delids" data-group="ids">删除选中</a></li>
-                    </ul>
-                </div>
+                <a href="/Admin/DataBase/Account/AddAccount.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="AddGoodsid" ata-icon="user" data-mask="true">
+                    <i class="fa fa-plus-square" size="10" aria-hidden="true">添加客户</i>
+                </a>           
             </div>
         </div>
         <div class="bjui-moreSearch">
@@ -56,7 +49,7 @@
                 <th data-order-field="sex">性别</th>
                 <th data-order-field="birthday">出生日期</th>
                 <th data-order-field="birthplace">出生地</th>
-                <th data-order-field="add"  align="center">居住地</th>
+                <th data-order-field="add" align="center">居住地</th>
                 <th data-order-field="passportno">护照号</th>
                 <th data-order-field="issuedate">签发日期</th>
                 <th data-order-field="indate">有效日期</th>
@@ -108,14 +101,14 @@
                 <td>--</td>
                 <td>2014-10-24 15:51</td>
                 <td><input type="checkbox" name="ids" data-toggle="icheck" value="2"></td>
-                <td>
+                <!--<td>
                     <a href="/B-JUI/form.html?id=2" class="btn btn-green" data-toggle="navtab" data-id="form" data-reload-warn="本页已有打开的内容，确定将刷新本页内容，是否继续？" data-title="编辑-唐僧">编辑</a>
                     <a href="/B-JUI/ajaxDone2.html" class="btn btn-red" data-toggle="doajax" data-confirm-msg="确定要删除该行信息吗？">删</a>
-                </td>
+                </td>-->
             </tr>
 
-      
-          
+
+
         </tbody>
     </table>
 </div>
