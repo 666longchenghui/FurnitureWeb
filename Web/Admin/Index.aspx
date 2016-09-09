@@ -16,7 +16,7 @@
     <link href="BJUI/themes/blue/core.css" id="bjui-link-theme" rel="stylesheet">
     <!-- plug - css -->
     <link href="../B-JUI/BJUI/plugins/kindeditor_4.1.10/themes/default/default.css" rel="stylesheet" />
-    <link href="BJUI/plugins/colorpicker/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+    <link href="BJUI/plugins/colorpicker/css/bootstrap-colorpicker.min.css" rel="stylesheet"> 
     <link href="BJUI/plugins/niceValidator/jquery.validator.css" rel="stylesheet">
     <link href="BJUI/plugins/bootstrapSelect/bootstrap-select.css" rel="stylesheet">
     <link href="BJUI/themes/css/FA/css/font-awesome.min.css" rel="stylesheet">

@@ -7,7 +7,7 @@
         type: "post",
         async: false,
         success: function (msg) {
-            // console.log(msg);
+            // console.log(msg); 
             var json = JSON.parse(msg);
             var Data = json[""];
             tempAjax += "<option >请选择</option>"

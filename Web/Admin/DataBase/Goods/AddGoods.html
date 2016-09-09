@@ -14,7 +14,7 @@ function do_OK(json, $form) {
     console.log($form)
 }
 //护照有效日期  = 签发日期 + 10年
-$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) {
+$('#j_custom_issuedate').on('afterchange.bjui.datepicker', function(e, data) { 
     var pattern = 'yyyy-MM-dd'
     var start   = end = data.value
 

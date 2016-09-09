@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
-   public class Account
+   public class Account 
     {
         private int a_AccountID;
         private string a_AccountNo;

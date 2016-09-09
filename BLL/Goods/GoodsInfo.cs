@@ -9,7 +9,7 @@ using System.Data.SqlClient;
 using System.Data;
 
 namespace BLL.Goods
-{
+{ 
     public class GoodsInfo
     {
         Common.CommonClass Com = new Common.CommonClass();

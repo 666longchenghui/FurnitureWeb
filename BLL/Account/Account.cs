@@ -12,7 +12,7 @@ namespace BLL.Account
         Common.CommonClass com = new Common.CommonClass();
         /// <summary>
         /// 添加客户信息
-        /// </summary>
+        /// </summary> 
         /// <param name="NO"></param>
         /// <param name="Name"></param>
         /// <param name="Comtel"></param>

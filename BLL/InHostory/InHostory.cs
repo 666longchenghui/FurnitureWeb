@@ -10,7 +10,7 @@ using Model;
 namespace BLL.InHostory
 {
     public class InHostory
-    {
+    { 
         Common.CommonClass com = new Common.CommonClass();
         /// <summary>
         /// 加载商品信息

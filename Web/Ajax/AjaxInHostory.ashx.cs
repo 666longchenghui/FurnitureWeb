@@ -14,7 +14,7 @@ namespace Web.Ajax
     {
 
         public void ProcessRequest(HttpContext context)
-        {
+        { 
             context.Response.ContentType = "text/plain";
             string action = context.Request.Params["action"];
             HttpRequest req = context.Request;

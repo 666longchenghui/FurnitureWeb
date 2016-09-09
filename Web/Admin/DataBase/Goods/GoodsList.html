@@ -17,7 +17,7 @@
         var GoodsName = $("#Goods_Name").val();
         var GoodsModel = $("#M_specification").val();
         $.ajax({
-            url: "/Ajax/AjaxGoods.ashx?action=GetGoodInfo",
+            url: "/Ajax/AjaxGoods.ashx?action=GetGoodInfo", 
             type: "post",
             data: {
                 "GoodsName": GoodsName,
