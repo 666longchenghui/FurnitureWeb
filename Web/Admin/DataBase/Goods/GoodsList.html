@@ -1,4 +1,4 @@
-<script src="/Admin/BJUI/ComJS/Selectd.js"></script>
+<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
     function pic_form_upload_success(data) {
         var json = jQuery.parseJSON(data);
@@ -8,40 +8,37 @@
             $('#j_form_span_pic').html('<img src="' + json.navTabId + '" width="100" />');
         }
     }
-    var Goods = {PageIndex:1,PageSize:15,TotalPage:0,MaxPage:0}
-    //var PageSize = 15;//每页显示2条数据
-    //var PageIndex = 1;//当前页为一
-    //var TotalPage;//总记录数
-    //var MaxPage;//一共多少页
+    var PageSize = 15;//每页显示2条数据
+    var PageIndex = 1;//当前页为一
+    var TotalPage;//总记录数
+    var MaxPage;//一共多少页
     function Page() {
         var GoodsName = $("#Goods_Name").val();
-        var GoodsModel = $("#M_specification").val();
+        var GoodsModel = $("#Goods_Model").val();
         $.ajax({
             url: "/Ajax/AjaxGoods.ashx?action=GetGoodInfo",
             type: "post",
             data: {
                 "GoodsName": GoodsName,
                 "GoodsModel":GoodsModel,
-                "PageSize": Goods.PageSize,
-                "PageIndex":Goods.PageIndex
+                "PageSize": PageSize,
+                "PageIndex":PageIndex
             },
             success: function (msg) {
                 var json = JSON.parse(msg);
-                console.log(msg);
                 //通过转换取出总记录数            
                 var count = json["ComCount"];
                     count = JSON.parse(count);
-                    Goods.TotalPage = count[""][0]["Column1"];
-             
+                TotalPage = count[""][0]["Column1"];
                 //求出总页数总记录数/每页显示的条数，向上取整Math.ceil();
-               Goods.MaxPage = Math.ceil(Goods.TotalPage /Goods. PageSize);
+                MaxPage = Math.ceil(TotalPage / PageSize);
                 //取出数据
                 var data = json["ComStr"];
                 data = JSON.parse(data);
                 var ObjData = data[""];
                 //循环输出每列
                 var html = [];
-                var Row = ((Goods.PageIndex - 1) * Goods.PageSize) + 1;
+                var Row = ((PageIndex - 1) * PageSize) + 1;
                 $.each(ObjData, function (k, v) {
                     var Sum=v.Msum;
                     var Price=v.Msellingprice;
@@ -54,104 +51,75 @@
                     html.push("</tr>")
                 })
                 $("#MsellingpriceInfo tbody").empty().append(html.join(''));
-                $("#total").html(Goods.TotalPage);
+                $("#total").html(TotalPage);
                 //循环出页码
-                htmls = [];
-                htmls.push("<ul class='pagination'>");
-                htmls.push("<li class='g-first'><a href='javascript:'onclick='Goods_prev()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
-                htmls.push("<li class='g-prev'><a href='javascript:' onclick='Goods_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
-                //循环出页码
-                for (var i = 1; i <= Goods.MaxPage; i++) {
-                    var cs = "j-sum";
-                    if (i == Goods.PageIndex) {
-                        cs = "selected " + cs;
-                    }
-                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
-                }
-                htmls.push("<li class='g-next' ><a href='javascript:'onclick='Goods_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
-                htmls.push("<li class='g-last'><a href='javascript:' onclick='Goods_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
-                htmls.push('<li class="g-jumpto"><span class="j-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="ggo"></span><a class="ggoto" href="javascript:;" title="跳转" onclick="GoodsList_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
-                htmls.push("<ul>");
-                $("#GoodsList_Pageination").empty().append(htmls.join(''));
+                PageNum(MaxPage, PageIndex);
+
+                $("#GoodsList_Page").empty().append(htmls.join(''));
            
-                if (Goods.PageIndex==1) {
-                    $(".g-first").addClass("disabled");
-                    $(".g-prev").addClass("disabled");
+                if (PageIndex==1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
                 }
-                if (Goods.PageIndex == Goods.MaxPage) {
-                    $(".g-next").addClass("disabled");
-                    $(".g-last").addClass("disabled");
+                if (PageIndex==MaxPage) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
                 }
             }
      });
     }
     //下一页
-    function Goods_next() {
-        if (Goods.PageIndex < Goods.MaxPage) {
-            Goods.PageIndex++;
+    function next() {
+        if (PageIndex < MaxPage) {
+            PageIndex++;
             Page();
         }
     }
     //上一页
-    function Goods_prev() {
-        if (Goods.PageIndex > 1) {
-            Goods.PageIndex--;
+    function prev() {
+        if (PageIndex>1) {
+            PageIndex--;
             Page();
         }
     }
     function search() {
-        Goods.pageIndex = 1;
+        pageIndex = 1;
             Page();
     }
     //首页
-    function Goods_first() {
-        Goods.PageIndex = 1;
+    function first() {
+        PageIndex = 1;
         Page();
     }
-    function Goods_last() {
-        Goods.PageIndex = Goods.MaxPage;
+    function last() {
+        PageIndex = MaxPage;
         Page();
     }
     $(function () {
         Page();
-        OnloadModel();
         //点击页码跳转
         $(".j-sum").live("click", function () {
             var ClickValue = $(this).text();
-            Goods.PageIndex = ClickValue;          
+            PageIndex = ClickValue;          
             Page();
         });
         //选择下拉值跳转
         $("#div_GoodsPage").live("change", function () {
             var GoodsSelect = $("#Select_GoodsPage").find("option:selected").text();
-            if (GoodsSelect > Goods.PageIndex) {
-                Goods.PageIndex = 1;
+            if (GoodsSelect > PageIndex) {
+                PageIndex = 1;
             }
-            Goods.PageSize = GoodsSelect;
+            PageSize = GoodsSelect;
             Page();
         });
     })
     //输入跳转
-  
-    function GoodsList_Jump() {
-        $(".ggoto").live("click", function () {
-            var In_goods = $("#ggo").val();
-            if (In_goods >Goods.MaxPage) {
-                $(this).alertmsg('info', '你输入的数字超过页码范围');
-                return;
-            }
-           
-            if (isNaN(Number(In_goods)) || In_goods == "") {
-                $(this).alertmsg('info', '请输入数字');
-                return;
-            }
-            if (In_goods < 1) {
-                $(this).alertmsg('info', "请输入大于1的数字");
-                return;
-            }
-            Goods.PageIndex = In_goods;
+    function Jump() {
+        $(".goto").live("click", function () {
+            var InputValue = $("#go").val();           
+            PageIndex = InputValue;
             Page();
-        });   
+        });
     }
     var Goodsid;
     function EdGoodsList(_this, id, name) {
@@ -164,28 +132,19 @@
     //清空查询
     function ClearSelect() {
         $("#Goods_Name").val("");
-        $("#M_specification").val("请选择");
-
+        $("#Goods_Model").val("");
         Page();
     }
     //查询
     function GoodsSelect() {
-        //var GoodsName = $("#Goods_Name").val();
+        var GoodsName = $("#Goods_Name").val();
         Page();
     }
 </script>
 <div class="bjui-pageHeader">
         <div class="bjui-searchBar">
             <label>商品名称：</label><input type="text" value="" name="name" class="form-control" size="8" id="Goods_Name">&nbsp;
-            <label>商品型号：</label>
-            <select name="type" data-toggle="selectpicker" id="M_specification" data-width="110">
-                <option value=""></option>
-                <option value="1"></option>
-                <option value="2"></option>
-                <option value="3"></option>
-                <option value="4"></option>
-            </select>&nbsp;
-            <!--<input type="text" value="" name="Model" class="form-control" size="8" id="Goods_Model">&nbsp;-->
+            <label>商品型号：</label><input type="text" value="" name="Model" class="form-control" size="8" id="Goods_Model">&nbsp;
             <button type="submit" class="btn-default" data-icon="search" onclick="GoodsSelect()">查询</button>&nbsp;
             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
             <div class="pull-right">
@@ -226,6 +185,6 @@
         </div>
         <span>&nbsp;条，共 <span id="total"></span> 条</span>
     </div>
-    <div class="pagination-box" id="GoodsList_Pageination" data-total="600" data-page-size="30" data-page-current="1"> 
+    <div class="pagination-box" id="GoodsList_Page" data-total="600" data-page-size="30" data-page-current="1"> 
       </div>
 </div>
