@@ -68,7 +68,6 @@ namespace Web.Ajax
                     string StoreNo = req.Params["no"];
                     string StoreName = req.Params["name"];
                     string StoreModel = req.Params["model"];
-                    
                     res.Write(Common.CommonClass.ToJosn(Hostory.GetStoreManager(Sindex, SSize,StoreNo,StoreName,StoreModel)));
                     break;
                 case "InverToryDetail":

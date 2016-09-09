@@ -65,7 +65,8 @@ namespace BLL.InHostory
         {
 
             string SelIdSQL = @"select ROW_NUMBER() OVER(ORDER BY m.mid) AS ROWINDEX,Mnumber, Mname,Msellingprice,m.Mid, u.Unitid,DataText,UnitName,ISNULL(InvertorySum, 0) as InvertorySum,d.DictionaryID from Merchandise m left join Unit u on m.Unitid = u.Unitid left join Dictionary d on m.DictionaryID = d.DictionaryID
-                             left join Inventory i on m.Mid = i.Mid where MDelete = 0 and m.Mid in(" + id + ") order by m.mid";
+                             left join Inventory i on m.Mid = i.Mid where MDelete = 0 and m.Mid in(" + id + ")";
+
             string Resurt = Common.CommonClass.DataTableToJson(com.Selcets(SelIdSQL));
             return Resurt;
         }
@@ -145,8 +146,8 @@ namespace BLL.InHostory
                                                ,[Mid]
                                                ,[InventoryId],Number,Sum,CreateTime)VALUES(@Suppliers,@Mid,null,@Number,@sum,@CreateTime)";
                 count = com.ExecutionSqlPar(insertDetail, par);
-             //   string UpdateSum = @"Update InventoryDetail set Sum=Sum+@sum where Mid=@Mid";
-               string UpdateStore = @"UPDATE [dbo].[Inventory] set [InvertorySum] = InvertorySum+@sum WHERE Mid=@Mid";
+
+                string UpdateStore = @"UPDATE [dbo].[Inventory] set [InvertorySum] = InvertorySum+@sum WHERE Mid=@Mid";
                 count = com.ExecutionSqlPar(UpdateStore, par);
             }          
             if (count > 0)
@@ -171,7 +172,7 @@ namespace BLL.InHostory
         /// <param name="InHoustoryid"></param>
         /// <returns></returns>
         public string GetInHostoryDetail(string InHoustoryid) {
-            string SelectPid = @"select ROW_NUMBER() OVER(ORDER BY o.Pid)as NO,o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
+            string SelectPid = @"select o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
                                                              left join Dictionary d on m.DictionaryID = d.DictionaryID
                                                                left join Unit u on u.Unitid = m.Unitid
                                                  left join dbo.Supplier s on o.Suppliersid=s.Superid where o.Pid=" + InHoustoryid + "";
@@ -206,25 +207,19 @@ namespace BLL.InHostory
             {
                 AppendSQL += " and Mnumber like '%"+no+"%'";
             }
-            string m = "";
-            if (model=="请选择")
-            {
-                model =m ;
-            }
-
             if (name.Trim()!="")
             {
                 AppendSQL += " and Mname like '%" + name + "%'";
             }
             if (model.Trim()!="")
             {
-                AppendSQL += " and d.DictionaryID='" + model + "'";
+                AppendSQL += " and UnitName like '%" + model + "%'";
             }
-            string SelStrore = @"select * from (select d.DictionaryID,InventoryId,Msellingprice,Mnumber,Mname,UnitName,DataText,b.Mid ,ISNULL(InvertorySum,0)as InvertorySum ,ROW_NUMBER() OVER(ORDER BY InventoryId desc) as rank from Inventory  a 
+            string SelStrore = @"select * from (select InventoryId,Msellingprice,Mnumber,Mname,UnitName,DataText,b.Mid ,ISNULL(InvertorySum,0)as InvertorySum ,ROW_NUMBER() OVER(ORDER BY InventoryId desc) as rank from Inventory  a 
                                  inner join Merchandise as b on a.Mid=b.Mid inner join dbo.Unit as u on b.Unitid=u.Unitid inner join 
-                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0 " + AppendSQL+") as t where t.rank  between (((" + index+" - 1) * "+size+")+1) and("+index+" * "+size+")";
-            string Count= @"select count(*) from Inventory  a inner join Merchandise as b on a.Mid=b.Mid inner join dbo.Unit as u on b.Unitid=u.Unitid inner join 
-                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0" + AppendSQL+"";
+                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0 "+AppendSQL+") as t where t.rank  between (((" + index+" - 1) * "+size+")+1) and("+index+" * "+size+") ORDER BY InventoryId desc";
+            string Count= @" select count(*)from dbo.Inventory as a right join Merchandise as b on a.Mid=b.Mid inner join dbo.Unit as u on b.Unitid=u.Unitid inner join 
+                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0 "+AppendSQL+"";
             string Page= Common.CommonClass.DataTableToJson(com.Selcets(SelStrore));
             string Total = Common.CommonClass.DataTableToJson(com.Selcets(Count));
             Dictionary<string, object> dic = new Dictionary<string, object>();
@@ -249,7 +244,7 @@ namespace BLL.InHostory
         /// <param name="runnumber"></param>
         /// <returns></returns>
         public string GetRunNumber(string runnumber) {
-            string selectnumber = @"select ROW_NUMBER() OVER(ORDER BY o.Pid)as Numbered,o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
+            string selectnumber = @"select o.Pid, Mname,DataText,Mnumber,UnitName,PropertySum ,SCompanyName,PropertyToal,PropertyNote from Orderhistory o left join PurchaseProperty p on o.Pid = p.Pid left join dbo.Merchandise m on p.mid = m.MId
                                                              left join Dictionary d on m.DictionaryID = d.DictionaryID
                                                                left join Unit u on u.Unitid = m.Unitid
                                                  left join dbo.Supplier s on o.Suppliersid = s.Superid where Number = '" + runnumber + "'";

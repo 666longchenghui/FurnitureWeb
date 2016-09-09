@@ -1,11 +1,26 @@
 ﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
-    //var UserIndex = 1;
-    //var UserSize = 15;
-    //var UserMax;
-    //var TotalCount;
-    var person = { index: 1, size:5, max: 0, total: 0 };
-
+    var UserIndex = 1;
+    var UserSize = 15;
+    var UserMax;
+    var TotalCount;
+  
+    $(function () {
+        UserPage();
+        $(".j-sum").live("click", function () {
+            var PageNumValue = $(this).text();
+            UserIndex = PageNumValue;
+            UserPage();
+        });
+        $("#Select_PerPage").live("change", function () {
+            var SelectValue = $("#Select_PerPage").find("option:selected").text();
+            if (SelectValue > TotalCount) {
+                UserIndex = 1;
+            }
+            UserSize = SelectValue;
+            UserPage();
+        });
+    });
     function UserPage() {
         var UserName = $("#User_Name").val();
         var DepartName = $("#Depart_Name").val();
@@ -15,21 +30,20 @@
             data: {
                 "UserName": UserName,
                 "DepartName":DepartName,
-                "UserIndex": person.index,
-                "UserSize": person.size
+                "UserIndex": UserIndex,
+                "UserSize": UserSize
             },
             success: function (msg) {
-                
                 var json = JSON.parse(msg)           
                 var data = json["resultData"];          
                 data = JSON.parse(data);      
                 var Obj = data[""];
                 var count = json["resultCount"];     
                 count = JSON.parse(count);
-                person.total = count[""][0]["Column1"];           
-                person.max = Math.ceil(person.total / person.size);
+                TotalCount = count[""][0]["Column1"];           
+                UserMax = Math.ceil(TotalCount / UserSize);               
                 var html = [];
-                var SerialNumber = (person.index - 1) * person.size;
+                var SerialNumber = (UserIndex - 1) * UserSize;
                 $.each(Obj, function (k, v) {
                     html.push("<tr><td>" + (++SerialNumber) + "</td>")
                     html.push("<td>" + v["LoginName"] + "</td><td>" + v["UserName"] + "</td><td>" + v["UEmail"] + "</td><td>" + v["UPhone"] + "</td><td>" + v["Department"] + "</td><td>" + v["UCreateTime"] + "</td>");
@@ -38,95 +52,63 @@
                     html.push("</tr>");                
                 });
                 $("#UserList tbody").empty().append(html.join(''));
-                //PageNum(UserMax, UserIndex);
-                htmls = [];
-                htmls.push("<ul class='pagination'>");
-                htmls.push("<li class='p-first'><a href='javascript:'onclick='person_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
-                htmls.push("<li class='p-prev'><a href='javascript:' onclick='person_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
-                //循环出页码
-                for (var i = 1; i <= person.max; i++) {
-                    var cs = "j-sum";
-                    if (i == person.index) {
-                        cs = "selected " + cs;
-                    }
-                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
-                }
-                htmls.push("<li class='p-next' ><a href='javascript:' onclick='person_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
-                htmls.push("<li class='p-last'><a href='javascript:' onclick='person_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
-                htmls.push('<li class="p-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="pgo"></span><a class="pgoto" href="javascript:;" title="跳转" onclick="person_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
-                htmls.push("<ul>");
-                $("#Userscount").html(person.total);
+                PageNum(UserMax, UserIndex);              
+                $("#Userscount").html(TotalCount);
                 $("#UserPage").empty().append(htmls.join(''));
                 //如果当前页等于1，让首页、上一页不可点击
-                if (person.index == 1) {
-                    $(".p-first").addClass("disabled");
-                    $(".p-prev").addClass("disabled");
+                if (UserIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (person.index == person.max) {
-                    $(".p-next").addClass("disabled");
-                    $(".p-last").addClass("disabled");
+                if (UserIndex == UserMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
                 }
             }
         });
     }
-    $(function () {
-        UserPage();
-        $(".j-sum").live("click", function () {
-            var PageNumValue = $(this).text();
-            person.index = PageNumValue;
-            UserPage();
-        });
-        $("#Select_PerPage").live("change", function () {
-            var SelectValue = $("#Select_PerPage").find("option:selected").text();
-            if (SelectValue > person.total) {
-                person.index = 1;
-            }
-            person.size = SelectValue;
-            UserPage();
-        });
-    });
     //下一页
-    function person_next() {
-        if (person.index < person.max) {
-            person.index++;
+    function next() {
+        if (UserIndex < UserMax) {
+            UserIndex++;
             UserPage();
         }
     }
     //上一页
-    function person_prev() {
-        if (person.index > 1) {
-            person.index--;
+    function prev() {
+        if (UserIndex > 1) {
+            UserIndex--;
             UserPage();
         }
     }
     //首页
-    function person_first() {
-        person.index = 1;
+    function first() {
+        UserIndex = 1;
         UserPage();
     }
     //尾页
-    function person_last() {
-        person.index = person.max;
+    function last() {
+        UserIndex = UserMax;
         UserPage();
     }
 
-    function person_Jump() {
-        $(".pgoto").live("click", function () {
-            var InputValue = $("#pgo").val();
-            if (InputValue > person.max) {
-                $(this).alertmsg('info', '你输入的数字超过页码范围');
+    function Jump() {
+        $(".goto").live("click", function () {
+            var InputValue = $("#go").val();
+            if (InputValue > UserMax) {
+                $(this).alertmsg('warn', '你输入的数字超过页面范围');
                 return false;
             }
             if (InputValue < 1) {
-                $(this).alertmsg('info', '请输入大于1的数字');
+                $(this).alertmsg('warn', '请输入大于1的数字');
                 return false;
             }
             if (isNaN(Number(InputValue)) || InputValue == "") {
-                $(this).alertmsg('info', '请输入数字');
+                $(this).alertmsg('warn', '请输入数字');
                 return;
             }
-            person.index = InputValue;
+            UserIndex = InputValue;
             UserPage();
         });
     }

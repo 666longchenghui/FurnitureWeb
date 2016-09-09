@@ -91,7 +91,7 @@ $(function () {
             type: "post",
             success: function (msg) {
                 var json = JSON.parse(msg);
-          
+                console.log(json);
                 var data = json[""][0];         
                 $("#M_Number").val(data["Mnumber"]);
                 $("#M_Name").val(data["Mname"]);

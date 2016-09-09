@@ -38,6 +38,7 @@ function OnloadUnit() {
             UnitName += "<option>请选择</option>"
             $.each(Data, function (k, v) {
                 UnitName += "<option value='" + v.Unitid + "'>" + v.UnitName + "</option>";
+
             });
             $("#M_Unit").empty();
             $("#M_Unit").append(UnitName);

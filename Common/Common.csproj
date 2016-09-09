@@ -39,7 +39,7 @@
       <HintPath>..\..\..\项目\Best\Best\Best\bin\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\项目\Mgoogps\MgooGps\MgooGps\bin\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

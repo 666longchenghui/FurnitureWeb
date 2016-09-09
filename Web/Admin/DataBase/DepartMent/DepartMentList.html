@@ -1,15 +1,17 @@
 ﻿<script src="/Admin/BJUI/ComJS/PageNumber.js"></script>
 <script type="text/javascript">
- 
-    var depart = { index: 1, size: 5, max: 0, total: 0 };
+    var DepartIndex = 1;
+    var DepartSize = 15;
+    var DepartMax;
+    var TotalCount ;
     function PageDepart() {
         var DepartName = $("#Depart_Name").val(); 
         $.ajax({
             url: "/Ajax/AjaxDepartMent.ashx?action=GetPageDepart",
             data: {
                 "DepartName":DepartName,
-                "DepartIndex": depart.index,
-                "DepartSize":depart.size
+                "DepartIndex": DepartIndex,
+                "DepartSize":DepartSize
                   },
             type:"post",
             success:function (msg) {
@@ -20,9 +22,9 @@
                 var html = [];
                 var count = json["ReturnCount"];
                 count = JSON.parse(count);
-               depart.total = count[""][0]["Column1"];
-               depart.max = Math.ceil(depart.total / depart.size);
-                var xu = (depart.index - 1) * depart.size;             
+                TotalCount = count[""][0]["Column1"];
+                DepartMax = Math.ceil(TotalCount / DepartSize);
+                var xu = (DepartIndex - 1) * DepartSize;             
                 $.each(Obj, function (k, v) {
                     html.push("<tr>");
                     html.push("<td>"+(++xu)+"</td>")
@@ -32,33 +34,19 @@
                     html.push("</tr> ")
                 });
                 $("#DepartMentList tbody").empty().append(html.join(''));
-                htmls = [];
-                htmls.push("<ul class='pagination'>");
-                htmls.push("<li class='d-first'><a href='javascript:'onclick='depart_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
-                htmls.push("<li class='d-prev'><a href='javascript:' onclick='depart_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
-                //循环出页码
-                for (var i = 1; i <= depart.max; i++) {
-                    var cs = "j-sum";
-                    if (i == depart.index) {
-                        cs = "selected " + cs;
-                    }
-                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
-                }
-                htmls.push("<li class='d-next' ><a href='javascript:' id='n' onclick='depart_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
-                htmls.push("<li class='d-last'><a href='javascript:' onclick='depart_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
-                htmls.push('<li class="d-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="dgo"></span><a class="dgoto" href="javascript:;" title="跳转" onclick="depart_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
-                htmls.push("<ul>");
-                $("#div").html(depart.total);
+                PageNum(DepartMax, DepartIndex);
+
+                $("#div").html(TotalCount);
                 $("#DepartSet").empty().append(htmls.join(''));
                 //DepartIndex1，让首页、上一页不可点击
-                if (depart.index == 1) {
-                    $(".d-first").addClass("disabled");
-                    $(".d-prev").addClass("disabled");
+                if (DepartIndex == 1) {
+                    $(".c-first").addClass("disabled");
+                    $(".c-prev").addClass("disabled");
                 }
                 //如果当前页等于最大页数,让下一页、尾页不可点击
-                if (depart.index ==depart.max) {
-                    $(".d-next").addClass("disabled");
-                    $(".d-last").addClass("disabled");
+                if (DepartIndex == DepartMax) {
+                    $(".c-next").addClass("disabled");
+                    $(".c-last").addClass("disabled");
                 }
             }
         });
@@ -75,61 +63,61 @@
         PageDepart();
         $(".j-sum").live("click", function () {
             var PageNumValue = $(this).text();
-            depart.index = PageNumValue;
+            DepartIndex = PageNumValue;
             PageDepart();
         });
         $("#Select_Depart_Page").live("change", function () {
             var SelectValue = $("#Select_Depart_Page").find("option:selected").text();
-            if (SelectValue > depart.total) {
-                depart.index = 1;
+            if (SelectValue > TotalCount) {
+                DepartIndex = 1;
             }
-            depart.size = SelectValue;
+            DepartSize = SelectValue;
             PageDepart();
         });
     });
-    function depart_Jump() {
-        $(".dgoto").live("click", function () {
-            var Letgo = $("#dgo").val();
-            if (Letgo > depart.max) {
-                $(this).alertmsg('info', '你输入的数字超过页码范围');
+    function Jump() {
+        $(".goto").live("click", function () {
+            var Letgo = $("#go").val();
+            if (Letgo > DepartMax) {
+                $(this).alertmsg('warn', '你输入的数字超过页面范围');
                 return false;
             }
-            if (Letgo <1) {
-                $(this).alertmsg('info', '请输入大于1的数字');
+            if (Letgo < 1) {
+                $(this).alertmsg('warn', '请输入大于1的数字');
                 return false;
             }
-            if (isNaN(Letgo) || Letgo == "") {
-                $(this).alertmsg('info', '请输入数字');
+            if (isNaN(Number(Letgo)) || Letgo == "") {
+                $(this).alertmsg('warn', '请输入数字');
                 return;
             }
-            depart.index = Letgo;
+            DepartIndex = Letgo;
             PageDepart();
         });
     }
 
     //下一页
-    function depart_next() {
-        if (depart.index <depart.max) {
-            depart.index++;
-     
+    function next() {
+        if (DepartIndex <DepartMax) {
+            DepartIndex++;
+            console.log(DepartIndex);
             PageDepart();
         }
     }
     //上一页
-    function depart_prev() {
-        if (depart.index > 1) {
-           depart.index--;
+    function prev() {
+        if (DepartIndex > 1) {
+            DepartIndex--;
             PageDepart();
         }
     }
     //首页
-    function depart_first() {
-        depart.index = 1;
+    function first() {
+        DepartIndex = 1;
         PageDepart();
     }
     //尾页
-    function depart_last() {
-        depart.index = depart.max;
+    function last() {
+        DepartIndex = DepartMax;
         PageDepart();
     }
     function ClearSelect() {
