@@ -207,25 +207,19 @@ namespace BLL.InHostory
             {
                 AppendSQL += " and Mnumber like '%"+no+"%'";
             }
-            string m = "";
-            if (model=="请选择")
-            {
-                model =m ;
-            }
-
             if (name.Trim()!="")
             {
                 AppendSQL += " and Mname like '%" + name + "%'";
             }
             if (model.Trim()!="")
             {
-                AppendSQL += " and d.DictionaryID='" + model + "'";
+                AppendSQL += " and UnitName like '%" + model + "%'";
             }
-            string SelStrore = @"select * from (select d.DictionaryID,InventoryId,Msellingprice,Mnumber,Mname,UnitName,DataText,b.Mid ,ISNULL(InvertorySum,0)as InvertorySum ,ROW_NUMBER() OVER(ORDER BY InventoryId desc) as rank from Inventory  a 
+            string SelStrore = @"select * from (select InventoryId,Msellingprice,Mnumber,Mname,UnitName,DataText,b.Mid ,ISNULL(InvertorySum,0)as InvertorySum ,ROW_NUMBER() OVER(ORDER BY InventoryId desc) as rank from Inventory  a 
                                  inner join Merchandise as b on a.Mid=b.Mid inner join dbo.Unit as u on b.Unitid=u.Unitid inner join 
-                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0 " + AppendSQL+") as t where t.rank  between (((" + index+" - 1) * "+size+")+1) and("+index+" * "+size+")";
-            string Count= @"select count(*) from Inventory  a inner join Merchandise as b on a.Mid=b.Mid inner join dbo.Unit as u on b.Unitid=u.Unitid inner join 
-                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0" + AppendSQL+"";
+                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0 "+AppendSQL+") as t where t.rank  between (((" + index+" - 1) * "+size+")+1) and("+index+" * "+size+") ORDER BY InventoryId desc";
+            string Count= @" select count(*)from dbo.Inventory as a right join Merchandise as b on a.Mid=b.Mid inner join dbo.Unit as u on b.Unitid=u.Unitid inner join 
+                    dbo.Dictionary as d on b.DictionaryID=d.DictionaryID where MDelete=0 "+AppendSQL+"";
             string Page= Common.CommonClass.DataTableToJson(com.Selcets(SelStrore));
             string Total = Common.CommonClass.DataTableToJson(com.Selcets(Count));
             Dictionary<string, object> dic = new Dictionary<string, object>();

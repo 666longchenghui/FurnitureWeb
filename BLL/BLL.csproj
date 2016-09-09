@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account\Account.cs" />
     <Compile Include="Bills\Bills.cs" />
     <Compile Include="DepartMent\DepartMent.cs" />
     <Compile Include="Goods\GoodsInfo.cs" />

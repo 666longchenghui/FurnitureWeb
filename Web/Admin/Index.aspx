@@ -267,8 +267,7 @@
                                     <!--<li data-id="10" data-pid="1" data-url="DepartMent/AddUsers.html" data-faicon="table" data-tabid="Depart">用户管理</li>-->
                                     <li data-id="10" data-pid="1" data-url="DataBase/Users/PersonnelManagement.html" data-faicon="table" data-tabid="user">用户管理</li>
                                     <!--<li data-id="12" data-pid="1" data-url="DepartMent/AddDepart.html" data-faicon="list" data-tabid="import">创建部门</li>-->
-                                    <li data-id="11" data-pid="1" data-url="DataBase/Account/AccountList.html" data-faicon="table" data-tabid="WareHouse">客户管理</li>     
-                                    <li data-id="12" data-pid="1" data-url="DataBase/WareHouse/WareHouseList.html" data-faicon="table" data-tabid="WareHouse">仓库管理</li>     
+                                    <li data-id="11" data-pid="1" data-url="DataBase/WareHouse/WareHouseList.html" data-faicon="table" data-tabid="WareHouse">仓库管理</li>     
                                 </ul>                          
                                 
                             </div>
