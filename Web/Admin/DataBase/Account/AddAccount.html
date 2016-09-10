@@ -5,16 +5,41 @@
         var year = todayDate.getFullYear();
         var date = todayDate.getDate();
         var month = todayDate.getMonth() + 1;
-
         var ran = Math.round((Math.random()) * 100000);
         var ControlNo = "KH" + year + "" + month + "" + date + "" + ran + "";
         $("#j_Account_No").val(ControlNo);
-      
+        $("#j_Account_No").attr("readonly", "readonly");
+       
+        if ( typeof (UpAccountid) != "undefined") {
+            $.ajax({
+                url: "/Ajax/AjaxAccount.ashx?action=SelAccountid&Accountid=" + UpAccountid,
+                type: "post",
+                date: "",
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    var date = JSON.parse(json)[""];                  
+                    $("#j_Account_No").val(date[0]["AccountNo"]);
+                    $("#j_Account_No").attr("readonly", "readonly");
+                    $("#j_Account_Name").val(date[0]["AccountName"]);
+                    $("#j_Account_Comtel").val(date[0]["AccountComTel"]);
+                    $("#j_Account_Money").val(date[0]["AccountMoney"]);
+                    $("#j_Account_Phone").val(date[0]["AccountPhone"]);
+                    $("#j_Account_Email").val(date[0]["AccountEmail"]);
+                    $("#j_Account_Note").val(date[0]["AccountNote"]);
+                }
+            });
+        }     
     });
     function AddAccount(_that) {
- 
+        if (UpAccountid) {
+            $("#frm_Account").attr("action", "/Ajax/AjaxAccount.ashx?action=SaveAccount&AccountID=" + UpAccountid);
+            $(this).navtab('refresh', "Mian_AccountId");
+            return;
+        }
         $("#frm_Account").sumbit();
+        $(selector).navtab('refresh', "Mian_AccountId");
     }
+ 
 </script>
 <div class="bjui-pageContent">
 
@@ -46,8 +71,8 @@
                         <input type="text" name="Account.Phone" id="j_Account_Phone" value="" data-rule="required;mobile" size="15">
                     </td>
                     <td>
-                        <label for="j_Account_Eamil" class="control-label x85">客户Email：</label>
-                        <input type="text" name="Account.Email" id="j_Account_Eamil" value="" data-rule="required;email" size="15">
+                        <label for="j_Account_Email" class="control-label x85">客户Email：</label>
+                        <input type="text" name="Account.Email" id="j_Account_Email" value="" data-rule="required;email" size="15">
                     </td>          
                 </tr>             
                 <tr>

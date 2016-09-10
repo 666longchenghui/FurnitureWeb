@@ -1,0 +1,59 @@
+﻿<script type="text/javascript">
+    function StockReturn(_this) {
+        $(_this).dialog({ url: '/Admin/InHostory/AddStockReturn.html', title: "新增退货单", id: 'dialog_Return', toggle: 'dialog', width: 800, height: 600 ,mask:'true'});
+    }
+    $('#lookupmid').on('afterchange.bjui.lookup', function (e, data) {
+        console.log(data);
+
+    });
+</script>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <div class="actionArea mb10">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tbody>
+                <tr>
+                    <td align="right"><button type="button" class="btn btn-green btn-nm" onclick="">历史单据</button></td>
+                </tr>
+            </tbody>
+        </table> 
+    </div>
+    <!-- whiteBox -->
+    <div class="whiteBox receipts">
+     <table class="title xclass" border="0" cellpadding="5" cellspacing="0" width="100%">
+           <tbody>
+                <tr>
+                    <td height="50" width="30%">&nbsp;</td>
+                   
+                    <td class="text" align="center" valign="top" width="40%"  style="font-size:250%" >进货退货单</td>
+                    <td class="font999" style="padding-bottom: 20px;" align="right" valign="bottom" width="30%">&nbsp;</td>
+                </tr>
+            </tbody>           
+      </table>
+     <hr style="height:5px;border:none;border-top:5px ridge green;"/>
+        <div id="spanSelectSale">
+            <p>&nbsp;</p>
+            <p align="center">
+                <img src="http://cdn.zhsmjxc.com/CDN/Static-webapp/images/nodata_return.png">
+            </p>
+            <p class="fontNodata" align="center" style="font-size:150%">您可以关联进货单退货,也可以直接选择商品进行退货。</p>
+            <p align="center">
+                <a href="/Admin/InHostory/AddStockReturn.html" class="btn btn-green btn-nm" data-toggle="lookupbtn"
+                   data-width="800" data-height="400" data-id="dialog11" ata-icon="plus" data-mask="true" data-group="t2">关联进货单退货</a>
+                <!--<button type="button" class="btn btn-green btn-nm" onclick="StockReturn(this)"  data-group="t2">关联进货单退货</button>-->
+                <input type="hidden" name="t2.pid" size="10" id="lookupmid"> 
+                <button type="button" class="btn btn-blue btn-nm" onclick="">不关联单据退货</button>
+           
+            </p>
+            <p>&nbsp;</p>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,130 +1,207 @@
-﻿<div class="bjui-pageHeader">
-    <form id="pagerForm" data-toggle="ajaxsearch" action="" method="post">
+﻿<script type="text/javascript">
+    var account = { index: 1, size: 15, max: 0, total: 0 };
+    function Account_Page() {
+        var AccountName = $("#accountName").val();
+        var Accountbegin = $("#Account_CreateDate").val();
+        var Accountend = $("#Account_Enddate").val();
+        $.ajax({
+            url: "/Ajax/AjaxAccount.ashx?action=GetAccountInfo",
+            type: "post",
+            data: {
+                "name": AccountName,
+                "begin": Accountbegin,
+                "end":Accountend,
+                "index": account.index,
+                "size":account.size,
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var date = json["Page"];
+                date = JSON.parse(date)[""];
+                var count = json["Count"];
+                account.total = JSON.parse(count)[""][0]["Column1"];//总条数
+                account.max = Math.ceil(account.total / account.size);
+                var html = [];
+                var No = (account.index - 1) * account.size;
+                $.each(date, function (k, v) {          
+                    html.push("<tr>");
+                    html.push("<td>" + (++No) + "</td><td>" + v["AccountNo"] + "</td><td>" + v["AccountName"] + "</td><td>" + v["AccountComTel"] + "</td><td>" + v["AccountMoney"] + "</td>");
+                    html.push("<td>" + v["AccountPhone"] + "</td><td>" + v["AccountEmail"] + "</td><td>"+v["AccountCreate"]+"</td>")         
+                    html.push("<td><a href='/Ajax/AjaxAccount.ashx?action=DeleteAccount&Accountid=" + v["AccountId"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>")
+                    html.push("<a href='#' onclick='UpdateAccount(this,\"" + v["AccountId"] + "\",\"" + v["AccountName"] + "\")' class='btn btn-green' >编辑</a></td>")
+                    html.push("</tr>");
+                });
+                //$("# tbody").empty().append(html.join(''));
+                $("#Account_Total").html(account.total);
+                $("#Tab_AccountID tbody").empty().append(html.join(''));
+                var htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='acc-first'><a href='javascript:'onclick='account_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='acc-prev'><a href='javascript:' onclick='account_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+            
+                for (var i = 1; i <= account.max; i++) {
+                    var cs = "j-sum";
+                    if (i == account.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+
+                htmls.push("<li class='acc-next' ><a href='javascript:' id='acc' onclick='account_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='acc-last'><a href='javascript:' onclick='account_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="acc-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="accgo"></span><a class="accgoto" href="javascript:;" title="跳转" onclick="account_jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                $("#Account_pagination").empty().append(htmls.join(''));
+                if (account.index == 1) {
+                    $(".acc-first").addClass("disabled");
+                    $(".acc-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (account.index == account.max) {
+                    $(".acc-next").addClass("disabled");
+                    $(".acc-last").addClass("disabled");
+                }
+            },
+        });
+    }
+    $(function () {
+        Account_Page();
+        //点击页码跳转
+        $(".j-sum").live("click", function () {
+            var pagination = $(this).text();
+            account.index = pagination;
+            Account_Page();        
+        });
+        $("#Account_Change").live("change", function () {
+            var SelectValues = $("#Account_option").find("option:selected").html();  //获得下拉框选中的值
+            account.size = SelectValues;
+            Account_Page();
+        });
+    });
+
+    var UpAccountid;
+    function UpdateAccount(_that, id, name)
+    {
+        UpAccountid = id;
+        $(_that).dialog({ id: "AddAccountId", onClose: "addAccount_close", url: "/Admin/DataBase/Account/AddAccount.html?id" + id, title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800', height: '400' })
+
+    }
+   
+    function addAccount_close() {
+        UpAccountid = undefined;
+
+    }
+    function account_jump() {
+        var inputvalue = $("#accgo").val();
+        if (inputvalue >account.max) {
+            $(this).alertmsg('info', '你输入的数字超过页面范围');
+            return;
+        }
+        if (isNaN(Number(inputvalue)) || inputvalue == "") {
+            $(this).alertmsg('info', '请输入数字');
+            return ;
+        }
+        if (inputvalue < 1) {
+            $(this).alertmsg('info', '请输入大于1的数字');
+            return;
+        }
+        account.index = inputvalue;
+        Account_Page();
+    }
+    function account_next() {
+        if (account.index<account.max) {
+            account.index++;
+            Account_Page();
+        }
+    }
+    function account_prev() {
+        if (account.index>1) {
+            account.index--;
+            Account_Page();
+        }
+    }
+    function account_first() {
+        account.index = 1;
+        Account_Page();
+    }
+    function account_last() {
+        account.index = account.max;
+        Account_Page();
+    }
+    function Account_Like() {
+        Account_Page();
+    }
+    function Account_Clear() {
+        $("#accountName").val("");
+        $("#Account_Enddate").val("");
+        $("#Account_CreateDate").val("");
+        Account_Page();
+    }
+    
+</script>
+
+<div class="bjui-pageHeader">
+    <form id="frm_AccountList" >
         <input type="hidden" name="pageSize" value="${model.pageSize}">
         <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
         <input type="hidden" name="orderField" value="${param.orderField}">
         <input type="hidden" name="orderDirection" value="${param.orderDirection}">
         <div class="bjui-searchBar">
-            <label>所属业务:</label>
-            <select name="type" data-toggle="selectpicker" data-width="110">
+            <!--<label>所属业务:</label>-->
+            <!--<select name="type" data-toggle="selectpicker" data-width="110">
                 <option value="">全部</option>
                 <option value="1">联络</option>
                 <option value="2">住宿</option>
                 <option value="3">餐饮</option>
                 <option value="4">交通</option>
-            </select>&nbsp;
-            <label>护照号：</label><input type="text" id="customNo" value="" name="code" class="form-control" size="10">&nbsp;
-            <label>客户姓名：</label><input type="text" value="" name="name" class="form-control" size="8">&nbsp;
-            <input type="checkbox" id="j_table_chk" value="true" data-toggle="icheck" data-label="我的客户">
-            <button type="button" class="showMoreSearch" data-toggle="moresearch" data-name="custom"><i class="fa fa-angle-double-down"></i></button>
-            <button type="button" class="btn-default" data-icon="search">查询</button>&nbsp;
-            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            </select>&nbsp;-->
+            <label>客户姓名：</label><input type="text" id="accountName" value="" name="code" class="form-control" size="10">&nbsp;
+            <label>创建日期：</label><input type="text" name="account.date" id="Account_CreateDate" data-toggle="datepicker" data-rule="required;date" size="11">
+            <label>至</label><input type="text" name="end.date" id="Account_Enddate" data-toggle="datepicker" data-rule="required;date" size="11">
+          
+            <button type="button" class="btn-default" data-icon="search" onclick="Account_Like()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="Account_Clear()">清空查询</a>
             <div class="pull-right">
-                <a href="/Admin/DataBase/Account/AddAccount.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="AddGoodsid" ata-icon="user" data-mask="true">
+                <a href="/Admin/DataBase/Account/AddAccount.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="500" data-id="AddGoodsid" ata-icon="user" data-mask="true">
                     <i class="fa fa-plus-square" size="10" aria-hidden="true">添加客户</i>
                 </a>           
             </div>
         </div>
-        <div class="bjui-moreSearch">
-            <label>职业：</label><input type="text" value="" name="profession" size="15" />
-            <label>&nbsp;性别:</label>
-            <select name="sex" data-toggle="selectpicker">
-                <option value="">全部</option>
-                <option value="true">男</option>
-                <option value="false">女</option>
-            </select>
-            <label>&nbsp;手机:</label>
-            <input type="text" value="" name="mobile" size="10">
-        </div>
+        
     </form>
 </div>
 <div class="bjui-pageContent tableContent">
-    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="Tab_AccountID">
         <thead>
             <tr>
-                <th data-order-field="operation" align="center">业务</th>
-                <th data-order-field="name">姓名</th>
-                <th>拼音姓</th>
-                <th>拼音名</th>
-                <th data-order-field="sex">性别</th>
-                <th data-order-field="birthday">出生日期</th>
-                <th data-order-field="birthplace">出生地</th>
-                <th data-order-field="add" align="center">居住地</th>
-                <th data-order-field="passportno">护照号</th>
-                <th data-order-field="issuedate">签发日期</th>
-                <th data-order-field="indate">有效日期</th>
-                <th data-order-field="issueat">签发地</th>
-                <th data-order-field="profession">职业</th>
-                <th data-order-field="mobile">手机</th>
-                <th data-order-direction="asc" data-order-field="createtime">登记时间</th>
-                <th width="26"><input type="checkbox" class="checkboxCtrl" data-group="ids" data-toggle="icheck"></th>
+                <!--<th data-order-field="operation" align="center">业务</th>-->
+                <th>序号</th>
+                <th data-order-field="name">客户编号</th>
+                <th>客户姓名</th>
+                <th>公司号码</th>
+                <th >所欠款项</th>
+                <th >客户号码</th>
+                <th >客户Email</th>
+                <th >创建时间</th>      
                 <th width="100">操作</th>
             </tr>
         </thead>
-        <tbody>
-            <tr data-id="1">
-                <td>联络</td>
-                <td>孙悟空</td>
-                <td>Sun</td>
-                <td>Wukong</td>
-                <td>男</td>
-                <td>0100-01-01</td>
-                <td>花果山</td>
-                <td align="center">灵山</td>
-                <td>0000011</td>
-                <td>1000-05-01</td>
-                <td>9999-12-31</td>
-                <td>五指山</td>
-                <td>保镖、斗战圣佛</td>
-                <td>--</td>
-                <td>2014-10-24 15:50</td>
-                <td><input type="checkbox" name="ids" data-toggle="icheck" value="1"></td>
-                <td>
-                    <a href="/B-JUI/form.html?id=1" class="btn btn-green" data-toggle="navtab" data-id="form" data-reload-warn="本页已有打开的内容，确定将刷新本页内容，是否继续？" data-title="编辑-孙悟空">编辑</a>
-                    <a href="/B-JUI/ajaxDone2.html" class="btn btn-red" data-toggle="doajax" data-confirm-msg="确定要删除该行信息吗？">删</a>
-                </td>
-            </tr>
-            <tr data-id="2">
-                <td>联络</td>
-                <td>唐僧</td>
-                <td>Tang</td>
-                <td>Seng</td>
-                <td>男</td>
-                <td>0600-10-11</td>
-                <td>洛阳</td>
-                <td>灵山</td>
-                <td>0000012</td>
-                <td>1000-04-01</td>
-                <td>9999-12-31</td>
-                <td>洛阳</td>
-                <td>念经</td>
-                <td>--</td>
-                <td>2014-10-24 15:51</td>
-                <td><input type="checkbox" name="ids" data-toggle="icheck" value="2"></td>
-                <!--<td>
-                    <a href="/B-JUI/form.html?id=2" class="btn btn-green" data-toggle="navtab" data-id="form" data-reload-warn="本页已有打开的内容，确定将刷新本页内容，是否继续？" data-title="编辑-唐僧">编辑</a>
-                    <a href="/B-JUI/ajaxDone2.html" class="btn btn-red" data-toggle="doajax" data-confirm-msg="确定要删除该行信息吗？">删</a>
-                </td>-->
-            </tr>
-
-
-
-        </tbody>
+        <tbody></tbody>
     </table>
 </div>
 <div class="bjui-pageFooter">
     <div class="pages">
         <span>每页&nbsp;</span>
-        <div class="selectPagesize">
-            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
-                <option value="30">30</option>
-                <option value="60">60</option>
-                <option value="120">120</option>
-                <option value="150">150</option>
+        <div class="selectPagesize" id="Account_Change">
+            <select data-toggle="selectpicker" id="Account_option">
+                <option value="15">15 </option>
+                <option value="30">30 </option>
+                <option value="50">50 </option>
+                <option value="100">100 </option>
             </select>
         </div>
-        <span>&nbsp;条，共 600 条</span>
+        <span>&nbsp;条，共 <span id="Account_Total"></span>条</span>
     </div>
-    <div class="pagination-box" data-toggle="pagination" data-total="600" data-page-size="30" data-page-current="1">
+    <div class="pagination-box"data-total="600" data-page-size="30" data-page-current="1" id="Account_pagination">
     </div>
 </div>

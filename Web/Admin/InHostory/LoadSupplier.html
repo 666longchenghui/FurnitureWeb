@@ -1,5 +1,4 @@
-﻿<script type="text/javascript">
-    
+﻿<script type="text/javascript">    
     var load = { index: 1, size: 15, max: 0, total: 0 };
     //清空查询文本
     function Clear() {
@@ -114,15 +113,15 @@
     function load_Jump() {
         var goto = $("#lgo").val();
         if (goto > load.max) {
-            $(this).alertmsg('warn', '你输入的数字超过页面范围');
+            $(this).alertmsg('info', '你输入的数字超过页面范围');
             return;
         }
         if (isNaN(Number(goto)) || goto == "") {
-            $(this).alertmsg('warn', '请输入数字');
+            $(this).alertmsg('info', '请输入数字');
             return;
         }
         if (goto < 1) {
-            $(this).alertmsg('warn', '请输入大于1的数字');
+            $(this).alertmsg('info', '请输入大于1的数字');
             return;
         }
         load.index = goto;
@@ -135,6 +134,7 @@
         $("#Supplier_Name").val("");
         SuPage();
     }
+    
 </script>
 <div class="bjui-pageHeader">
     <form id="pagerForm" data-toggle="ajaxsearch" action="table-edit-lookup.html" method="post">

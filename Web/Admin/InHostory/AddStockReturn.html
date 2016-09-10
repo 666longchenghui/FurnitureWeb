@@ -1,0 +1,120 @@
+﻿<script type="text/javascript">
+    var stock = {index:1,size:15,max:0,total:0}
+    $(function () {            
+            var CreateDate = $("#InHostory_CreateDate").val();//创建日期
+            var EndDate = $("#InHostory_EndDate").val();//结束日期
+            var OrderNumber = $("#Return_Name").val();//订单编号
+            var Distributor = $("#InHostory_Supplier").val();//供应商
+            $.ajax({
+                url: "/Ajax/AjaxInHostory.ashx?action=InHostory",
+                type: "post",
+                data: {
+                    "index": stock.index,
+                    "size": stock.size,
+                    "CreateDate": "",
+                    "EndDate": "",
+                    "OrderNumber": OrderNumber,
+                    "Distributor": ""
+                },
+                success: function (msg) {
+                    var json = JSON.parse(msg);
+                    var obj = json["Page"];
+                    var count = json["CountSum"];
+                    obj = JSON.parse(obj);
+                    var data = obj[""];
+                    var sum = JSON.parse(count);
+                    stock.totalsum = sum[""][0]["Column1"];//总记录数
+                    stock.max = Math.ceil(stock.totalsum / stock.size);//最大页
+                    var html = [];
+                    var SerialNumber = (stock.index - 1) * stock.size;
+                    $.each(data, function (k, v) {
+                        console.log(v["Mid"]);
+                        html.push("<tr>");
+                        html.push("<td>" + (++SerialNumber) + "</td><td>" + v["Number"] + "</td><td>" + v["OrderCreatetime"] + "</td><td>" + v["SCompanyName"] + "</td><td></td><td></td>");
+                        html.push('<td><a href="javascript:;" data-toggle="lookupback" data-args="{pid:' + v["Mid"] + ', nation:\'' + v["Mname"] + '\'}" class="btn btn-blue" title="选择本项" data-icon="check" >选择</a></td>');                  
+                        html.push("</tr>");
+                    });
+                    $("#TabStockReturnid tbody").empty().append(html.join(''));
+                    $("#InHoustory_sum").html(stock.totalsum);
+                    htmls = [];
+                    htmls.push("<ul class='pagination'>");
+                    htmls.push("<li class='i-first'><a href='javascript:'onclick='InHostory_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                    htmls.push("<li class='i-prev'><a href='javascript:' onclick='InHostory_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                    //循环出页码
+                    for (var i = 1; i <= stock.max; i++) {
+                        var cs = "j-sum";
+                        if (i == stock.index) {
+                            cs = "selected " + cs;
+                        }
+                        htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                    }
+                    htmls.push("<li class='i-next' ><a href='javascript:' id='n' onclick='InHostory_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                    htmls.push("<li class='i-last'><a href='javascript:' onclick='InHostory_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                    htmls.push('<li class="i-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="igo"></span><a class="igoto" href="javascript:;" title="跳转" onclick="InHostory_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                    htmls.push("<ul>");
+                    //    PageNum(HostoryList.max, HostoryList.index);
+                    $("#InHostory_PageNumber").empty().append(htmls.join(''));
+                    if (stock.index == 1) {
+                        $(".i-first").addClass("disabled");
+                        $(".i-prev").addClass("disabled");
+                    }
+                    if (stock.index == stock.max) {
+                        $(".i-next").addClass("disabled");
+                        $(".i-last").addClass("disabled");
+                    }
+                }
+            });
+    });
+
+</script>
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="table-edit-lookup.html" method="post">
+        <input type="hidden" name="pageCurrent" value="1">
+        <input type="hidden" name="pageSize" value="${model.pageSize}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <div class="bjui-searchBar">
+            <label>名称：</label><input type="text" value="" name="code" size="10" id="Return_Name">&nbsp;
+            <button type="button" class="btn-default" data-icon="search" onclick="EditGoodsPage()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-clear-query="true" data-icon="undo" onclick="ClearGoods()">清空查询</a>
+            <div class="pull-right">
+                <button type="button" class="btn-blue" data-toggle="lookupback" data-lookupid="ids" data-warn="请至少选择一项职业" data-icon="check-square-o">选择选中</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent" id="TabStockReturnid">
+    <table data-toggle="tablefixed" data-width="100%">
+        <thead>
+            <tr>
+                <th data-order-field="id">序号.</th>
+                <th data-order-field="number" width="200">进货编号</th>
+                <th data-order-field="name"  width="150">进货日期</th>
+                <th data-order-field="model">供应商名称</th>
+                <th data-order-field="unit">应付金额</th>
+                <th data-order-field="price">已付金额</th>
+                <!--<th data-order-field="Inventory_sum">库存数量</th>
+                <th width="28"><input type="checkbox" class="checkboxCtrl" data-group="ids" data-toggle="icheck"></th>-->
+                <!--<th class="orderby" data-order-direction="asc" data-order-field="date">创建日期</th>-->
+                <!--<th width="28"><input type="checkbox" class="checkboxCtrl" data-group="ids" data-toggle="icheck"></th>-->
+                <th width="74">操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize" id="Selcetdiv">
+            <select data-toggle="selectpicker" id="SelectSize">
+                <option value="15">15 </option>
+                <option value="30">30 </option>
+                <option value="50">50 </option>
+                <option value="100">100 </option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="EditGoodsCount"></span> 条</span>
+    </div>
+    <div class="pagination-box" id="edit_Goods" data-total="7" data-page-size="30" data-page-current="1">
+    </div>
+</div>
