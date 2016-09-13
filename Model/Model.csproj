@@ -48,7 +48,9 @@
     <Compile Include="InHostory.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="JsonMerchandise.cs" />
+    <Compile Include="JsonOutPut.cs" />
     <Compile Include="Merchandise.cs" />
+    <Compile Include="Output.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Purchase.cs" />
     <Compile Include="PurchaseProperty.cs" />

@@ -157,7 +157,6 @@
                     options.onClose = onClose
                     options.onSwitch = onSwitch
                     if (!options.title) options.title = $a.text()
-
                     if (!options.target)
                         $a.navtab(options)
                     else
@@ -214,11 +213,11 @@
     <![endif]-->
     <div id="bjui-window">
         <header id="bjui-header">
-            <div class="bjui-navbar-header">
+            <div class="bjui-navbar-header"  style="margin-bottom:auto ">
                 <button type="button" class="bjui-navbar-toggle btn-default" data-toggle="collapse" data-target="#bjui-navbar-collapse">
                     <i class="fa fa-bars"></i>
                 </button>
-                <a class="bjui-navbar-logo" href="#"><img src="../B-JUI/images/logo.png"></a>
+                <a class="bjui-navbar-logo" href="http://www.mgoo.net/"><img src="BJUI/Img/mgoo.png"></a>
             </div>
 
             <nav id="bjui-navbar-collapse">
@@ -278,41 +277,19 @@
                             <div class="items hide" data-noinit="true">
                                 <ul id="bjui-hnav-tree2" class="ztree ztree_main" data-toggle="ztree" data-on-click="MainMenuClick" data-expand-all="true" data-faicon="table">
                                       <li data-id="2" data-pid="0" data-faicon="folder-open-o" data-faicon-close="folder-o">库存管理</li>               
-                                      <li data-pid="2" data-toggle="navtab" data-id="tabInHostory"  data-url="#"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">库存盘点</li>
+                                      <li data-pid="2" data-toggle="navtab" data-id="tabInHostory"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">库存盘点</li>
                                       <li data-pid="2" data-id="tabStoreManager"  data-url="InHostory/StoreManager.html" data-tabid="table-manager" data-faicon="indent">库存查询</li>                 
                                       <li data-pid="1" data-id="3"  data-url="InHostory/StoreManager.html" data-tabid="table-manager" data-faicon="indent">入库管理</li>                
                                       <li data-pid="3" data-toggle="navtab" data-id="tabInHostory"  data-url="InHostory/InHostory.html"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">进货历史</li>       
                                       <li data-pid="3" data-toggle="navtab" data-id=""  data-url="InHostory/StockReturnHistory.html"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">进货退货历史</li>   
-                                      <li data-pid="3" data-toggle="navtab" data-id=""  data-url="#"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">进货订单历史</li>   
-                                     <li data-pid="1" data-id="4"  data-url="InHostory/StoreManager.html" data-tabid="table-manager" data-faicon="indent">出库管理</li>                
-                                      <li data-pid="4" data-toggle="navtab" data-id="tabInHostory"  data-url="#"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">销售历史</li>     
-                                                                          <li data-pid="4" data-toggle="navtab" data-id="tabInHostory"  data-url="#"  data-tabid="table-edit" data-faicon="indent" data-title="进货历史">销售退货历史</li>     
+                                      <li data-pid="3" data-toggle="navtab" data-id=""   data-tabid="table-edit" data-faicon="indent" data-title="进货历史">进货订单历史</li>   
+                                     <li data-pid="1" data-id="4"  data-url="" data-tabid="table-manager" data-faicon="indent">出库管理</li>                
+                                      <li data-pid="4" data-toggle="navtab" data-id="tabInHostory"   data-url="Output/OutputInHostory.html"   data-tabid="table-edit" data-faicon="indent" data-title="进货历史"> 出库历史</li>     
+                                       <li data-pid="4" data-toggle="navtab" data-id="tabInHostory"   data-tabid="table-edit" data-faicon="indent" data-title="进货历史">出库退货历史</li>     
                                 </ul>
                             </div>   
                         </li>
-                        <li>
-                            <a href="javascript:;" data-toggle="slidebar"><i class="fa fa-table"></i> 出库管理</a>
-                            <div class="items hide" data-noinit="true">
-                                <ul id="bjui-hnav-tree-datagrid1" class="ztree ztree_main" data-toggle="ztree" data-on-click="MainMenuClick" data-expand-all="true" data-faicon="table">
-                                    <li data-id="3" data-pid="0" data-faicon="folder-open-o" data-faicon-close="folder-o"> 销售出库</li>
-                                    <li data-id="31" data-pid="3" data-url="datagrid-convertable.html" data-tabid="datagrid-convertable" data-faicon="table">销售退货</li>
-                                    <li data-id="32" data-pid="3" data-url="datagrid-demo.html" data-tabid="datagrid-demo" data-faicon="table">当前库存</li>
-                                    <li data-id="33" data-pid="3" data-url="datagrid-datatype.html" data-tabid="datagrid-datatype" data-faicon="table">生产领料</li>
-                                </ul>
-                            </div>
-
-                        </li>
-                        <li>
-                            <a href="javascript:;" data-toggle="slidebar"><i class="fa fa-plane"></i> 采购管理</a>
-                            <div class="items hide" data-noinit="true">
-                                <ul id="bjui-hnav-Purchase" class="ztree ztree_main" data-toggle="ztree" data-on-click="MainMenuClick" data-expand-all="true" data-faicon="check-square-o">
-                                    <li data-id="1" data-pid="0" data-faicon="folder-open-o" data-faicon-close="folder-o" data-url="#">采购管理</li>
-                                    <li data-id="2" data-pid="1" data-url="Purchase/PurchaseList.html" data-tabid="purchase">采购订单</li>
-                                    <li data-id="3" data-pid="1" data-url="Purchase/CreatePurchase.html" data-tabid="addproduct">创建采购单</li>
-                                </ul>
-                            </div>
-                            </li>
-                       
+                                             
                         <li>
                             <a href="javascript:;" data-toggle="slidebar"><i class="fa fa-image"></i> 统计报表</a>
                             <div class="items hide" data-noinit="true">

@@ -17,15 +17,22 @@ namespace Web.Ajax
             string action = context.Request.Params["action"];
             HttpRequest req = context.Request;
             HttpResponse res = context.Response;
-            BLL.Bills.Bills bill = new BLL.Bills.Bills();
+            BLL.OutPut.Output put = new BLL.OutPut.Output();
+         
             try
             {
                 switch (action) {
-                    case "GetBills":
-                        string index = req.Params["BillsIndex"];
-                        string size = req.Params["BillsSize"];
-
-                      //  res.Write();
+                    //look加载客户信息
+                    case "GetSelectAccount":
+                        string acc_name = req.Params["accountname"];
+                        string acc_index = req.Params["accountindex"];
+                        string acc_size = req.Params["accountsize"];
+                        res.Write(Common.CommonClass.ToJosn(put.SelectAccount( acc_name,acc_index,acc_size)));
+                        break;
+                    case "OutputInfo":
+                        string outputinfo = req.Params["ArrayList"];
+                        string AccountId = req.Params["accountid"];                     
+                        res.Write(put.SaveOutPut(outputinfo, AccountId));
                         break;
                 }
                 

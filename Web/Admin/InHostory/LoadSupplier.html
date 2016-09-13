@@ -33,7 +33,7 @@
 
                 $("#EditSupplier_List tbody").empty().append(html.join(''));
                 $("#LoadSupplierCount").html(load.total);//显示记录数
-                $("#InHoustory_sum").html(HostoryList.totalsum);
+                $("#InHoustory_sum").html(load.totalsum);
                 htmls = [];
                 htmls.push("<ul class='pagination'>");
                 htmls.push("<li class='l-first'><a href='javascript:'onclick='load_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");

@@ -1,0 +1,111 @@
+﻿<script type="text/javascript">
+    var select = { index: 1, size: 15, max: 0, total: 0 };
+    function SelectAccountPage() {
+        var accoutname = $("#Account_Name").val();
+        $.ajax({
+            url: "/Ajax/AjaxOutput.ashx?action=GetSelectAccount",
+            type: "post",
+            data: {
+                "accountname": accoutname,
+                "accountindex": select.index,
+                "accountsize": select.size,
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var date = json["Page"];
+                date = JSON.parse(date)[""];
+                var count = json["Count"];
+                select.total = JSON.parse(count)[""][0]["Column1"];//总条数
+                select.max = Math.ceil(select.total / select.size);
+                var html = [];
+                var No = (select.index - 1) * select.size;
+                $.each(date, function (k, v) {
+                    html.push("<tr>");
+                    html.push("<td>" + (++No) + "</td><td>" + v["AccountNo"] + "</td><td>" + v["AccountName"] + "</td>");
+                    html.push("<td><a href='javascript:;'data-toggle='lookupback' data-args=\"{aid:'" + v["AccountId"] + "', account:'" + v["AccountName"] + "'}\" class='btn btn-blue' title='选择本项' data-icon='check'>选择</a></td>")
+                    html.push("</tr>");
+                });
+
+                $("#SelectAccountID tbody").empty().append(html.join(''));
+                $("#SelectAccountpagination").html(select.total);//显示记录数
+            //    $("#InHoustory_sum").html(HostoryList.totalsum);
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='o-first'><a href='javascript:'onclick='load_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='o-prev'><a href='javascript:' onclick='load_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= select.max; i++) {
+                    var cs = "j-sum";
+                    if (i == select.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='o-next' ><a href='javascript:' id='n' onclick='load_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='o-last'><a href='javascript:' onclick='load_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="o-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="lgo"></span><a class="lgoto" href="javascript:;" title="跳转" onclick="load_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+
+
+                $("#LoadSupplierPage").empty().append(htmls.join(''));
+                //如果当前页等于1，让首页、上一页不可点击
+                if (select.index == 1) {
+                    $(".o-first").addClass("disabled");
+                    $(".o-prev").addClass("disabled");
+                }
+                //如果当前页等于最大页数,让下一页、尾页不可点击
+                if (select.index == select.max) {
+                    $(".o-next").addClass("disabled");
+                    $(".o-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    $(function () {
+        SelectAccountPage();
+    });
+</script>
+<div class="bjui-pageHeader">
+    <form id="From_SelectAccount" data-toggle="ajaxsearch" action="table-edit-lookup.html" method="post">
+        <input type="hidden" name="pageCurrent" value="1">
+        <input type="hidden" name="pageSize" value="${model.pageSize}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <div class="bjui-searchBar">
+            <label>客户名称：</label><input type="text" value="" id="Account_Name" size="10">&nbsp;
+            <button type="button" class="btn-default" data-icon="search" onclick="LikeSelect()">查询</button>&nbsp;
+            <a class="btn btn-orange" href="#" data-toggle="" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
+            <!--<div class="pull-right">
+                <button type="button" class="btn-blue" data-toggle="lookupback" data-lookupid="ids" data-warn="请至少选择一项职业" data-icon="check-square-o">选择选中</button>
+            </div>-->
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent" id="SelectAccountID">
+    <table data-toggle="tablefixed" data-width="100%" >
+        <thead>
+            <tr>
+                <th data-order-field="id">序号</th>
+                <th data-order-field="model">客户编号</th>
+                <th data-order-field="model">客户名称</th>
+                <th width="74">操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize" id="changeSelectAccount">
+            <select data-toggle="selectpicker" id="OptionSelectAccount">
+                <option value="15">15 </option>
+                <option value="30">30 </option>
+                <option value="50">50 </option>
+                <option value="100">100 </option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 <span id="SelectAccountCount"></span> 条</span>
+    </div>
+    <div class="pagination-box" data-total="7" data-page-size="30" data-page-current="1" id="SelectAccountpagination">
+    </div>
+</div>

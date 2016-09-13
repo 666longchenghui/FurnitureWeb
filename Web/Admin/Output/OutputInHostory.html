@@ -1,0 +1,92 @@
+﻿<script type="text/javascript">
+    function AddOutput(_that) {
+        $(_that).dialog({ url: '/Admin/Output/AddOutPut.html', title: "新增出库单", id: 'dialog_InHostory', toggle: 'dialog', width: 800, height: 600 });
+    }
+</script>
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="/B-JUI/GoodsInfo.html" method="post">
+        <input type="hidden" name="pageSize" value="${model.pageSize}">
+        <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <input type="hidden" name="orderDirection" value="${param.orderDirection}">
+        <div class="bjui-searchBar">
+           <!-- <label>所属业务:</label>
+            <select name="type" data-toggle="selectpicker">
+                <option value="">全部</option>
+                <option value="1">联络</option>
+                <option value="2">住宿</option>
+                <option value="3">餐饮</option>
+                <option value="4">交通</option>
+            </select>&nbsp;-->
+            <label>单据编号：</label><input type="text" id="customNo" value="" name="code" class="form-control" size="10">&nbsp;
+            <label>客户名称：</label><input type="text" value="" name="name" class="form-control" size="8">&nbsp;
+            <label>商品名称：</label><input type="text" value="" name="name" class="form-control" size="8">&nbsp;
+            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            <div class="pull-right">
+                <button type="button" class="btn-blue" data-toggle="doajax" onclick='AddOutput(this)' id="Btn_AddOutput"  data-icon="" title="新增出库单">新增出库单</button>&nbsp;
+            </div>
+        </div>
+        <div class="bjui-moreSearch">
+            <label>职业：</label><input type="text" value="" name="profession" size="15" />
+            <label>&nbsp;性别:</label>
+            <select name="sex" data-toggle="selectpicker">
+                <option value="">全部</option>
+                <option value="true">男</option>
+                <option value="false">女</option>
+            </select>
+            <label>&nbsp;手机:</label>
+            <input type="text" value="" name="mobile" size="10">
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th data-order-field="operation" align="center">创建日期</th>
+                <th data-order-field="name">单据编号</th>
+                <th>客户名称</th>
+                <th>销售商品</th>
+                <th data-order-field="sex">销售数量</th>
+                <th data-order-field="birthday">总计金额</th>
+                <th data-order-field="birthplace">实收金额</th>
+         
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr data-id="1">
+                <td>联络</td>
+                <td>孙悟空</td>
+                <td>Sun</td>
+                <td>Wukong</td>
+                <td>男</td>
+                <td>0100-01-01</td>
+                <td>花果山</td>                      
+                <td>
+                    <a href="/B-JUI/form.html?id=1" class="btn btn-green" data-toggle="navtab" data-id="form" data-reload-warn="本页已有打开的内容，确定将刷新本页内容，是否继续？" data-title="编辑-孙悟空">编辑</a>
+                    <a href="/B-JUI/ajaxDone2.html" class="btn btn-red" data-toggle="doajax" data-confirm-msg="确定要删除该行信息吗？">删除</a>
+                </td>
+            </tr>
+   
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 600 条</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="600" data-page-size="30" data-page-current="1">
+    </div>
+</div>

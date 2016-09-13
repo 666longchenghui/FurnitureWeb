@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using Common;
+
 
 namespace BLL.Account
 {
-     public class Account
+public class Account
     {
         Common.CommonClass com = new Common.CommonClass();
         /// <summary>

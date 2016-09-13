@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Common;
 using BLL;
+//using Microsoft.Office.Interop.Excel;
 
 namespace Web.Ajax
 {
@@ -19,6 +20,7 @@ namespace Web.Ajax
             string action = context.Request.Params["action"];
             HttpRequest req = context.Request;
             HttpResponse res = context.Response;
+           
             BLL.Goods.GoodsInfo goods = new BLL.Goods.GoodsInfo();
             try
             {
@@ -69,7 +71,7 @@ namespace Web.Ajax
                         break;
                     case "GetModel":
                         string SelModel = req.Params["ModelName"];
-                        string MIndex = req.Params["ModelIndex"];
+                        string MIndex = req.Params["ModeIIndex"];
                         string MSize = req.Params["ModelSize"];
                         res.Write(Common.CommonClass.ToJosn(goods.ModelPage(MIndex, MSize,SelModel)));
                         break;

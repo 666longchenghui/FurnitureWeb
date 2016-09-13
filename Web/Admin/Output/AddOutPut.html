@@ -1,0 +1,114 @@
+﻿<script type="text/javascript">
+    $('#outputmid').on('afterchange.bjui.lookup', function (e, data) {
+        var myvalue = data.value;
+        $.ajax({
+            url: "/Ajax/AjaxInHostory.ashx?action=GetGoodsId",
+            data: { "goodsid": myvalue },
+            type: "post",
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var data = JSON.parse(json)[""];
+                totalprice = data["Msellingprice"];
+                var html = [];
+                var row = $("#Tab_OutPut tbody tr").length;
+                $.each(data, function (k, v) {
+                    html.push("<tr>");
+                    html.push("<td>" + (++row) + "</td><td style='display:none;' class='aa'>" + v["Mid"] + "</td>")
+                    html.push("<td >" + v["Mname"] + "</td><td name='InHostory.goods_name'>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>")
+                    // html.push('<td><li style="width:125px;"><div class="num"><a href="#" class="sub">-</a><div class="amount"><span class="value">1</span></div><a href="#" class="add">+</a></div></li></td>')
+                    html.push('<td><input type="text" value="1" size="3" data-toggle="spinner" class="sum" data-rule="number" price="' + v["Msellingprice"] + '" onkeyup="setOutPut(this)"></td>')
+                    html.push("<td>" + v["UnitName"] + "</td>")
+                    html.push("<td><lable id='Price" + v["Mid"] + "' class='totalprice'>" + v["Msellingprice"] + "</td>" + "</lable></td><td><textarea name='' data-toggle='autoheight' rows='1'></textarea></td>");
+                    html.push("</tr>")
+                });
+                $("#Tab_OutPut tbody").append(html.join(''));
+            }
+        });
+    })
+    //计算金额
+    function setOutPut(_this) {
+        var t = $(_this).parent().parent().find("td").eq(5).find("input").eq(0).val();
+        var price = $(_this).attr("price");
+     //   console.log(t + " * " + price + " = " + (parseInt(t) * price));
+        if (isNaN(t) || t < 1) {
+            t = 1;
+            $(".totalprice").html(price.toFixed(2));
+            return;
+        }
+        $(_this).parent().parent().find("td").eq(7).find("lable").eq(0).html((parseInt(t) * price).toFixed(2))
+    }
+    $("#Save_Output").click(function () {
+        var accountid = $("#aid").val(); 
+        var output;
+        var array = [];
+        $("#Tab_OutPut tbody tr").each(function () {
+            var Out_Mnumber = $.trim($(this).find("td").eq(1).html());//获取商品的ID            
+            var Out_Sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
+            var Out_Total = $.trim($(this).find("td").eq(7).find("lable").eq(0).html());           
+            var Out_Note = $.trim($(this).find("td").eq(8).find("textarea").eq(0).val());//备注
+            output = {
+                "Mid": Out_Mnumber,
+                "Sum": Out_Sum,
+                "total": Out_Total,
+                "note": Out_Note
+            };
+            array.push(output);           
+        });
+        console.log(array);
+        $.ajax({
+            url: "/Ajax/AjaxOutput.ashx?action=OutputInfo",
+            type: "post",
+            data: {
+                "ArrayList": JSON.stringify(array),
+                "accountid": accountid,
+            },           
+            success: function (msg) {
+
+            }
+        });
+        //获得当前表格列的值
+
+    });
+        
+</script>
+<div class="bjui-pageHeader" id="div_header">
+    <div id="divv"></div>
+    <div class="bjui-searchBar" id="div_supplier">
+        <label for="j_custom_profession" class="control-label x85">客户：</label>
+        <input type="text" name="custom.account" id="accountname" value="" size="18" data-toggle="lookup"    
+               data-url="/Admin/Output/SelectAccount.html" data-group="custom" data-width="600" data-height="400" >
+        <input type="hidden" name="custom.aid" size="10" id="aid" />
+        <div class="pull-right" id="AddMid_div">
+            <a href="/Admin/InHostory/Edit_Goods.html" class="btn btn-blue" data-toggle="lookupbtn"
+               data-width="800" data-height="400" data-id="dialog11" ata-icon="plus" data-mask="true" data-group="t2">添加商品</a>
+            <input type="hidden" name="t2.pid" size="10" id="outputmid">
+            <div class="btn-group">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bjui-pageContent tableContent">
+    <form action="#" id="frm_OutPut" class="pageForm" data-toggle="validate" method="post">
+        <table id="Tab_OutPut" class="table table-bordered table-hover table-striped table-top" data-toggle="tabledit" data-initnum="0" data-action="" data-single-noindex="true">
+            <thead>
+                <tr data-idname="customList[#index#].id">
+                    <th title="No."><input type="text" name="output.no" class="no" data-rule="required" value="" size="2"></th>
+                    <th title="商品名称"><input type="text" name="output.goods_name" data-rule="required" value="" size="5"></th>
+                    <th title="商品型号"><input type="text" name="output.goods_model" data-rule="required" value="" size="5"></th>
+                    <th title="商品编号"><input type="text" name="output.supplier_name" data-rule="required" value="" size="5"></th>
+                    <th title="出库数量"><input type="text" name="output.goods_sum" data-rule="required" value="" size="3"></th>
+                    <th title="单位"><input type="text" name="output.goods_unit" data-rule="required" value="" size="10"></th>
+                    <th title="总价（元）"><input type="text" name="output.price" data-rule="required" value="" size="5"></th>
+                    <th title="备注"></th>
+                </tr>
+            </thead>
+            <tbody id="Out"></tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter" id="Save_div">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close" id="btnOutputClose">取消</button></li>
+        <li><button type="button" class="btn-default" data-icon="save" id="Save_Output">全部保存</button></li>
+    </ul>
+</div>

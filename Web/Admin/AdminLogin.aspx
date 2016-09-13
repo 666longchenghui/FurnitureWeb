@@ -198,7 +198,7 @@ function choose_bg() {
         <div class="setting"><a href="javascript:;" onclick="choose_bg();" title="更换背景"><span class="glyphicon glyphicon-th-large"></span></a></div>
         <div class="login_box">
            <div class="login_logo">
-                <img src="../B-JUI/images/logo.png" />
+                <img src="BJUI/Img/mgoo.png"/>
             </div>
             <!--
             <c:if test="${!empty message}">
@@ -233,7 +233,7 @@ function choose_bg() {
                 </form>
             </div>
         </div>
-        <div class="bottom">Copyright &copy; 2013 - 2014 <a href="#">美谷经销存系统</a></div>
+        <div class="bottom">Copyright &copy; 2015 - 2016 <a href="#">美谷经销存系统</a></div>
     </div>
 </body>
 

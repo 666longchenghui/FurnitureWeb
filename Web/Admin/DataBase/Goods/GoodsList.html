@@ -156,7 +156,7 @@
     var Goodsid;
     function EdGoodsList(_this, id, name) {
        Goodsid = id;
-        $(_this).dialog({ id: 'AddGoodsid', onClose:"addGoods_close", url: '/Admin/DataBase/Goods/AddGoods.html?id=' + id + '', title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800',height:400 });
+        $(_this).dialog({ id: 'AddGoodsid', onClose:"addGoods_close", url: '/Admin/DataBase/Goods/AddGoods.html?id=' + id + '', title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800',height:'400',mask:false });
     }
     function addGoods_close($dialog) {
         Goodsid = undefined;
@@ -190,7 +190,7 @@
             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="ClearSelect()">清空查询</a>
             <div class="pull-right">
                 <!--<button type="button" class="btn-blue" data-toggle="doajax" onclick='Add(this)' id="Btn_AddSupplier" data-icon="" title="可以在控制台(network)查看被删除ID">添加商品</button>&nbsp;-->
-                <a href="/Admin/DataBase/Goods/AddGoods.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="AddGoodsid" ata-icon="user" data-mask="true">
+                <a href="/Admin/DataBase/Goods/AddGoods.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="400" data-id="AddGoodsid" ata-icon="user" mask-data="false">
                 <i class="fa fa-plus-square" size="10" aria-hidden="true">添加商品信息</i></a>    
             </div>
         </div>

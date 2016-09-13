@@ -18,7 +18,8 @@ namespace Web.Ajax
             string action = context.Request.Params["action"];
             HttpRequest req = context.Request;
             HttpResponse res = context.Response;
-            BLL.Account.Account account = new BLL.Account.Account();
+            BLL.Customer.Customer account = new BLL.Customer.Customer();
+           // BLL.Account.Account account = new BLL.Account.Account();
             try
             {
                 switch (action)
