@@ -28,30 +28,30 @@ function Aggregation() {
     $("#total").html(Total);
     $("#money").html(Money.toFixed(2));
 }
-//function SaveHostory(_that) {
-//    var Suppliersid = $("#pids").val();
-//    if (Suppliersid == "") {
-//        $(this).alertmsg('warn', '请选择供应商');
-//        return;
-//    }
-//        var array = [];
-//        var GoodsInfo;
-//    $("#tabledit1 tbody tr").each(function () {
-//        var history_id = $.trim($(this).find("td").eq(0).html());//编号
-//        var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
-//        var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
-//        var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
-//        GoodsInfo = {
-//            "history_id": history_id,
-//            "history_sum": history_sum,
-//            "history_money": history_money,
-//            "history_note": history_note,
-//        }
-//        array.push(GoodsInfo);
-//    });
-//    arrayList = JSON.stringify(array),
-//    $("#frm_InHostory").attr("action", "/Ajax/AjaxInHostory.ashx?action=AddInHostory&Arraylist=" + arrayList+"&");
-//}
+function SaveHostory(_that) {
+    var Suppliersid = $("#pids").val();
+    if (Suppliersid == "") {
+        $(this).alertmsg('warn', '请选择供应商');
+        return;
+    }
+        var array = [];
+        var GoodsInfo;
+    $("#tabledit1 tbody tr").each(function () {
+        var history_id = $.trim($(this).find("td").eq(0).html());//编号
+        var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
+        var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
+        var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
+        GoodsInfo = {
+            "history_id": history_id,
+            "history_sum": history_sum,
+            "history_money": history_money,
+            "history_note": history_note,
+        }
+        array.push(GoodsInfo);
+    });
+    arrayList = JSON.stringify(array),
+    $("#frm_InHostory").attr("action", "/Ajax/AjaxInHostory.ashx?action=AddInHostory&Arraylist=" + arrayList+"&");
+}
     //订单明细
     $(function () {       
         if (typeof (InHostoryId) != "undefined") {
@@ -123,11 +123,9 @@ function Aggregation() {
                 var data = JSON.parse(json)[""];         
                 totalprice = data["Msellingprice"];
                 var html = [];
-                var row = $("#tabledit1 tbody tr").length;
-                console.log(row);
                 $.each(data, function (k, v) {
                     html.push("<tr>");
-                    html.push("<td>" +(++row) + "</td><td style='display:none;' class='aa'>" + v["Mid"] + "</td>")
+                    html.push("<td>" + v["ROWINDEX"] + "</td><td style='display:none;' class='aa'>" + v["Mid"] + "</td>")
                     html.push("<td >" + v["Mname"] + "</td><td name='InHostory.goods_name'>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>")
                     // html.push('<td><li style="width:125px;"><div class="num"><a href="#" class="sub">-</a><div class="amount"><span class="value">1</span></div><a href="#" class="add">+</a></div></li></td>')
                     html.push('<td><input type="text" value="1" size="3" data-toggle="spinner" class="sum" data-rule="number" price="' + v["Msellingprice"] + '" onkeyup="setTotal(this)"></td>')
@@ -142,16 +140,15 @@ function Aggregation() {
 });
    //总价
 function setTotal(_this) {
-    var t = $(_this).parent().parent().find("td").eq(5).find("input").eq(0).val();
+    var t = $(_this).parent().parent().find("td").eq(4).find("input").eq(0).val();
     var price = $(_this).attr("price");
-   
-    console.log(t+" * "+ price +" = " + (parseInt(t) * price));
+     //console.log(t+" * "+ price +" = " + (parseInt(t) * price));
     if (isNaN(t) || t < 1) {
         t = 1;
         $(".totalprice").html(price.toFixed(2));
         return;
     }
-    $(_this).parent().parent().find("td").eq(7).find("lable").eq(0).html((parseInt(t) * price).toFixed(2))
+    $(_this).parent().parent().find("td").eq(6).find("lable").eq(0).html((parseInt(t) * price).toFixed(2))
 }
 $("#Save_InHoustory").click(function () {
         var Suppliersid = $("#pids").val();
@@ -162,11 +159,10 @@ $("#Save_InHoustory").click(function () {
         var array = [];
         var GoodsInfo;
         $("#tabledit1 tbody tr").each(function () {        
-            var history_id = $.trim($(this).find("td").eq(1).html());//编号
-            var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());//数量
-            console.log(history_sum);
-            var history_money = $.trim($(this).find("td").eq(7).find("lable").eq(0).html());//单价
-            var history_note = $.trim($(this).find("td").eq(8).find("textarea").eq(0).val());//备注
+            var history_id =$.trim($(this).find("td").eq(0).html());//编号
+            var history_sum = $.trim($(this).find("td").eq(4).find("input").eq(0).val());//数量
+            var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
+            var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
             if (isNaN(history_sum)) {
                 $(this).alertmsg('warn', '请输入数字');          
             }  
