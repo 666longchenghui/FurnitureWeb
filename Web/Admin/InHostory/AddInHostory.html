@@ -17,43 +17,45 @@ function Aggregation() {
     var Total = 0;
     var Money = 0;
     $("#tabledit1 tbody tr").each(function () {
-        //   console.log($(this).find("td").eq(4).html());
-        if ($(this).find("td").eq(3).html() != '') {
-            Total += parseFloat($(this).find("td").eq(3).html());
-        }
-        if ($(this).find("td").eq(5).html() != '') {
-            Money += parseFloat($(this).find("td").eq(5).html());
+      
+           if ($(this).find("td").eq(4).html() != '') {
+               Total += parseFloat($(this).find("td").eq(4).html());
+           }
+           console.log($(this).find("td").eq(6).html());
+        if ($(this).find("td").eq(6).html() != null) {
+            Money += parseFloat($(this).find("td").eq(6).html());
         }
     });
     $("#total").html(Total);
     $("#money").html(Money.toFixed(2));
 }
-function SaveHostory(_that) {
-    var Suppliersid = $("#pids").val();
-    if (Suppliersid == "") {
-        $(this).alertmsg('warn', '请选择供应商');
-        return;
-    }
-        var array = [];
-        var GoodsInfo;
-    $("#tabledit1 tbody tr").each(function () {
-        var history_id = $.trim($(this).find("td").eq(0).html());//编号
-        var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
-        var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
-        var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
-        GoodsInfo = {
-            "history_id": history_id,
-            "history_sum": history_sum,
-            "history_money": history_money,
-            "history_note": history_note,
-        }
-        array.push(GoodsInfo);
-    });
-    arrayList = JSON.stringify(array),
-    $("#frm_InHostory").attr("action", "/Ajax/AjaxInHostory.ashx?action=AddInHostory&Arraylist=" + arrayList+"&");
-}
+//function SaveHostory(_that) {
+//    var Suppliersid = $("#pids").val();
+//    if (Suppliersid == "") {
+//        $(this).alertmsg('warn', '请选择供应商');
+//        return;
+//    }
+//        var array = [];
+//        var GoodsInfo;
+//    $("#tabledit1 tbody tr").each(function () {
+//        var history_id = $.trim($(this).find("td").eq(0).html());//编号
+//        var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
+//        var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
+//        var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
+//        GoodsInfo = {
+//            "history_id": history_id,
+//            "history_sum": history_sum,
+//            "history_money": history_money,
+//            "history_note": history_note,
+//        }
+//        array.push(GoodsInfo);
+//    });
+//    arrayList = JSON.stringify(array),
+//    $("#frm_InHostory").attr("action", "/Ajax/AjaxInHostory.ashx?action=AddInHostory&Arraylist=" + arrayList+"&");
+//}
     //订单明细
-    $(function () {       
+$(function () {
+    //订单详情
         if (typeof (InHostoryId) != "undefined") {
         $("#Detail_div").hide();
         $("#Save_div").hide();
@@ -67,7 +69,7 @@ function SaveHostory(_that) {
                 data = data[""];
                 var ht = [];
                 $.each(data, function (k, v) {
-                    ht.push("<tr>");
+                    ht.push("<tr><td>" + v["xuhao"] + "</td>");
                     ht.push("<td>" + v["Mname"] + "</td><td>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>")
                     ht.push("<td>" + v["PropertySum"] + "</td><td>" + v["UnitName"] + "</td><td>" + v["PropertyToal"] + "</td><td>" + v["PropertyNote"] + "</td>")
                     ht.push("</tr>")
@@ -75,13 +77,13 @@ function SaveHostory(_that) {
                     $("#supplier").attr("disabled");         
                     $("#supplier").val(v["SCompanyName"]);
                 });
-                ht.push("<tr style='font-weight:bold;'><td >合计:</td><td colspan='2'></td><td id='total'></td><td id='sum'></td><td id='money'></td><td ></td></tr>")
+                ht.push("<tr style='font-weight:bold;'><td >合计:</td><td colspan='3'></td><td id='total'></td><td id='sum'></td><td id='money'></td><td ></td></tr>")
                 $("#tabledit1 tbody").empty().append(ht.join(''));
                 Aggregation();
             }
         });
         }
-        //历史详单
+        //订单详单
     if (typeof (OrderNumber) != "undefined") {
         $("#Detail_div").hide();
         $("#Save_div").hide();
@@ -95,8 +97,9 @@ function SaveHostory(_that) {
                 var data = json[""];
                 var htl = [];
                 $.each(data, function (k, v) {
-                    ShowSupplier=v["SCompanyName"]           
-                    htl.push("<tr>")
+                    ShowSupplier = v["SCompanyName"]
+                    //console.log(v["Numbered"]); console.log(data);
+                    htl.push("<tr><td>" + v["Numbered"] + "</td>")
                     htl.push("<td>" + v["Mname"] + "</td><td>" + v["DataText"] + "</td><td>" + v["Mnumber"] + "</td>");
                     htl.push("<td>" + v["PropertySum"] + "</td><td>" + v["UnitName"] + "</td><td>" + v["PropertyToal"] + "</td><td>" + v["PropertyNote"]);
                     htl.push("</tr>")
@@ -106,7 +109,7 @@ function SaveHostory(_that) {
                 });
                 //var htt;
                 //htt.push("<h3 style='margin-bottom:100px'>供应商：" + ShowSupplier + "</h3>");           
-                htl.push("<tr style='font-weight:bold;'><td >合计:</td><td colspan='2'></td><td id='total'></td><td id='sum'></td><td id='money'></td><td ></td></tr>")                                           
+                htl.push("<tr style='font-weight:bold;'><td >合计:</td><td colspan='3'></td><td id='total'></td><td id='sum'></td><td id='money'></td><td ></td></tr>")                                           
                 $("#tabledit1 tbody").empty().append(htl.join(''));
                 Aggregation();  
             }
@@ -141,8 +144,9 @@ function SaveHostory(_that) {
    //总价
 function setTotal(_this) {
     var t = $(_this).parent().parent().find("td").eq(4).find("input").eq(0).val();
+
     var price = $(_this).attr("price");
-     //console.log(t+" * "+ price +" = " + (parseInt(t) * price));
+     console.log(t+" * "+ price +" = " + (parseInt(t) * price));
     if (isNaN(t) || t < 1) {
         t = 1;
         $(".totalprice").html(price.toFixed(2));
@@ -159,12 +163,13 @@ $("#Save_InHoustory").click(function () {
         var array = [];
         var GoodsInfo;
         $("#tabledit1 tbody tr").each(function () {        
-            var history_id =$.trim($(this).find("td").eq(0).html());//编号
-            var history_sum = $.trim($(this).find("td").eq(4).find("input").eq(0).val());//数量
-            var history_money = $.trim($(this).find("td").eq(6).find("lable").eq(0).html());//单价
-            var history_note = $.trim($(this).find("td").eq(7).find("textarea").eq(0).val());//备注
+            var history_id = $.trim($(this).find("td").eq(1).html());//编号          
+            var history_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());//数量
+            console.log(history_sum);
+            var history_money = $.trim($(this).find("td").eq(7).find("lable").eq(0).html());//单价
+            var history_note = $.trim($(this).find("td").eq(8).find("textarea").eq(0).val());//备注
             if (isNaN(history_sum)) {
-                $(this).alertmsg('warn', '请输入数字');          
+                $(this).alertmsg('info', '请输入数字');          
             }  
          GoodsInfo = {
              "history_id": history_id,
@@ -175,7 +180,7 @@ $("#Save_InHoustory").click(function () {
           array.push(GoodsInfo);
         });  
         if (array == "") {
-            $(this).alertmsg('warn', '请添加商品');
+            $(this).alertmsg('info', '请添加商品');
             return;
         }      
         $.ajax({

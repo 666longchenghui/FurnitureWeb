@@ -9,7 +9,7 @@ using System.Data.SqlClient;
 using System.Data;
 
 namespace BLL.Goods
-{ 
+{
     public class GoodsInfo
     {
         Common.CommonClass Com = new Common.CommonClass();
@@ -19,24 +19,30 @@ namespace BLL.Goods
         /// <param name="PageSize">每页显示条数</param>
         /// <param name="PageIndex">当前页</param>
         /// <returns></returns>
-        public Dictionary<string, object> GetGoodsList(string goodsname,string goodsmodel, string PageSize, string PageIndex)
+        public Dictionary<string, object> GetGoodsList(string goodsname, string goodsmodel, string PageSize, string PageIndex)
         {
             string AddSQL = "";
-            if (goodsname.Trim()!="")
+
+            if (goodsname.Trim() != "")
             {
                 AddSQL += " and Mname like '%" + goodsname + "%'";
             }
-            if (goodsmodel.Trim()!="")
+            //9.14
+            if (goodsmodel == "请选择")
             {
-                AddSQL += " and DataText like '%" + goodsmodel + "%'";
+                goodsmodel = "";
+            }
+            if (goodsmodel.Trim() != "")
+            {
+                AddSQL += " and d.DictionaryID ='" + goodsmodel + "'";
             }
             //每页显示2条
             //当前页
             //  string PageSql = @"SELECT TOP " + PageSize + " Mid,Mname,UnitName,Mnumber,m.Unitid,DataText,Msellingprice,Mnote,MCreateDate FROM Merchandise m inner join Unit u on m.Unitid=u.Unitid inner join Dictionary d on m.DictionaryID=d.DictionaryID WHERE MDelete=0 and(Mid NOT IN(SELECT TOP (" + PageSize + "*(" + PageIndex + "-1)) Mid FROM Merchandise ORDER BY Mid))ORDER BY Mid";
             string PageSQL = @" select * from (select Mid,Mname,UnitName,Mnumber,m.Unitid,DataText,Msellingprice,Mnote,MCreateDate ,ROW_NUMBER() OVER(ORDER BY Mid desc) as rank from Merchandise  m 
-             inner join Unit u on m.Unitid=u.Unitid inner join Dictionary d on m.DictionaryID=d.DictionaryID where MDelete=0 "+AddSQL+" ) as t where t.rank  between (((" + PageIndex + " - 1) * " + PageSize + ")+1) and(" + PageIndex + " * " + PageSize + ") ORDER BY Mid desc";
+             inner join Unit u on m.Unitid=u.Unitid inner join Dictionary d on m.DictionaryID=d.DictionaryID where MDelete=0 " + AddSQL + " ) as t where t.rank  between (((" + PageIndex + " - 1) * " + PageSize + ")+1) and(" + PageIndex + " * " + PageSize + ") ORDER BY Mid desc";
             string PageCount = @"select count(*) from Merchandise  m 
-             inner join Unit u on m.Unitid=u.Unitid inner join Dictionary d on m.DictionaryID=d.DictionaryID where MDelete=0 " + AddSQL + "";       
+             inner join Unit u on m.Unitid=u.Unitid inner join Dictionary d on m.DictionaryID=d.DictionaryID where MDelete=0 " + AddSQL + "";
             string ComStr = CommonClass.DataTableToJson(Com.Selcets(PageSQL));
             string ComCount = CommonClass.DataTableToJson(Com.Selcets(PageCount));
             Dictionary<string, object> dic = new Dictionary<string, object>();
@@ -50,14 +56,14 @@ namespace BLL.Goods
         /// <param name="index"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public Dictionary<string, object> UnitPage(string index, string size,string unitname)
+        public Dictionary<string, object> UnitPage(string index, string size, string unitname)
         {
             string AddUnitSQL = "";
-            if (unitname.Trim()!="")
-            {          
-                    AddUnitSQL += " and UnitName like '%" + unitname + "%' ";              
-            }      
-            string Pagesql = "select * from (select *,ROW_NUMBER() OVER(ORDER BY Unitid)AS RANK FROM Unit WHERE UnitDelete=0 "+AddUnitSQL+" ) as t where t.rank between ((("+index+"-1)*"+size+")+1) and ("+index+"*"+size+") order by Unitid";
+            if (unitname.Trim() != "")
+            {
+                AddUnitSQL += " and UnitName like '%" + unitname + "%' ";
+            }
+            string Pagesql = "select * from (select *,ROW_NUMBER() OVER(ORDER BY Unitid)AS RANK FROM Unit WHERE UnitDelete=0 " + AddUnitSQL + " ) as t where t.rank between (((" + index + "-1)*" + size + ")+1) and (" + index + "*" + size + ") order by Unitid";
             string Countsql = "select count(*) from Unit where UnitDelete=0";
             string ComStr1 = CommonClass.DataTableToJson(Com.Selcets(Pagesql));
             string ComCount1 = CommonClass.DataTableToJson(Com.Selcets(Countsql));
@@ -186,14 +192,14 @@ namespace BLL.Goods
         /// <param name="index"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public Dictionary<string, object> ModelPage(string index, string size,string modelname)
+        public Dictionary<string, object> ModelPage(string index, string size, string modelname)
         {
             string AddModelSQL = "";
-            if (modelname.Trim()!="")
+            if (modelname.Trim() != "")
             {
                 AddModelSQL += " and DataText like '%" + modelname + "%' ";
             }
-            string Pagesql = "select top " + size + " * from Dictionary where Ddelete=0  "+ AddModelSQL + " and (DictionaryID not in(select top (" + size + "*(" + index + "-1)) DictionaryID from Dictionary order by DictionaryID)) order by DictionaryID ";
+            string Pagesql = "select top " + size + " * from Dictionary where Ddelete=0  " + AddModelSQL + " and (DictionaryID not in(select top (" + size + "*(" + index + "-1)) DictionaryID from Dictionary order by DictionaryID)) order by DictionaryID ";
             string Countsql = "select count(*) from Dictionary where Ddelete=0";
             string ComStr1 = CommonClass.DataTableToJson(Com.Selcets(Pagesql));
             string ComCount1 = CommonClass.DataTableToJson(Com.Selcets(Countsql));
@@ -208,13 +214,13 @@ namespace BLL.Goods
         /// <param name="id"></param>
         /// <returns></returns>
         public string DelModel(string id)
-        { 
+        {
             string SelDictionary = "select DictionaryID from Merchandise where DictionaryID=" + id + " and MDelete=0";
             Dictionary<string, object> dic = Common.CommonClass.Select(SelDictionary);
             if (dic != null)
             {
                 return Utils.GetResult(300, "型号已被使用");
-            } 
+            }
             string DelSQl = @"UPDATE [Dictionary] SET [Ddelete] =1 WHERE DictionaryID=" + id + "";
             int count = Common.CommonClass.ExecutionSQL(DelSQl);
             if (count > 0)
@@ -222,7 +228,7 @@ namespace BLL.Goods
                 return Utils.GetResult(200, "删除成功");
             }
             else
-            { 
+            {
                 return Utils.GetResult(300, "删除失败");
             }
         }
@@ -235,7 +241,7 @@ namespace BLL.Goods
         {
             string SelModel = "select DictionaryID,DataText from Dictionary where DictionaryID=" + id + "";
             string result = Common.CommonClass.DataTableToJson(Com.Selcets(SelModel));
-            return result; 
+            return result;
         }
         //修改商品型号
         public string SaveModel(string id, string ModelData)
@@ -246,23 +252,24 @@ namespace BLL.Goods
             {
                 return Utils.GetResult(300, "型号已存在，请重新添加新的型号");
             }
-            else {
-                    SqlParameter[] par = new SqlParameter[]
-                    {
+            else
+            {
+                SqlParameter[] par = new SqlParameter[]
+                {
                         new SqlParameter ("ModelData",ModelData),
                         new SqlParameter ("Ddelete","0"),
-                     };
+                 };
                 string UpdateSql = @"UPDATE [Dictionary] SET [DataText] =@ModelData WHERE  DictionaryID=" + int.Parse(id) + "";
                 int count = Com.ExecutionSqlPar(UpdateSql, par);
                 if (count > 0)
-                { 
-                    return Utils.GetResult(200, "修改成功","true");
+                {
+                    return Utils.GetResult(200, "修改成功", "true");
                 }
                 else
                 {
                     return Utils.GetResult(300, "修改失败");
                 }
-            } 
+            }
         }
         /// <summary>
         /// 添加型号
@@ -284,16 +291,12 @@ namespace BLL.Goods
                     new SqlParameter ("AddModel",modelText),
                     new SqlParameter ("Ddelete",int.Parse("0"))
                };
-                string InsertSql = @"INSERT INTO [Dictionary]
-                                               ([DataText]                                       
-                                               ,[Ddelete])
-                                         VALUES
-                                               (@AddModel                                           
-                                               ,@Ddelete)";
+                string InsertSql = @"INSERT INTO [Dictionary]([DataText],[Ddelete])
+                                         VALUES(@AddModel,@Ddelete)";
                 int count = Com.ExecutionSqlPar(InsertSql, par);
                 if (count > 0)
-                { 
-                    return Utils.GetResult(200, "保存成功","true");
+                {
+                    return Utils.GetResult(200, "保存成功", "true");
                 }
                 else
                 {
@@ -365,13 +368,13 @@ namespace BLL.Goods
         /// <param name="sum"></param>
         /// <returns></returns>
         public string SaveMerchandise(string number, string name, string unit, string DictionaryID, string price, string note)
-        {          
+        {
             //判断如果用户输入的商品名称并且商品规格等于数据库已经存在的直接数量累加；
             string SelSQl = "select Mname,DictionaryID from Merchandise where Mname='" + name + "' and DictionaryID=" + DictionaryID + "";
-            Dictionary<string, object> dic = Common.CommonClass.Select(SelSQl);  
+            Dictionary<string, object> dic = Common.CommonClass.Select(SelSQl);
             if (dic != null)
             {
-                return Utils.GetResult(300, "商品已存在"); 
+                return Utils.GetResult(300, "商品已存在");
             }
             SqlParameter[] par = new SqlParameter[] {
                 new SqlParameter ("MNumber",number),
@@ -390,12 +393,12 @@ namespace BLL.Goods
             int count = int.Parse(Com.ExecutionSqlPar(InsertSql, par).ToString());
             if (count > 0)
             {
-                return Utils.GetResult(200, "添加成功","true");
+                return Utils.GetResult(200, "添加成功", "true");
             }
             else
             {
                 return Utils.GetResult(300, "添加失败");
-            } 
+            }
         }
 
         /// <summary>
@@ -426,9 +429,9 @@ namespace BLL.Goods
             string SelSQl = "select Mname,DictionaryID from Merchandise where Mname='" + inname + "' and DictionaryID=" + dictionaryID + "";
             Dictionary<string, object> dic = Common.CommonClass.Select(SelSQl);
             //查询结果不等于NULL
-            if (dic!=null)
+            if (dic != null)
             {
-               return  Utils.GetResult(300, "商品已存在", "true");                
+                return Utils.GetResult(300, "商品已存在", "true");
             }
             //if (dic != null)
             //{
@@ -462,11 +465,11 @@ namespace BLL.Goods
             {
                  new SqlParameter("Mid",mid),
                  new SqlParameter("InvertorySum","0"),
-                 new SqlParameter("Superid",null)
+                 new SqlParameter("CreateTime",DateTime.Now)
             };
-            string InsertSql2 = @"INSERT INTO [Inventory] ([Mid],InvertorySum,Superid) VALUES (@Mid,@InvertorySum,@Superid)";
+            string InsertSql2 = @"INSERT INTO [Inventory] ([Mid],InvertorySum,CreateTime) VALUES (@Mid,@InvertorySum,@CreateTime)";
             int count2 = Com.ExecutionSqlPar(InsertSql2, par2);
-            if (count >0 && count2>0)
+            if (count > 0 && count2 > 0)
             {
                 return Utils.GetResult(200, "添加成功", "true");
             }

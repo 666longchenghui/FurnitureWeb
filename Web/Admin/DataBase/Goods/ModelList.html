@@ -86,11 +86,11 @@
             console.log(InputValue);
             console.log(ModelMax);
             if (InputValue >parseInt( ModelMax)) {
-                $(this).alertmsg('warn', '你输入的数字超过页面范围');
+                $(this).alertmsg('info', '你输入的数字超过页面范围');
                 return ;
             }       
             if (isNaN(Number(InputValue)) || InputValue == "") {
-                $(this).alertmsg('warn', '请输入数字');
+                $(this).alertmsg('info', '请输入数字');
                 return;
             }
             ModeIIndex = InputValue;

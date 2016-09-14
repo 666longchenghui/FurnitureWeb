@@ -22,8 +22,7 @@
                     var PName;
                     var No = (InvertoryDetail.index - 1) * InvertoryDetail.size;
                     $.each(data, function (k, v) {                   
-                        PName = v["Mname"];
-               
+                        PName = v["Mname"];               
                         html.push("<tr>");
                         html.push("<td>"+(++No)+"</td><td>" + v["CreateTime"] + "</td><td><a  class='btn btn-green' onclick='Detail(this,\"" + v["Number"] + "\")'>" + v["Number"] + "</a></td><td>" + v["SCompanyName"] + "</td>");
                         html.push("<td>" + v["Sum"] + "</td>");

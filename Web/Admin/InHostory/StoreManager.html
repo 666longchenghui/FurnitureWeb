@@ -80,8 +80,7 @@
         });
         //选择下拉值
         $("#store_select").live("change", function () {
-            var option = $("#store_option").find("option:selected").text();
-       
+            var option = $("#store_option").find("option:selected").text();      
             if (option>store.MaxPage) {
                 store.index = 1;
             }

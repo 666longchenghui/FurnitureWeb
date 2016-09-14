@@ -1,4 +1,5 @@
 ﻿<script type="text/javascript">
+    //9.14
     $('#outputmid').on('afterchange.bjui.lookup', function (e, data) {
         var myvalue = data.value;
         $.ajax({
@@ -42,19 +43,19 @@
         var output;
         var array = [];
         $("#Tab_OutPut tbody tr").each(function () {
-            var Out_Mnumber = $.trim($(this).find("td").eq(1).html());//获取商品的ID            
-            var Out_Sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
-            var Out_Total = $.trim($(this).find("td").eq(7).find("lable").eq(0).html());           
-            var Out_Note = $.trim($(this).find("td").eq(8).find("textarea").eq(0).val());//备注
+            var out_mid = $.trim($(this).find("td").eq(1).html());//获取商品的ID            
+            var out_sum = $.trim($(this).find("td").eq(5).find("input").eq(0).val());
+            var out_totalmoney = $.trim($(this).find("td").eq(7).find("lable").eq(0).html());
+            var out_Note = $.trim($(this).find("td").eq(8).find("textarea").eq(0).val());//备注
             output = {
-                "Mid": Out_Mnumber,
-                "Sum": Out_Sum,
-                "total": Out_Total,
-                "note": Out_Note
+                "out_mid": out_mid,
+                "out_sum": out_sum,
+                "out_totalmoney": out_totalmoney,
+                "out_Note": out_Note
             };
             array.push(output);           
         });
-        console.log(array);
+       // console.log(array);
         $.ajax({
             url: "/Ajax/AjaxOutput.ashx?action=OutputInfo",
             type: "post",
@@ -63,7 +64,15 @@
                 "accountid": accountid,
             },           
             success: function (msg) {
-
+                var json=JSON.parse(msg)
+                if (json["statusCode"]=="200") {
+                    $(this).alertmsg("ok", "操作成功", true);
+                    $(this).dialog('close', "dialog_InHostory");
+                } 
+                if (json["statusCode"]=="400") {
+                    $(this).alertmsg("warn", "操作失败", true);
+                    $(this).dialog('close', "dialog_InHostory");
+                }             
             }
         });
         //获得当前表格列的值

@@ -269,7 +269,7 @@
                                     <li data-id="Mian_AccountId" data-pid="1" data-url="DataBase/Account/AccountList.html" data-faicon="table" data-tabid="WareHouse">客户管理</li>     
                                     <li data-id="12" data-pid="1" data-url="DataBase/WareHouse/WareHouseList.html" data-faicon="table" data-tabid="WareHouse">仓库管理</li>     
                                 </ul>                          
-                                
+                               
                             </div>
                         </li>
                         <li>

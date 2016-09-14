@@ -19,8 +19,7 @@ namespace Web.Ajax
             HttpResponse res = context.Response;
             BLL.OutPut.Output put = new BLL.OutPut.Output();
          
-            try
-            {
+      
                 switch (action) {
                     //look加载客户信息
                     case "GetSelectAccount":
@@ -34,14 +33,17 @@ namespace Web.Ajax
                         string AccountId = req.Params["accountid"];                     
                         res.Write(put.SaveOutPut(outputinfo, AccountId));
                         break;
-                }
-                
+                    case "GetOutPage":
+                    string out_index = req.Params["outindex"];
+                    string out_size = req.Params["outsize"];
+                    string out_no = req.Params["outputno"];
+                    string out_create = req.Params["outputcreate"];
+                    string out_end = req.Params["outputend"];
+                    string out_account = req.Params["outAccount"];
+                    res.Write(Common.CommonClass.ToJosn(put.GetOutPage(out_index, out_size, out_no, out_create, out_end, out_account)));
+                        break;
             }
-            catch (Exception)
-            {
-
-                throw;
-            }
+         
         }
 
         public bool IsReusable

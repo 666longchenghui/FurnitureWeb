@@ -1,6 +1,142 @@
 ﻿<script type="text/javascript">
+    //9.14
     function AddOutput(_that) {
-        $(_that).dialog({ url: '/Admin/Output/AddOutPut.html', title: "新增出库单", id: 'dialog_InHostory', toggle: 'dialog', width: 800, height: 600 });
+        $(_that).dialog({ url: '/Admin/Output/AddOutPut.html', title: "新增出库单", id: 'dialog_Output', toggle: 'dialog', width: 800, height: 600 });
+    }
+    var out = {index:1,size:15,total:0,max:0}
+    //出库历史
+    function OutPage() {
+        var outputno = $("#outputNo").val();//编号
+        var outputcreate = $("#output_CreateDate").val();//开始日期
+        var outputend = $("#output_EndDate").val();//结束日期
+        var Account = $("#likeAccount").val();//客户
+        $.ajax({
+            url: "/Ajax/AjaxOutput.ashx?action=GetOutPage",
+            type: "post",
+            data: {
+                "outindex": out.index,
+                "outsize": out.size,
+                "outputno": outputno,
+                "outputcreate": outputcreate,
+                "outputend": outputend,
+                "outAccount": Account
+            },
+            success: function (msg) {
+                var json = JSON.parse(msg);
+                var date = json["page"];
+                date = JSON.parse(date)[""];
+                var count = json["count"];
+                out.total = JSON.parse(count)[""][0]["Column1"];//总条数
+                out.max = Math.ceil(out.total / out.size);
+                $("#output_total").html(out.total);
+                var html = [];
+                $.each(date, function (k, v) {
+                    html.push("<tr>")
+                    html.push("<td>" + v["rank"] + "</td><td>" + v["Out_Number"] + "</td>")
+                    html.push("<td>" + v["Out_Create"] + "</td><td>" + v["AccountName"] + "</td>")
+                    html.push("<td><a href='/Ajax/AjaxInHostory.ashx?action=DelInHoustory&Pid=" + v["Out_id"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>");
+                    html.push("<a href='#' onclick='OutPutDetail(this,\"" + v["Out_id"] + "\")' class='btn btn-green' >明细</a></td>")
+                    html.push("</tr>")  
+                });
+                $("#OutPut tbody").empty().append(html.join(''));
+                htmls = [];
+                htmls.push("<ul class='pagination'>");
+                htmls.push("<li class='out-first'><a href='javascript:'onclick='output_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
+                htmls.push("<li class='out-prev'><a href='javascript:' onclick='output_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
+                //循环出页码
+                for (var i = 1; i <= out.max; i++) {
+                    var cs = "j-sum";
+                    if (i == out.index) {
+                        cs = "selected " + cs;
+                    }
+                    htmls.push("<li class='" + cs + "'><a href='javascript:'> " + i + "</a></li>")//显示页码
+                }
+                htmls.push("<li class='out-next' ><a href='javascript:' id='n' onclick='output_next()'><span class='c_next' ><i class='fa fa-forward'></i>下一页</span></li>");
+                htmls.push("<li class='out-last'><a href='javascript:' onclick='output_last()' ><i class='fa fa-step-forward'></i>末页</a></li>")
+                htmls.push('<li class="out-jumpto"><span class="p-input"><input class="form-control input-sm-pages" type="text" size="2.6" value="" title="输入跳转页码，回车确认" id="ogo"></span><a class="ogoto" href="javascript:;" title="跳转" onclick="out_Jump()" ><i class="fa fa-chevron-right"></i></a></li>')
+                htmls.push("<ul>");
+                //    PageNum(HostoryList.max, HostoryList.index);
+                $("#output_pagination").empty().append(htmls.join(''));
+                if (out.index == 1) {
+                    $(".out-first").addClass("disabled");
+                    $(".out-prev").addClass("disabled");
+                }
+                if (out.index == out.max) {
+                    $(".out-next").addClass("disabled");
+                    $(".out-last").addClass("disabled");
+                }
+            }
+        });
+    }
+    $(function () {
+        OutPage();
+        $(".j-sum").live("click", function () {
+            var pagination = $(this).text();
+            out.index = pagination;
+            OutPage();
+        });
+        $("#output_change").live("change", function () {
+            var option = $("#output_select").find("option:selected").text();//获取下拉框选中的值
+            if (option > out.max) {
+                out.index = 1;
+            }
+            out.size = option;
+            OutPage();
+        });
+    });
+    //下一页
+
+    function output_next() {
+        if (out.index < out.max) {
+            out.index++;
+            OutPage();
+        }
+    }
+    //上一页
+    function output_prev() {
+        if (out.index > 1) {
+            out.index--;
+            OutPage();
+        }
+    }
+    //首页
+    function output_first() {
+        out.index = 1;
+        OutPage();
+    }
+    //尾页
+    function output_last() {
+        out.index = out.max;
+        OutPage();
+    }
+    function out_Jump() {
+        //$(".igoto").live("click", function () {
+        var Input_Houstory = $("#ogo").val();
+        if (Input_Houstory > out.max) {
+            $(this).alertmsg('info', "你输入的数字超出页码范围");
+            return;
+        }
+        if (isNaN(Number(Input_Houstory)) || Input_Houstory == "") {
+            $(this).alertmsg('info', "请输入数字");
+            return;
+        }
+        if (Input_Houstory < 1) {
+            $(this).alertmsg('info', "请输入大于1的数字");
+            return;
+        }
+        out.index = Input_Houstory;
+        OutPage();
+
+    }
+    function output_clear() {
+        $("#outputNo").val("");//创建日期
+        $("#output_CreateDate").val("");//结束日期
+        $("#output_EndDate").val("");//订单编号
+        $("#likeAccount").val("");//供应商
+        OutPage();
+    }
+    function output_select() {
+        OutPage();
     }
 </script>
 <div class="bjui-pageHeader">
@@ -18,75 +154,51 @@
                 <option value="3">餐饮</option>
                 <option value="4">交通</option>
             </select>&nbsp;-->
-            <label>单据编号：</label><input type="text" id="customNo" value="" name="code" class="form-control" size="10">&nbsp;
-            <label>客户名称：</label><input type="text" value="" name="name" class="form-control" size="8">&nbsp;
-            <label>商品名称：</label><input type="text" value="" name="name" class="form-control" size="8">&nbsp;
-            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
-            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            <label>单据编号：</label><input type="text" id="outputNo" value="" name="code" class="form-control" size="18">&nbsp;
+            <label>创建日期：</label><input type="text" name="custon.date" id="output_CreateDate" data-toggle="datepicker" data-rule="required;date" size="11">
+            <label>至</label><input type="text" name="end.birthday" id="output_EndDate" data-toggle="datepicker" data-rule="required;date" size="11">&nbsp;           
+            <label>客户名称：</label><input type="text" value="" name="name" class="form-control" size="10" id="likeAccount">&nbsp;           
+            <button type="button" class="btn-default" data-icon="search" onclick="output_select()">查询</button>&nbsp;
+            <a class="btn btn-orange"   data-clear-query="true" data-icon="undo" onclick="output_clear()">清空查询</a>
             <div class="pull-right">
                 <button type="button" class="btn-blue" data-toggle="doajax" onclick='AddOutput(this)' id="Btn_AddOutput"  data-icon="" title="新增出库单">新增出库单</button>&nbsp;
             </div>
         </div>
-        <div class="bjui-moreSearch">
-            <label>职业：</label><input type="text" value="" name="profession" size="15" />
-            <label>&nbsp;性别:</label>
-            <select name="sex" data-toggle="selectpicker">
-                <option value="">全部</option>
-                <option value="true">男</option>
-                <option value="false">女</option>
-            </select>
-            <label>&nbsp;手机:</label>
-            <input type="text" value="" name="mobile" size="10">
-        </div>
+    
     </form>
 </div>
 <div class="bjui-pageContent tableContent">
-    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true" id="OutPut">
         <thead>
             <tr>
-                <th>序号</th>
-                <th data-order-field="operation" align="center">创建日期</th>
+                <th>序号</th>         
                 <th data-order-field="name">单据编号</th>
+                <th data-order-field="operation" align="center">创建日期</th>
                 <th>客户名称</th>
-                <th>销售商品</th>
+                <!--<th>销售商品</th>
                 <th data-order-field="sex">销售数量</th>
                 <th data-order-field="birthday">总计金额</th>
-                <th data-order-field="birthplace">实收金额</th>
-         
+                <th data-order-field="birthplace">实收金额</th>-->         
                 <th width="100">操作</th>
             </tr>
         </thead>
         <tbody>
-            <tr data-id="1">
-                <td>联络</td>
-                <td>孙悟空</td>
-                <td>Sun</td>
-                <td>Wukong</td>
-                <td>男</td>
-                <td>0100-01-01</td>
-                <td>花果山</td>                      
-                <td>
-                    <a href="/B-JUI/form.html?id=1" class="btn btn-green" data-toggle="navtab" data-id="form" data-reload-warn="本页已有打开的内容，确定将刷新本页内容，是否继续？" data-title="编辑-孙悟空">编辑</a>
-                    <a href="/B-JUI/ajaxDone2.html" class="btn btn-red" data-toggle="doajax" data-confirm-msg="确定要删除该行信息吗？">删除</a>
-                </td>
-            </tr>
-   
         </tbody>
     </table>
 </div>
 <div class="bjui-pageFooter">
     <div class="pages">
         <span>每页&nbsp;</span>
-        <div class="selectPagesize">
-            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+        <div class="selectPagesize" id="output_change">
+            <select data-toggle="selectpicker" id="output_select">
+                <option value="15">15</option>
                 <option value="30">30</option>
-                <option value="60">60</option>
-                <option value="120">120</option>
-                <option value="150">150</option>
+                <option value="50">50</option>
+                <option value="100">100 </option>
             </select>
         </div>
-        <span>&nbsp;条，共 600 条</span>
+        <span>&nbsp;条，共 <span id="output_total"></span> 条</span>
     </div>
-    <div class="pagination-box" data-toggle="pagination" data-total="600" data-page-size="30" data-page-current="1">
+    <div class="pagination-box"  data-total="" data-page-size="30" data-page-current="1" id="output_pagination">
     </div>
 </div>

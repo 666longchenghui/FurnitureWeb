@@ -23,10 +23,10 @@
                 account.max = Math.ceil(account.total / account.size);
                 var html = [];
                 var No = (account.index - 1) * account.size;
-                $.each(date, function (k, v) {          
+                $.each(date, function (k, v) {
                     html.push("<tr>");
                     html.push("<td>" + (++No) + "</td><td>" + v["AccountNo"] + "</td><td>" + v["AccountName"] + "</td><td>" + v["AccountComTel"] + "</td><td>" + v["AccountMoney"] + "</td>");
-                    html.push("<td>" + v["AccountPhone"] + "</td><td>" + v["AccountEmail"] + "</td><td>"+v["AccountCreate"]+"</td>")         
+                    html.push("<td>" + v["AccountPhone"] + "</td><td>" + v["AccountEmail"] + "</td><td>"+v["AccountCreate"]+"</td>")
                     html.push("<td><a href='/Ajax/AjaxAccount.ashx?action=DeleteAccount&Accountid=" + v["AccountId"] + "' class='btn btn-red' data-toggle='doajax' data-confirm-msg='确定要删除该行信息吗？'>删除</a>")
                     html.push("<a href='#' onclick='UpdateAccount(this,\"" + v["AccountId"] + "\",\"" + v["AccountName"] + "\")' class='btn btn-green' >编辑</a></td>")
                     html.push("</tr>");
@@ -38,7 +38,7 @@
                 htmls.push("<ul class='pagination'>");
                 htmls.push("<li class='acc-first'><a href='javascript:'onclick='account_first()'><span class='first'><i class='fa fa-step-backward'></i>首页</span></a></li>");
                 htmls.push("<li class='acc-prev'><a href='javascript:' onclick='account_prev()'><span class='previous'><i class='fa fa-backward'></i>上一页</span></li>");
-            
+
                 for (var i = 1; i <= account.max; i++) {
                     var cs = "j-sum";
                     if (i == account.index) {
@@ -70,7 +70,7 @@
         $(".j-sum").live("click", function () {
             var pagination = $(this).text();
             account.index = pagination;
-            Account_Page();        
+            Account_Page();
         });
         $("#Account_Change").live("change", function () {
             var SelectValues = $("#Account_option").find("option:selected").html();  //获得下拉框选中的值
@@ -86,7 +86,7 @@
         $(_that).dialog({ id: "AddAccountId", onClose: "addAccount_close", url: "/Admin/DataBase/Account/AddAccount.html?id" + id, title: "编辑-" + name, reloadWarn: '本页已有打开的内容，确定将刷新本页内容，是否继续？', width: '800', height: '400' })
 
     }
-   
+
     function addAccount_close() {
         UpAccountid = undefined;
 
@@ -137,11 +137,11 @@
         $("#Account_CreateDate").val("");
         Account_Page();
     }
-    
+
 </script>
 
 <div class="bjui-pageHeader">
-    <form id="frm_AccountList" >
+    <form id="frm_AccountList">
         <input type="hidden" name="pageSize" value="${model.pageSize}">
         <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
         <input type="hidden" name="orderField" value="${param.orderField}">
@@ -158,16 +158,16 @@
             <label>客户姓名：</label><input type="text" id="accountName" value="" name="code" class="form-control" size="10">&nbsp;
             <label>创建日期：</label><input type="text" name="account.date" id="Account_CreateDate" data-toggle="datepicker" data-rule="required;date" size="11">
             <label>至</label><input type="text" name="end.date" id="Account_Enddate" data-toggle="datepicker" data-rule="required;date" size="11">
-          
+
             <button type="button" class="btn-default" data-icon="search" onclick="Account_Like()">查询</button>&nbsp;
             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo" onclick="Account_Clear()">清空查询</a>
             <div class="pull-right">
                 <a href="/Admin/DataBase/Account/AddAccount.html" class="btn btn-blue" data-toggle="dialog" data-width="800" data-height="500" data-id="AddGoodsid" ata-icon="user" data-mask="true">
                     <i class="fa fa-plus-square" size="10" aria-hidden="true">添加客户</i>
-                </a>           
+                </a>
             </div>
         </div>
-        
+
     </form>
 </div>
 <div class="bjui-pageContent tableContent">
@@ -179,10 +179,10 @@
                 <th data-order-field="name">客户编号</th>
                 <th>客户姓名</th>
                 <th>公司号码</th>
-                <th >所欠款项</th>
-                <th >客户号码</th>
-                <th >客户Email</th>
-                <th >创建时间</th>      
+                <th>所欠款项</th>
+                <th>客户号码</th>
+                <th>客户Email</th>
+                <th>创建时间</th>
                 <th width="100">操作</th>
             </tr>
         </thead>
@@ -202,6 +202,6 @@
         </div>
         <span>&nbsp;条，共 <span id="Account_Total"></span>条</span>
     </div>
-    <div class="pagination-box"data-total="600" data-page-size="30" data-page-current="1" id="Account_pagination">
+    <div class="pagination-box" data-total="600" data-page-size="30" data-page-current="1" id="Account_pagination">
     </div>
 </div>
